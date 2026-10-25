@@ -5,11 +5,91 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Barkoul.ma</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #f4f6f8;
+      text-align: center;
+    }
+    h1 { color: #167347; }
+    button {
+      padding: 12px;
+      margin: 6px;
+      border: 0;
+      border-radius: 6px;
+      background: #167347;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    input {
+      display: block;
+      width: 90%;
+      padding: 10px;
+      margin: 10px auto;
+    }
+    #formulaire { margin-top: 20px; }
+    .cache { display: none; }
+  </style>
 </head>
 <body>
-  <h1>مرحبا بك في Barkoul.ma</h1>
+  <h1>مرحبًا بك في Barkoul.ma</h1>
   <p>منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات.</p>
-  <button>أضف شحنة جديدة</button>
-  <button>ابحث عن شحنة</button>
+
+  <button onclick="afficher('ajout')">أضف شحنة جديدة</button>
+  <button onclick="afficher('recherche')">ابحث عن شحنة</button>
+
+  <div id="ajout" class="cache">
+    <h2>إضافة شحنة</h2>
+    <input id="nom" placeholder="اسم صاحب الشحنة">
+    <input id="depart" placeholder="مدينة الانطلاق">
+    <input id="arrivee" placeholder="مدينة الوصول">
+    <input id="marchandise" placeholder="نوع البضاعة">
+    <input id="telephone" placeholder="رقم الهاتف">
+    <button onclick="envoyer()">عرض معلومات الشحنة</button>
+    <p id="resultat"></p>
+  </div>
+
+  <div id="recherche" class="cache">
+    <h2>البحث عن شحنة</h2>
+    <input id="ville" placeholder="اكتب مدينة الانطلاق">
+    <button onclick="chercher()">ابحث</button>
+    <p id="resultatRecherche"></p>
+  </div>
+
+  <script>
+    function afficher(id) {
+      document.getElementById('ajout').classList.add('cache');
+      document.getElementById('recherche').classList.add('cache');
+      document.getElementById(id).classList.remove('cache');
+    }
+
+    function envoyer() {
+      const nom = document.getElementById('nom').value.trim();
+      const depart = document.getElementById('depart').value.trim();
+      const arrivee = document.getElementById('arrivee').value.trim();
+      const marchandise = document.getElementById('marchandise').value.trim();
+      const telephone = document.getElementById('telephone').value.trim();
+
+      if (!nom || !depart || !arrivee || !marchandise || !telephone) {
+        document.getElementById('resultat').textContent =
+          'يرجى ملء جميع الخانات.';
+        return;
+      }
+
+      document.getElementById('resultat').textContent =
+        'تم إدخال المعلومات في هذه الصفحة فقط. لم تُرسل إلى السائقين بعد.';
+    }
+
+    function chercher() {
+      const ville = document.getElementById('ville').value.trim();
+      document.getElementById('resultatRecherche').textContent = ville
+        ? 'البحث عن شحنات من ' + ville + ' غير متاح بعد؛ سنضيف قاعدة بيانات لاحقًا.'
+        : 'يرجى كتابة مدينة الانطلاق.';
+    }
+  </script>
 </body>
 </html>
