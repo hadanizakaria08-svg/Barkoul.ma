@@ -1,0 +1,393 @@
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#126747">
+<title>Barkoul.ma | نقل الشحنات بالمغرب</title>
+<style>
+:root {
+  --green: #126747;
+  --dark: #0b4d35;
+  --bg: #f4f8f5;
+  --border: #dce8df;
+  --text: #17251c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+.wrap { width: min(900px, 94%); margin: auto; }
+header { background: white; border-bottom: 1px solid var(--border); }
+.head {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.brand { color: var(--green); font-size: 23px; font-weight: 900; }
+.small { font-size: 12px; color: #66756b; }
+.hero { padding: 22px 0; }
+h1 { font-size: 30px; line-height: 1.4; }
+h2 { font-size: 21px; }
+p { overflow-wrap: anywhere; }
+.main-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.big {
+  min-height: 85px;
+  border: 0;
+  border-radius: 15px;
+  padding: 12px;
+  background: var(--green);
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+}
+.big.secondary {
+  background: white;
+  color: var(--green);
+  border: 2px solid var(--green);
+}
+.big span { display: block; font-size: 25px; }
+.card, .panel, .help {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+.notice {
+  background: #fff4d8;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: 14px; font-weight: bold; }
+.field input, .field select, .field textarea, .filters input, .filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #cbdacf;
+  border-radius: 10px;
+  background: white;
+  font-size: 16px;
+}
+.field textarea { min-height: 80px; }
+.btn {
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 15px;
+  font-weight: bold;
+}
+.green { background: var(--green); color: white; }
+.white { background: #eef6f0; color: var(--green); }
+.full { width: 100%; margin-top: 12px; font-size: 17px; }
+.filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.tabs button {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #eaf3ed;
+  color: var(--green);
+  font-weight: bold;
+}
+.route { color: var(--green); font-size: 19px; font-weight: bold; }
+.price { color: var(--green); font-weight: bold; }
+.empty {
+  text-align: center;
+  padding: 25px;
+  background: white;
+  border-radius: 14px;
+}
+.hidden { display: none !important; }
+footer { text-align: center; padding: 25px 0; color: #66756b; font-size: 12px; }
+@media(max-width:520px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .field.full { grid-column: auto; }
+  .big { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap head">
+    <div class="brand">
+      🚚 Barkoul.ma
+      <div class="small">ربط الشحنات بسائقي الشاحنات في المغرب</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" id="home">
+    <h1>مرحبا بك في Barkoul.ma</h1>
+    <p>اختر الخدمة التي تحتاجها.</p>
+    <div class="main-buttons">
+      <button class="big" data-view="search">
+        <span>🔎</span>ابحث عن شحنة
+      </button>
+      <button class="big secondary" data-view="add">
+        <span>📦</span>أضف شحنة
+      </button>
+    </div>
+  </section>
+
+  <section class="help">
+    <strong>طريقة الاستعمال</strong>
+    <p>🚚 سائق؟ اضغط على «ابحث عن شحنة».</p>
+    <p>📦 لديك بضاعة؟ اضغط على «أضف شحنة».</p>
+  </section>
+
+  <section id="view-add" class="hidden">
+    <h2>📦 إضافة شحنة</h2>
+    <form id="cargoForm" class="panel">
+      <div class="form-grid">
+        <div class="field">
+          <label for="owner">اسم صاحب الشحنة *</label>
+          <input id="owner" required maxlength="80">
+        </div>
+        <div class="field">
+          <label for="phone">رقم الهاتف *</label>
+          <input id="phone" required inputmode="tel" placeholder="0612345678">
+        </div>
+        <div class="field">
+          <label for="from">مدينة الانطلاق *</label>
+          <input id="from" required placeholder="الدار البيضاء">
+        </div>
+        <div class="field">
+          <label for="to">مدينة الوصول *</label>
+          <input id="to" required placeholder="طنجة">
+        </div>
+        <div class="field">
+          <label for="goods">نوع البضاعة *</label>
+          <input id="goods" required placeholder="مواد بناء، خضر...">
+        </div>
+        <div class="field">
+          <label for="truck">نوع الشاحنة *</label>
+          <select id="truck" required>
+            <option value="">اختر نوع الشاحنة</option>
+            <option>شاحنة صغيرة</option>
+            <option>3.5 طن</option>
+            <option>7.5 طن</option>
+            <option>شاحنة 10 طن</option>
+            <option>شاحنة 19 طن</option>
+            <option>شاحنة كبيرة</option>
+            <option>نصف مقطورة</option>
+            <option>مبردة</option>
+            <option>حاوية</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="weight">الوزن التقريبي</label>
+          <input id="weight" placeholder="مثال: 5 أطنان">
+        </div>
+        <div class="field">
+          <label for="date">تاريخ التحميل *</label>
+          <input id="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="price">السعر بالدرهم</label>
+          <input id="price" type="number" min="0" placeholder="1500">
+        </div>
+        <div class="field full">
+          <label for="notes">ملاحظات</label>
+          <textarea id="notes" maxlength="500"></textarea>
+        </div>
+      </div>
+      <button class="btn green full" type="submit">نشر الشحنة</button>
+      <button class="btn white full" type="button" data-view="home">رجوع للرئيسية</button>
+      <div id="addMsg"></div>
+    </form>
+  </section>
+
+  <section id="view-search" class="hidden">
+    <h2>🔎 البحث عن شحنة</h2>
+    <div class="filters">
+      <input id="qFrom" placeholder="مدينة الانطلاق">
+      <input id="qTo" placeholder="مدينة الوصول">
+      <input id="qGoods" placeholder="نوع البضاعة">
+      <select id="qTruck">
+        <option value="">كل الشاحنات</option>
+        <option>شاحنة صغيرة</option>
+        <option>3.5 طن</option>
+        <option>7.5 طن</option>
+        <option>شاحنة 10 طن</option>
+        <option>شاحنة 19 طن</option>
+        <option>شاحنة كبيرة</option>
+        <option>نصف مقطورة</option>
+        <option>مبردة</option>
+        <option>حاوية</option>
+      </select>
+    </div>
+    <div class="tabs">
+      <button id="searchButton">بحث</button>
+      <button id="resetButton">عرض الكل</button>
+      <button data-view="add">＋ أضف شحنة</button>
+    </div>
+    <div id="cargoList"></div>
+    <button class="btn white full" data-view="home">رجوع للرئيسية</button>
+  </section>
+
+  <section id="view-payment" class="hidden">
+    <h2>رسوم التواصل</h2>
+    <div class="panel">
+      <p>صاحب الشحنة: <strong>10 دراهم</strong></p>
+      <p>السائق: <strong>20 درهمًا</strong></p>
+      <div class="notice">
+        الدفع الإلكتروني الحقيقي غير مفعّل في هذه النسخة.
+        لن نكشف معلومات الاتصال قبل ربط الدفع والتحقق منه.
+      </div>
+      <button class="btn white full" data-view="home">رجوع للرئيسية</button>
+    </div>
+  </section>
+</main>
+
+<footer>© <span id="year"></span> Barkoul.ma</footer>
+
+<script>
+const STORE_KEY = "barkoul_cargos_local_v1";
+const $ = id => document.getElementById(id);
+const pages = ["home", "add", "search", "payment"];
+
+function view(name) {
+  pages.forEach(p => {
+    const el = $("view-" + p);
+    if (el) el.classList.toggle("hidden", p !== name);
+  });
+  $("home").classList.toggle("hidden", name !== "home");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (name === "search") render();
+}
+
+document.querySelectorAll("[data-view]").forEach(button => {
+  button.addEventListener("click", () => view(button.dataset.view));
+});
+
+function getCargos() {
+  try {
+    return JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveCargos(cargos) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(cargos));
+}
+
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+function render() {
+  const from = $("qFrom").value.trim().toLowerCase();
+  const to = $("qTo").value.trim().toLowerCase();
+  const goods = $("qGoods").value.trim().toLowerCase();
+  const truck = $("qTruck").value;
+
+  const cargos = getCargos().filter(c =>
+    (!from || c.from.toLowerCase().includes(from)) &&
+    (!to || c.to.toLowerCase().includes(to)) &&
+    (!goods || c.goods.toLowerCase().includes(goods)) &&
+    (!truck || c.truck === truck)
+  );
+
+  const list = $("cargoList");
+  list.innerHTML = "";
+
+  if (!cargos.length) {
+    list.innerHTML = '<div class="empty">📭<p>لا توجد شحنات مطابقة.</p></div>';
+    return;
+  }
+
+  cargos.forEach(c => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <strong>${safe(c.goods)}</strong>
+      <div class="price">${c.price ? safe(c.price) + " درهم" : "السعر بالاتفاق"}</div>
+      <div class="route">${safe(c.from)} ← ${safe(c.to)}</div>
+      <p>🚚 ${safe(c.truck)}</p>
+      <p>⚖ الوزن: ${safe(c.weight || "غير محدد")}</p>
+      <p>📅 التحميل: ${safe(c.date)}</p>
+      <p>${safe(c.notes || "")}</p>
+      <p class="small">الاتصال والدفع غير مفعّلين في هذه النسخة.</p>`;
+    list.appendChild(card);
+  });
+}
+
+$("cargoForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const from = $("from").value.trim();
+  const to = $("to").value.trim();
+  const date = $("date").value;
+
+  if (from.toLowerCase() === to.toLowerCase()) {
+    alert("اختر مدينتين مختلفتين.");
+    return;
+  }
+
+  if (date < new Date().toISOString().slice(0, 10)) {
+    alert("تاريخ التحميل لا يمكن أن يكون في الماضي.");
+    return;
+  }
+
+  const cargo = {
+    id: Date.now().toString(),
+    owner: $("owner").value.trim(),
+    phone: $("phone").value.trim(),
+    from,
+    to,
+    goods: $("goods").value.trim(),
+    truck: $("truck").value,
+    weight: $("weight").value.trim(),
+    date,
+    price: $("price").value,
+    notes: $("notes").value.trim()
+  };
+
+  try {
+    const all = getCargos();
+    all.unshift(cargo);
+    saveCargos(all);
+  } catch {
+    alert("تعذر الحفظ على هذا الجهاز.");
+    return;
+  }
+
+  $("addMsg").textContent = "تم حفظ الشحنة على هذا الجهاز فقط.";
+  event.target.reset();
+  view("search");
+});
+
+$("searchButton").addEventListener("click", render);
+$("resetButton").addEventListener("click", () => {
+  ["qFrom", "qTo", "qGoods", "qTruck"].forEach(id => $(id).value = "");
+  render();
+});
+
+$("year").textContent = new Date().getFullYear();
+$("date").min = new Date().toISOString().slice(0, 10);
+</script>
+</body>
+</html>
