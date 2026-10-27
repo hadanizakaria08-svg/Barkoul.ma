@@ -1,96 +1,39 @@
-    <!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#126747">
-<title>Barkoul.ma | ربط الشحنات بسائقي الشاحنات</title>
-<meta name="description" content="Barkoul.ma منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات الكبيرة ورؤوس القاطرات ونصف المقطورات.">
-<style>
-:root{--g:#126747;--gd:#0b4c34;--mint:#e8f4ed;--bg:#f5f8f6;--ink:#192720;--muted:#68766e;--line:#dce5df;--white:#fff;--amber:#fff4d8;--red:#fff0ee}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.65}button,input,select,textarea{font:inherit}button{border:0;border-radius:12px;padding:12px 16px;font-weight:750;cursor:pointer}.primary{background:var(--g);color:white}.primary:hover{background:var(--gd)}.secondary{background:var(--mint);color:var(--gd)}.outline{background:white;color:var(--g);border:1px solid var(--line)}.danger{background:var(--red);color:#a21d15}.top{background:var(--g);color:white;padding:18px 14px}.container{max-width:980px;margin:auto;padding:14px}.top-inner{max-width:980px;margin:auto}.brand{font-size:clamp(28px,6vw,40px);font-weight:900;margin:0}.tag{margin:0;color:#e1f2e8}.nav{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.nav button{flex:1;background:#ffffff1b;color:white;border:1px solid #ffffff50;padding:10px 12px}.nav button.active{background:white;color:var(--g)}h2{font-size:25px;line-height:1.3;margin:0 0 10px}h3{margin:0 0 10px}.hero{padding:18px 2px}.hero p,.muted{color:var(--muted)}.hero p{margin:7px 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:17px;margin:13px 0;box-shadow:0 7px 24px #153c2808}.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}.field label{font-weight:700;font-size:14px}.field input,.field select,.field textarea{width:100%;min-height:46px;border:1px solid #cbd7cf;border-radius:10px;padding:10px 11px;background:white;color:var(--ink)}.field textarea{min-height:85px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{outline:3px solid #12674720;border-color:var(--g)}.row,.actions{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}.actions{margin-top:12px}.actions button{flex:1}.hidden{display:none!important}.notice{padding:12px 14px;border-radius:12px;background:var(--mint);margin:12px 0;color:#15573d}.notice.warn{background:var(--amber);color:#72520b}.notice.err{background:var(--red);color:#9b2118}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px;text-align:center}.stat strong{display:block;font-size:22px;color:var(--g)}.pill{display:inline-block;border-radius:999px;background:var(--mint);color:var(--gd);padding:3px 9px;font-size:12px;font-weight:750}.shipment{background:white;border:1px solid var(--line);border-radius:15px;padding:15px;margin:12px 0}.shipment h3{margin:7px 0}.details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.details div{background:#f7faf8;border-radius:9px;padding:8px;overflow-wrap:anywhere}.small{font-size:12px}.empty{text-align:center;padding:22px;color:var(--muted)}.check{display:flex;align-items:flex-start;gap:8px;margin:12px 0}.check input{margin-top:7px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:25px 10px}.legal{font-size:13px;color:var(--muted)}hr{border:0;border-top:1px solid var(--line);margin:15px 0}
-@media(max-width:640px){.container{padding:10px}.card{padding:14px}.grid{grid-template-columns:1fr}.nav button{font-size:13px;padding:9px 6px}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.details{grid-template-columns:1fr 1fr}}
-</style>
-</head>
-<body>
-<header class="top"><div class="top-inner">
-<h1 class="brand">Barkoul.ma 🚛</h1>
-<p class="tag">منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات</p>
-<nav class="nav" aria-label="القائمة">
-<button class="active" data-page="home">الرئيسية</button><button data-page="add">أضف شحنة</button><button data-page="search">ابحث عن شحنة</button><button data-page="driver">للسائقين</button><button data-page="about">عن المنصة</button>
-</nav></div></header>
-<main class="container">
-<section id="page-home" class="page">
-<div class="hero"><h2>شحنة مناسبة، وسائق مناسب</h2><p>ابدأ من مدينة الانطلاق إلى مدينة الوصول. صُممت Barkoul.ma لتسهيل التواصل بين أصحاب البضائع وسائقي الشاحنات في المغرب.</p><div class="actions"><button class="primary" data-go="add">＋ أضف شحنة</button><button class="secondary" data-go="search">⌕ ابحث عن شحنة</button></div></div>
-<div class="stats"><div class="stat"><strong id="stat-ships">0</strong><span class="small">شحنات على هذا الجهاز</span></div><div class="stat"><strong>المغرب</strong><span class="small">السوق المستهدف</span></div><div class="stat"><strong>0 DH</strong><span class="small">لا رسوم داخل هذه النسخة</span></div></div>
-<div class="grid">
-<article class="card"><h3>📦 لأصحاب البضائع</h3><p class="muted">أدخل المسار ونوع البضاعة وبيانات التواصل، ثم احفظ إعلان الشحنة.</p><button class="primary" data-go="add">إضافة شحنة</button></article>
-<article class="card"><h3>🚚 لسائقي الشاحنات</h3><p class="muted">ابحث حسب المدن ونوع الشاحنة، ثم تواصل مع صاحب الإعلان للتفاوض.</p><button class="secondary" data-go="search">البحث عن شحنات</button></article>
-</div>
-<div class="notice warn"><strong>تنبيه مهم:</strong> هذه النسخة تحفظ الإعلانات في المتصفح والجهاز الحالي فقط. لا يمكن للآخرين رؤية الإعلانات من هواتفهم بعدُ. يلزم ربط قاعدة بيانات وخادم مشترك قبل إطلاق الخدمة للجمهور.</div>
-</section>
+alter table public.cargos enable row level security;
+alter table public.profiles enable row level security;
 
-<section id="page-add" class="page hidden">
-<div class="card"><h2>إضافة شحنة جديدة</h2><p class="muted">املأ المعلومات المطلوبة. استخدم بيانات وهمية أثناء التجربة.</p>
-<form id="add-form">
-<div class="grid">
-<div class="field"><label for="owner">اسم صاحب الشحنة *</label><input id="owner" maxlength="70" required placeholder="الاسم أو اسم الشركة"></div>
-<div class="field"><label for="phone">رقم الهاتف للتواصل *</label><input id="phone" inputmode="tel" maxlength="20" required placeholder="رقم للتواصل"></div>
-<div class="field"><label for="from">مدينة الانطلاق *</label><select id="from" required></select></div>
-<div class="field"><label for="to">مدينة الوصول *</label><select id="to" required></select></div>
-<div class="field"><label for="goods">نوع البضاعة *</label><select id="goods" required><option value="">اختر نوع البضاعة</option><option>مواد غذائية</option><option>ملابس ونسيج</option><option>مواد البناء</option><option>أثاث وأجهزة منزلية</option><option>مواد صناعية</option><option>منتجات فلاحية</option><option>معدات وآلات</option><option>بضائع عامة</option><option>أخرى</option></select></div>
-<div class="field"><label for="weight">الوزن التقريبي</label><input id="weight" maxlength="60" placeholder="مثال: 5 أطنان"></div>
-<div class="field"><label for="truck">نوع الشاحنة المطلوبة *</label><select id="truck" required><option value="">اختر نوع الشاحنة</option><option>شاحنة كبيرة</option><option>رأس قاطرة مع نصف مقطورة</option><option>شاحنة بصندوق مغلق</option><option>شاحنة مبردة</option><option>شاحنة مسطحة</option><option>صهريج (حسب نوع الحمولة)</option><option>غير متأكد - اقترحوا المناسب</option></select></div>
-<div class="field"><label for="date">تاريخ الشحن المتوقع</label><input id="date" type="date"></div>
-<div class="field"><label for="price">السعر المقترح (اختياري، بالدرهم)</label><input id="price" type="number" min="0" step="50" placeholder="اتركه فارغًا للتفاوض"></div>
-<div class="field"><label for="loading">طريقة التحميل</label><select id="loading"><option value="">غير محدد</option><option>تحميل وتفريغ من طرف المرسل والمستلم</option><option>أحتاج مساعدة في التحميل</option><option>حسب الاتفاق</option></select></div>
-</div>
-<div class="field"><label for="notes">تفاصيل إضافية (اختياري)</label><textarea id="notes" maxlength="600" placeholder="موعد التحميل، الأبعاد، شروط النقل، معلومات غير حساسة..."></textarea></div>
-<label class="check"><input id="consent" type="checkbox" required><span>أوافق على إظهار بيانات التواصل في هذا الإعلان التجريبي لمن يبحث على هذا الجهاز. *</span></label>
-<div id="add-message" aria-live="polite"></div>
-<div class="actions"><button class="primary" type="submit">حفظ الشحنة</button><button class="outline" type="reset">مسح الخانات</button></div>
-</form></div>
-</section>
+drop policy if exists "Public can read open cargos" on public.cargos;
+create policy "Public can read open cargos"
+on public.cargos for select
+using (status = 'open');
 
-<section id="page-search" class="page hidden">
-<div class="card"><h2>البحث عن شحنة</h2><p class="muted">استخدم مدينة الانطلاق أو الوصول أو نوع البضاعة أو الشاحنة لتصفية الإعلانات المحفوظة على هذا الجهاز.</p>
-<form id="search-form"><div class="grid">
-<div class="field"><label for="q-from">مدينة الانطلاق</label><select id="q-from"></select></div>
-<div class="field"><label for="q-to">مدينة الوصول</label><select id="q-to"></select></div>
-<div class="field"><label for="q-goods">نوع البضاعة</label><select id="q-goods"><option value="">كل أنواع البضائع</option><option>مواد غذائية</option><option>ملابس ونسيج</option><option>مواد البناء</option><option>أثاث وأجهزة منزلية</option><option>مواد صناعية</option><option>منتجات فلاحية</option><option>معدات وآلات</option><option>بضائع عامة</option><option>أخرى</option></select></div>
-<div class="field"><label for="q-truck">نوع الشاحنة</label><select id="q-truck"><option value="">كل أنواع الشاحنات</option><option>شاحنة كبيرة</option><option>رأس قاطرة مع نصف مقطورة</option><option>شاحنة بصندوق مغلق</option><option>شاحنة مبردة</option><option>شاحنة مسطحة</option><option>صهريج (حسب نوع الحمولة)</option><option>غير متأكد - اقترحوا المناسب</option></select></div>
-</div><div class="actions"><button class="primary" type="submit">ابحث عن شحنات</button><button class="outline" type="reset" id="clear-search">إلغاء التصفية</button></div></form></div>
-<div id="results" aria-live="polite"></div>
-</section>
+drop policy if exists "Users insert own cargos" on public.cargos;
+create policy "Users insert own cargos"
+on public.cargos for insert to authenticated
+with check (owner_id = (select auth.uid()));
 
-<section id="page-driver" class="page hidden">
-<div class="card"><h2>مساحة السائقين</h2><p>هذه النسخة تتيح للسائق البحث عن الشحنات المحفوظة على الجهاز نفسه. لاحقًا يمكن إضافة حساب سائق، نوع الشاحنة، المدن التي يعمل فيها، وإرسال عرض سعر لصاحب الشحنة.</p><div class="notice warn">لا توجد حسابات أو رسائل داخلية في النسخة الحالية. لا تعتبر أي إعلان عقد نقل مؤكدًا قبل التحقق من هوية الطرف الآخر والاتفاق على الشروط كتابةً.</div><button class="primary" data-go="search">ابدأ البحث عن شحنة</button></div></section>
+drop policy if exists "Users update own cargos" on public.cargos;
+create policy "Users update own cargos"
+on public.cargos for update to authenticated
+using (owner_id = (select auth.uid()))
+with check (owner_id = (select auth.uid()));
 
-<section id="page-about" class="page hidden">
-<div class="card"><h2>عن Barkoul.ma</h2><p>فكرة المنصة: ربط أصحاب البضائع بسائقي الشاحنات الكبيرة ورؤوس القاطرات ونصف المقطورات، مع استهداف جميع مدن المغرب، وتطوير نموذج عمل يعتمد على عمولة الرحلة بعد الاتفاق بين الطرفين.</p><h3>ما الذي يعمل في هذا الملف؟</h3><ul><li>استمارة إضافة إعلان والتحقق من الحقول المطلوبة.</li><li>حفظ الإعلان محليًا على الجهاز والمتصفح نفسه.</li><li>البحث والتصفية حسب المسار والبضاعة والشاحنة.</li><li>فتح الاتصال الهاتفي من جهاز يدعم المكالمات.</li><li>حذف إعلان محفوظ على الجهاز الحالي.</li></ul><h3>ما المطلوب قبل الإطلاق الحقيقي؟</h3><ul><li>قاعدة بيانات مشتركة وخادم آمن كي تظهر الإعلانات لجميع المستخدمين.</li><li>تسجيل دخول والتحقق من أرقام الهاتف.</li><li>لوحة إدارة للإعلانات والتبليغات وحظر المحتوى الاحتيالي.</li><li>شروط الاستخدام وسياسة الخصوصية وإجراءات حذف البيانات.</li><li>آلية اتفاق واضحة للعمولة والفوترة والنزاعات قبل تحصيل أي مبلغ.</li></ul><p class="legal">لا تضع بيانات شخصية أو شحنات حقيقية في النسخة الحالية. لم يتم تفعيل الدفع أو تحصيل العمولة، ولا يوجد ربط مركزي بالسائقين.</p></div></section>
-</main>
-<footer class="footer">Barkoul.ma · نسخة واجهة متقدمة · ليست بعد خدمة نقل عامة متصلة بقاعدة بيانات مركزية.</footer>
-<script>
-(()=>{"use strict";
-const KEY="barkoul_ma_v2";const $=id=>document.getElementById(id);
-const cities=["أكادير","الحاجب","الحسيمة","الدار البيضاء","الداخلة","الراشيدية","العرائش","العيون","القنيطرة","الكلية","المحمدية","المضيق","الناظور","الرباط","الرشيدية","الريصاني","آسفي","أزيلال","أصيلة","أكلموس","إفران","الجديدة","الجرف الأصفر","الحسيمة","الداخلة","الدار البيضاء","الداوديات","الرحامنة","الريصاني","السمارة","السوالم","الشفشاون","الصويرة","الفقيه بن صالح","القصر الكبير","القلعة","الكرارة","الكارة","المحمدية","المضيق","المغرب","الناظور","النعيمة","الواليدية","الوزان","بني ملال","بركان","برشيد","بوجدور","بوعرفة","بولمان","تازة","تارودانت","تافراوت","تاوريرت","تطوان","تنغير","تيزنيت","جرادة","جرسيف","جماعة","خريبكة","خنيفرة","دمنات","سلا","سطات","سيدي إفني","سيدي بنور","سيدي سليمان","سيدي قاسم","شفشاون","صفرو","طنجة","طانطان","طرفاية","طاطا","فاس","فكيك","قلعة السراغنة","كلميم","مراكش","مكناس","ميدلت","وجدة","ورزازات","وزان","اليوسفية","تمارة","تيفلت","بنسليمان","بوسكورة","البرنوصي","عين السبع","الوليدية","الزمامرة","أولاد تايمة","أولاد برحيل","سوق الأربعاء الغرب","سيدي يحيى الغرب","الفنيدق","مرتيل","تارجيست","إمزورن","بني أنصار","زايو","الدريوش","أرفود","زاكورة","الريش","قلعة مكونة","آيت ملول","إنزكان","الدشيرة الجهادية","تيكوين","أولاد صالح","دار بوعزة","المنصورية","بئر الجديد","أزمور","اليوسفية","الزمامرة","الشماعية","جمعة سحيم","سبت جزولة","ابن جرير","الصخيرات","عين عودة","سيدي علال البحراوي","الخميسات","الرماني","مولاي يعقوب","إيموزار كندر","بولمان","أكنول","تاهلة","وادي أمليل","جرسيف","تندرارة","فجيج","العيون الشرقية","السعيدية","أحفير","أكليم","الدريوش","بن الطيب","ميسور","أوطاط الحاج","تنجداد","النيف","بومالن دادس","ورزازات","تنغير","زاكورة","طاطا","فم زكيد","أسا","الزاك","السمارة","بوجدور","طرفاية","الداخلة"];
-const uniq=[...new Set(cities)].sort((a,b)=>a.localeCompare(b,"ar"));
-function cityOptions(sel,placeholder){sel.innerHTML='<option value="">'+placeholder+'</option>'+uniq.map(c=>'<option>'+c+'</option>').join("");}
-cityOptions($("from"),"اختر مدينة الانطلاق");cityOptions($("to"),"اختر مدينة الوصول");cityOptions($("q-from"),"كل مدن الانطلاق");cityOptions($("q-to"),"كل مدن الوصول");
-let ships=[];try{const d=JSON.parse(localStorage.getItem(KEY)||"[]");if(Array.isArray(d))ships=d;}catch(e){}
-const norm=x=>String(x||"").trim().toLocaleLowerCase("ar");
-const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function save(){try{localStorage.setItem(KEY,JSON.stringify(ships));return true;}catch(e){return false;}}
-function go(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$("page-"+p).classList.remove("hidden");document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===p));if(p==="search")render(filter());window.scrollTo({top:0,behavior:"smooth"});}
-document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
-document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
-function update(){ $("stat-ships").textContent=ships.length; }
-$("add-form").addEventListener("submit",e=>{e.preventDefault();const item={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),owner:$("owner").value.trim(),phone:$("phone").value.trim(),from:$("from").value,to:$("to").value,goods:$("goods").value,weight:$("weight").value.trim(),truck:$("truck").value,date:$("date").value,price:$("price").value,loading:$("loading").value,notes:$("notes").value.trim(),created:new Date().toISOString()};if(!item.owner||!item.phone||!item.from||!item.to||!item.goods||!item.truck||!$("consent").checked){$("add-message").innerHTML='<div class="notice err">يرجى إكمال جميع الخانات المطلوبة والموافقة على شروط الإعلان.</div>';return;}if(item.from===item.to){$("add-message").innerHTML='<div class="notice err">اختر مدينة وصول مختلفة عن مدينة الانطلاق.</div>';return;}if(item.phone.replace(/[^0-9]/g,"").length<9){$("add-message").innerHTML='<div class="notice err">يرجى التحقق من رقم الهاتف.</div>';return;}ships.unshift(item);if(!save()){ships.shift();$("add-message").innerHTML='<div class="notice err">تعذر الحفظ على هذا الجهاز. تحقق من إعدادات المتصفح.</div>';return;}update();e.target.reset();$("add-message").innerHTML='<div class="notice">تم حفظ الإعلان على هذا الجهاز. يمكنك البحث عنه من قسم «ابحث عن شحنة» في المتصفح نفسه.</div>';});
-function filter(){const f=norm($("q-from").value),t=norm($("q-to").value),g=norm($("q-goods").value),tr=norm($("q-truck").value);return ships.filter(s=>(!f||norm(s.from)===f)&&(!t||norm(s.to)===t)&&(!g||norm(s.goods)===g)&&(!tr||norm(s.truck)===tr));}
-function render(list){const host=$("results");if(!list.length){host.innerHTML='<div class="card empty"><strong>لا توجد شحنات مطابقة.</strong><p>أضف إعلانًا أولًا أو غيّر معايير البحث. هذه النسخة لا تعرض إعلانات من أجهزة أخرى.</p><button class="primary" data-go="add">إضافة شحنة</button></div>';host.querySelector("[data-go]")?.addEventListener("click",()=>go("add"));return;}host.innerHTML='<h3>نتائج البحث: '+list.length+'</h3>'+list.map(s=>'<article class="shipment"><span class="pill">إعلان شحنة</span><h3>'+esc(s.from)+' ← '+esc(s.to)+'</h3><div class="details"><div><b>نوع البضاعة</b><br>'+esc(s.goods)+'</div><div><b>الوزن</b><br>'+esc(s.weight||"غير محدد")+'</div><div><b>الشاحنة</b><br>'+esc(s.truck)+'</div><div><b>موعد الشحن</b><br>'+esc(s.date||"حسب الاتفاق")+'</div><div><b>السعر المقترح</b><br>'+(s.price?esc(s.price)+" درهم":"قابل للتفاوض")+'</div><div><b>التحميل</b><br>'+esc(s.loading||"غير محدد")+'</div></div><p>'+esc(s.notes||"لا توجد تفاصيل إضافية.")+'</p><p class="small">صاحب الإعلان: '+esc(s.owner)+'</p><div class="actions"><a href="tel:'+esc(s.phone.replace(/[^0-9+]/g,""))+'"><button class="primary" type="button">اتصل بصاحب الشحنة</button></a><button class="danger" data-del="'+esc(s.id)+'">حذف الإعلان</button></div></article>').join("");host.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{if(confirm("حذف هذا الإعلان من هذا الجهاز؟")){ships=ships.filter(s=>s.id!==b.dataset.del);save();update();render(filter());}}));}
-$("search-form").addEventListener("submit",e=>{e.preventDefault();render(filter());});
-$("clear-search").addEventListener("click",()=>setTimeout(()=>render(ships),0));
-update();render(ships);
-})();
-</script>
-</body></html>
+drop policy if exists "Users delete own cargos" on public.cargos;
+create policy "Users delete own cargos"
+on public.cargos for delete to authenticated
+using (owner_id = (select auth.uid()));
+
+drop policy if exists "Users read own profile" on public.profiles;
+create policy "Users read own profile"
+on public.profiles for select to authenticated
+using (id = (select auth.uid()));
+
+drop policy if exists "Users create own profile" on public.profiles;
+create policy "Users create own profile"
+on public.profiles for insert to authenticated
+with check (id = (select auth.uid()));
+
+drop policy if exists "Users update own profile" on public.profiles;
+create policy "Users update own profile"
+on public.profiles for update to authenticated
+using (id = (select auth.uid()))
+with check (id = (select auth.uid()));
