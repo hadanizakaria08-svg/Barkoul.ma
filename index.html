@@ -12,9 +12,9 @@
 body{margin:0;background:var(--bg);color:#17251e;font-family:Arial,Tahoma,sans-serif}
 .wrap{max-width:850px;margin:auto;padding:14px}
 header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0}
-h1,h2,p{margin-top:0}
 .brand{color:var(--g);font-size:24px;font-weight:bold}
-button{border:0;border-radius:10px;padding:12px 15px;font-weight:bold;cursor:pointer}
+button{border:0;border-radius:10px;padding:12px 15px;font-weight:bold;cursor:pointer;font-family:inherit}
+button:disabled{opacity:.5}
 .primary{background:var(--g);color:white}
 .secondary{background:var(--light);color:var(--g)}
 .panel{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
@@ -26,26 +26,34 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
 .field{min-width:0}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .muted{color:#63736a;line-height:1.7}
-.status{padding:10px;background:var(--light);border-radius:9px;margin-top:12px;white-space:pre-wrap}
+.status{padding:10px;background:var(--light);border-radius:9px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .card{background:white;border:1px solid var(--line);border-radius:12px;padding:13px;overflow-wrap:anywhere}
 .route{color:var(--g);font-weight:bold;font-size:17px}
 .price{font-weight:bold;font-size:18px;margin-top:8px}
 .hidden{display:none!important}
-.socials{display:flex;justify-content:center;gap:12px;margin:14px 0 8px}
-.social{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;text-decoration:none;font-weight:bold;font-size:22px}
-.whatsapp{background:#25D366}
-.facebook{background:#1877F2}
-.x-social{background:#000}
-.instagram{background:#C13584}
-.social svg{width:22px;height:22px;fill:currentColor}
-@media(max-width:560px){.roles,.fields,.filters,.cards{grid-template-columns:1fr}header{align-items:flex-start}.brand{font-size:21px}}
+.socials{display:flex;align-items:center;gap:7px}
+.social{width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;text-decoration:none;font-weight:bold;font-size:20px}
+.whatsapp{background:#25D366}.facebook{background:#1877F2}
+.x-social{background:#000}.instagram{background:#C13584}
+@media(max-width:560px){
+.wrap{padding:10px}.roles,.fields,.filters,.cards{grid-template-columns:1fr}
+.brand{font-size:20px}.social{width:30px;height:30px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <div><div class="brand">🚚 Barkoul.ma</div><small>ربط الشحنات بسائقي الشاحنات في المغرب</small></div>
-  <button class="secondary" id="accountBtn">دخول / حساب</button>
+  <div>
+    <div class="brand">🚚 Barkoul.ma</div>
+    <small>ربط الشحنات بسائقي الشاحنات في المغرب</small>
+  </div>
+  <nav class="socials" aria-label="مواقع التواصل">
+    <a class="social whatsapp" href="https://wa.me/" target="_blank" rel="noopener">◉</a>
+    <a class="social facebook" href="https://www.facebook.com/" target="_blank" rel="noopener">f</a>
+    <a class="social x-social" href="https://x.com/" target="_blank" rel="noopener">𝕏</a>
+    <a class="social instagram" href="https://www.instagram.com/" target="_blank" rel="noopener">◎</a>
+  </nav>
 </header>
 
 <section class="hero">
@@ -57,9 +65,9 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
   </div>
 </section>
 
-<section class="panel" id="authPanel">
+<section class="panel hidden" id="authPanel">
   <h2>الدخول أو إنشاء حساب</h2>
-  <p class="muted">البريد الإلكتروني غير مطلوب للتصفح. لا تتوفر البصمة في هذه النسخة.</p>
+  <p class="muted">سجّل الدخول أو أنشئ حساباً لإضافة شحنة.</p>
   <div class="fields">
     <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="email"></div>
     <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password"></div>
@@ -67,7 +75,8 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
   <div class="actions">
     <button class="primary" id="loginBtn">تسجيل الدخول</button>
     <button class="secondary" id="signupBtn">إنشاء حساب</button>
-    <button class="secondary" id="logoutBtn">تسجيل الخروج</button>
+    <button class="secondary hidden" id="logoutBtn">تسجيل الخروج</button>
+    <button class="secondary" id="closeAuthBtn">إغلاق</button>
   </div>
   <div id="authMsg" class="status hidden"></div>
 </section>
@@ -81,10 +90,9 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
     <div class="field"><label for="truckFilter">نوع الشاحنة</label>
       <select id="truckFilter">
         <option value="">كل الشاحنات</option>
-        <option>شاحنة صغيرة</option><option>3.5 طن</option>
-        <option>7.5 طن</option><option>10 طن</option><option>19 طن</option>
-        <option>شاحنة كبيرة</option><option>رأس قاطر ومقطورة</option>
-        <option>مبردة</option><option>حاويات</option>
+        <option>شاحنة صغيرة</option><option>3.5 طن</option><option>7.5 طن</option>
+        <option>10 طن</option><option>19 طن</option><option>شاحنة كبيرة</option>
+        <option>رأس قاطر ومقطورة</option><option>مبردة</option><option>حاويات</option>
       </select>
     </div>
   </div>
@@ -92,13 +100,12 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
     <button class="primary" id="searchBtn">بحث</button>
     <button class="secondary" id="allBtn">عرض الكل</button>
   </div>
-  <div id="searchMsg" class="status">يلزم إعداد المفتاح العام وصلاحيات القراءة في Supabase لتحميل الشحنات.</div>
+  <div id="searchMsg" class="status">جارٍ تهيئة الموقع…</div>
   <div id="cargoList" class="cards" style="margin-top:12px"></div>
 </section>
 
 <section class="panel hidden" id="addPanel">
   <h2>＋ إضافة شحنة</h2>
-  <p class="muted">تحتاج إلى تسجيل الدخول. لا تضع معلومات اتصال خاصة في الملاحظات.</p>
   <div class="fields">
     <div class="field"><label for="title">عنوان الشحنة *</label><input id="title" maxlength="100"></div>
     <div class="field"><label for="goods">نوع البضاعة *</label><input id="goods" maxlength="80"></div>
@@ -106,33 +113,25 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
     <div class="field"><label for="destination">مدينة الوصول *</label><input id="destination" maxlength="80"></div>
     <div class="field"><label for="weight">الوزن</label><input id="weight" maxlength="80"></div>
     <div class="field"><label for="truck">نوع الشاحنة</label>
-      <select id="truck"><option value="">غير محدد</option>
-        <option>شاحنة صغيرة</option><option>3.5 طن</option><option>7.5 طن</option>
-        <option>10 طن</option><option>19 طن</option><option>شاحنة كبيرة</option>
-        <option>رأس قاطر ومقطورة</option><option>مبردة</option><option>حاويات</option>
+      <select id="truck">
+        <option value="">غير محدد</option><option>شاحنة صغيرة</option><option>3.5 طن</option>
+        <option>7.5 طن</option><option>10 طن</option><option>19 طن</option>
+        <option>شاحنة كبيرة</option><option>رأس قاطر ومقطورة</option><option>مبردة</option><option>حاويات</option>
       </select>
     </div>
     <div class="field"><label for="date">تاريخ التحميل</label><input id="date" type="date"></div>
-    <div class="field"><label for="price">السعر المقترح بالدرهم</label><input id="price" type="number" min="0"></div>
+    <div class="field"><label for="price">السعر بالدرهم</label><input id="price" type="number" min="0"></div>
     <div class="field" style="grid-column:1/-1"><label for="notes">ملاحظات</label><textarea id="notes" maxlength="500"></textarea></div>
   </div>
-  <div class="actions"><button class="primary" id="publishBtn">نشر الشحنة</button><button class="secondary" id="cancelBtn">إلغاء</button></div>
+  <div class="actions">
+    <button class="primary" id="publishBtn">نشر الشحنة</button>
+    <button class="secondary" id="cancelBtn">إلغاء</button>
+  </div>
   <div id="addMsg" class="status hidden"></div>
 </section>
 
 <footer class="muted" style="text-align:center;padding:18px">
-  نسخة اختبار أولية — تحقق من البيانات قبل أي اتفاق أو تحويل مالي.
-  <p style="margin:12px 0 0">تابع Barkoul.ma</p>
-  <div class="socials">
-    <a class="social whatsapp" href="#" data-social="whatsapp" aria-label="WhatsApp" title="واتساب">
-      <svg viewBox="0 0 24 24"><path d="M12 2a9.8 9.8 0 0 0-8.4 14.9L2.3 22l5.3-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3.1.8.8-3-.2-.4A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.5-.7-1.8-.8-.2-.1-.4-.1-.6.2l-.8 1c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.3.2-.5.6-1.1.1-.2 0-.4 0-.5l-.8-1.9c-.2-.5-.5-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.2.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.2-.3-.3-.5-.4z"/></svg>
-    </a>
-    <a class="social facebook" href="#" data-social="facebook" aria-label="Facebook" title="فيسبوك">f</a>
-    <a class="social x-social" href="#" data-social="x" aria-label="X" title="X">𝕏</a>
-    <a class="social instagram" href="#" data-social="instagram" aria-label="Instagram" title="إنستغرام">
-      <svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.5-3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>
-    </a>
-  </div>
+  نسخة اختبار أولية — تحقق من البيانات قبل الاتفاق أو تحويل الأموال.
 </footer>
 </div>
 
@@ -141,36 +140,51 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
 (() => {
 "use strict";
 
-const SUPABASE_URL = "https://pfquawfxmdczuhscuxkz.supabase.co";
-const SUPABASE_ANON_KEY = "ضع_المفتاح_العام_هنا";
+const SUPABASE_URL="https://pfquawfxmdczuhscuxkz.supabase.co";
+const SUPABASE_ANON_KEY="ضع_المفتاح_العام_هنا";
 
-const $ = id => document.getElementById(id);
-let db = null, user = null, cargos = [];
+const $=id=>document.getElementById(id);
+let db=null,user=null,cargos=[],pendingAdd=false;
 
-function message(id, text, error=false) {
+function message(id,text,error=false){
   const el=$(id);
   el.textContent=text;
   el.classList.remove("hidden");
   el.style.background=error?"#fff0f0":"#e8f4ed";
   el.style.color=error?"#a52d2d":"#126747";
 }
-function hide(id){$(id).classList.add("hidden");}
+
 function escapeHTML(value){
-  return String(value ?? "").replace(/[&<>"']/g,c=>({
+  return String(value??"").replace(/[&<>"']/g,c=>({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[c]);
+  }[c]));
 }
+
 function ready(){
   if(!db){
-    message("searchMsg","ضع المفتاح العام Publishable أو anon في مكانه داخل الكود أولاً.",true);
+    message("searchMsg","الاتصال ينتظر وضع المفتاح العام Supabase.",true);
     return false;
   }
   return true;
 }
-function updateAccount(){
-  $("logoutBtn").disabled=!user;
-  $("accountBtn").textContent=user?"حسابي: مسجل":"دخول / حساب";
+
+function showAuth(){
+  $("authPanel").classList.remove("hidden");
+  $("authPanel").scrollIntoView({behavior:"smooth"});
 }
+
+function openAdd(){
+  if(!user){
+    pendingAdd=true;
+    showAuth();
+    message("authMsg","سجّل الدخول أو أنشئ حساباً أولاً لإضافة شحنة.");
+    return;
+  }
+  pendingAdd=false;
+  $("addPanel").classList.remove("hidden");
+  $("addPanel").scrollIntoView({behavior:"smooth"});
+}
+
 function render(items){
   const list=$("cargoList");
   if(!items.length){
@@ -179,30 +193,32 @@ function render(items){
   }
   list.innerHTML=items.map(c=>`
     <article class="card">
-      <h3>${escapeHTML(c.title || c.goods_type || "شحنة")}</h3>
-      <div class="route">${escapeHTML(c.origin_city)} ← ${escapeHTML(c.destination_city)}</div>
+      <h3>${escapeHTML(c.title||c.goods_type||"شحنة")}</h3>
+      <div class="route">${escapeHTML(c.origin_city||"غير محددة")} ← ${escapeHTML(c.destination_city||"غير محددة")}</div>
       <p class="muted">
-        البضاعة: ${escapeHTML(c.goods_type || "غير محددة")}<br>
-        الوزن: ${escapeHTML(c.weight_text || "غير محدد")}<br>
-        الشاحنة: ${escapeHTML(c.truck_type || "غير محددة")}<br>
-        التحميل: ${escapeHTML(c.loading_date || "غير محدد")}
+        البضاعة: ${escapeHTML(c.goods_type||"غير محددة")}<br>
+        الوزن: ${escapeHTML(c.weight_text||"غير محدد")}<br>
+        الشاحنة: ${escapeHTML(c.truck_type||"غير محددة")}<br>
+        تاريخ التحميل: ${escapeHTML(c.loading_date||"غير محدد")}
       </p>
       <div class="price">${c.offered_price_mad==null?"السعر غير محدد":escapeHTML(c.offered_price_mad)+" درهم"}</div>
-      <p class="muted">بيانات الاتصال غير معروضة للزوار.</p>
-    </article>`).join("");
+    </article>
+  `).join("");
 }
+
 function filter(){
   const from=$("fromFilter").value.trim().toLowerCase();
   const to=$("toFilter").value.trim().toLowerCase();
   const goods=$("goodsFilter").value.trim().toLowerCase();
   const truck=$("truckFilter").value;
   render(cargos.filter(c=>
-    (!from||String(c.origin_city||"").toLowerCase().includes(from)) &&
-    (!to||String(c.destination_city||"").toLowerCase().includes(to)) &&
-    (!goods||String(c.goods_type||"").toLowerCase().includes(goods)) &&
+    (!from||String(c.origin_city||"").toLowerCase().includes(from))&&
+    (!to||String(c.destination_city||"").toLowerCase().includes(to))&&
+    (!goods||String(c.goods_type||"").toLowerCase().includes(goods))&&
     (!truck||c.truck_type===truck)
   ));
 }
+
 async function loadCargos(){
   if(!ready())return;
   $("cargoList").textContent="جارٍ تحميل الشحنات…";
@@ -217,101 +233,165 @@ async function loadCargos(){
     filter();
     message("searchMsg",cargos.length?"تم تحميل الشحنات.":"لا توجد شحنات متاحة حالياً.");
   }catch(e){
-    cargos=[];render([]);
-    message("searchMsg","تعذر تحميل الشحنات. تحقق من المفتاح العام وصلاحيات Supabase.\n"+e.message,true);
+    cargos=[];
+    render([]);
+    message("searchMsg","تعذر تحميل الشحنات. تحقق من المفتاح وصلاحيات قاعدة البيانات.\n"+e.message,true);
   }
 }
+
 async function login(){
   if(!ready())return;
-  const email=$("email").value.trim(),password=$("password").value;
-  if(!email||!password)return message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
+  const email=$("email").value.trim();
+  const password=$("password").value;
+  if(!email||!password){
+    message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
+    return;
+  }
   const {data,error}=await db.auth.signInWithPassword({email,password});
-  if(error)return message("authMsg",error.message,true);
-  user=data.user;updateAccount();
-  message("authMsg","تم تسجيل الدخول.");
+  if(error){
+    message("authMsg",error.message,true);
+    return;
+  }
+  user=data.user;
+  $("authPanel").classList.add("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  message("searchMsg","تم تسجيل الدخول بنجاح.");
+  if(pendingAdd)openAdd();
 }
+
 async function signup(){
   if(!ready())return;
-  const email=$("email").value.trim(),password=$("password").value;
-  if(!email||!password)return message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
-  if(password.length<8)return message("authMsg","كلمة المرور يجب أن تكون 8 أحرف على الأقل.",true);
+  const email=$("email").value.trim();
+  const password=$("password").value;
+  if(!email||!password){
+    message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
+    return;
+  }
+  if(password.length<8){
+    message("authMsg","كلمة المرور يجب أن تكون 8 أحرف على الأقل.",true);
+    return;
+  }
   const {data,error}=await db.auth.signUp({email,password});
-  if(error)return message("authMsg",error.message,true);
-  user=data.session?data.user:null;updateAccount();
-  message("authMsg",user?"تم إنشاء الحساب وتسجيل الدخول.":"تحقق من بريدك الإلكتروني لتأكيد الحساب، ثم سجّل الدخول.");
+  if(error){
+    message("authMsg",error.message,true);
+    return;
+  }
+  user=data.session?data.user:null;
+  if(user){
+    $("authPanel").classList.add("hidden");
+    $("logoutBtn").classList.remove("hidden");
+    if(pendingAdd)openAdd();
+  }else{
+    message("authMsg","تم إرسال طلب إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.");
+  }
 }
+
 async function logout(){
   if(!db||!user)return;
   const {error}=await db.auth.signOut();
-  if(error)return message("authMsg",error.message,true);
-  user=null;updateAccount();$("addPanel").classList.add("hidden");
-  message("authMsg","تم تسجيل الخروج. يمكنك متابعة التصفح كزائر.");
-}
-function showAdd(){
-  if(!user){
-    message("authMsg","لإضافة شحنة، سجّل الدخول أو أنشئ حساباً. التصفح متاح دون حساب.");
-    $("authPanel").scrollIntoView({behavior:"smooth"});
+  if(error){
+    message("authMsg",error.message,true);
     return;
   }
-  $("addPanel").classList.remove("hidden");
-  $("addPanel").scrollIntoView({behavior:"smooth"});
+  user=null;
+  pendingAdd=false;
+  $("addPanel").classList.add("hidden");
+  $("logoutBtn").classList.add("hidden");
+  message("authMsg","تم تسجيل الخروج.");
+  showAuth();
 }
+
 async function publish(){
-  if(!user)return message("addMsg","سجّل الدخول أولاً.",true);
-  const title=$("title").value.trim(),goods_type=$("goods").value.trim();
-  const origin_city=$("origin").value.trim(),destination_city=$("destination").value.trim();
-  if(!title||!goods_type||!origin_city||!destination_city)
-    return message("addMsg","املأ عنوان الشحنة ونوع البضاعة ومدينتي الانطلاق والوصول.",true);
+  if(!user){
+    openAdd();
+    return;
+  }
+  if(!ready())return;
+
+  const title=$("title").value.trim();
+  const goods_type=$("goods").value.trim();
+  const origin_city=$("origin").value.trim();
+  const destination_city=$("destination").value.trim();
+
+  if(!title||!goods_type||!origin_city||!destination_city){
+    message("addMsg","املأ عنوان الشحنة ونوع البضاعة ومدينتي الانطلاق والوصول.",true);
+    return;
+  }
+
   const raw=$("price").value.trim();
   const price=raw===""?null:Number(raw);
-  if(price!==null&&(!Number.isFinite(price)||price<0))
-    return message("addMsg","أدخل سعراً صحيحاً.",true);
+  if(price!==null&&(!Number.isFinite(price)||price<0)){
+    message("addMsg","أدخل سعراً صحيحاً.",true);
+    return;
+  }
+
   $("publishBtn").disabled=true;
   try{
     const {error}=await db.from("cargos").insert({
-      title,goods_type,origin_city,destination_city,
+      title,
+      goods_type,
+      origin_city,
+      destination_city,
       weight_text:$("weight").value.trim()||null,
       truck_type:$("truck").value||null,
       loading_date:$("date").value||null,
       offered_price_mad:price,
       notes:$("notes").value.trim()||null,
-      status:"available",owner_id:user.id
+      status:"available",
+      owner_id:user.id
     });
     if(error)throw error;
-    message("addMsg","تم حفظ الشحنة بنجاح.");
+
+    message("addMsg","تم نشر الشحنة بنجاح.");
+    ["title","goods","origin","destination","weight","date","price","notes"]
+      .forEach(id=>$(id).value="");
     await loadCargos();
   }catch(e){
-    message("addMsg","لم تُنشر الشحنة. قد تكون صلاحيات الإضافة غير مضبوطة في Supabase.\n"+e.message,true);
-  }finally{$("publishBtn").disabled=false;}
+    message("addMsg","تعذر نشر الشحنة. تحقق من صلاحيات Supabase.\n"+e.message,true);
+  }finally{
+    $("publishBtn").disabled=false;
+  }
 }
 
-$("accountBtn").onclick=()=>$("authPanel").scrollIntoView({behavior:"smooth"});
 $("driverBtn").onclick=()=>$("searchPanel").scrollIntoView({behavior:"smooth"});
-$("ownerBtn").onclick=showAdd;
+$("ownerBtn").onclick=openAdd;
 $("loginBtn").onclick=login;
 $("signupBtn").onclick=signup;
 $("logoutBtn").onclick=logout;
+$("closeAuthBtn").onclick=()=>{
+  $("authPanel").classList.add("hidden");
+  pendingAdd=false;
+};
 $("publishBtn").onclick=publish;
-$("cancelBtn").onclick=()=>$("addPanel").classList.add("hidden");
+$("cancelBtn").onclick=()=>{
+  $("addPanel").classList.add("hidden");
+  pendingAdd=false;
+};
 $("searchBtn").onclick=filter;
 $("allBtn").onclick=()=>{
   ["fromFilter","toFilter","goodsFilter"].forEach(id=>$(id).value="");
-  $("truckFilter").value="";filter();
+  $("truckFilter").value="";
+  filter();
 };
-["fromFilter","toFilter","goodsFilter","truckFilter"].forEach(id=>$(id).addEventListener("input",filter));
+["fromFilter","toFilter","goodsFilter","truckFilter"]
+  .forEach(id=>$(id).addEventListener("input",filter));
 
-if(window.supabase && SUPABASE_ANON_KEY!=="ضع_المفتاح_العام_هنا"){
+if(window.supabase&&SUPABASE_ANON_KEY!=="ضع_المفتاح_العام_هنا"){
   db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
   db.auth.getSession().then(({data})=>{
-    user=data.session?.user||null;updateAccount();loadCargos();
+    user=data.session?.user||null;
+    $("logoutBtn").classList.toggle("hidden",!user);
+    loadCargos();
+  }).catch(()=>{
+    message("searchMsg","تعذر التحقق من جلسة الدخول.",true);
   });
   db.auth.onAuthStateChange((_event,session)=>{
-    user=session?.user||null;updateAccount();
+    user=session?.user||null;
+    $("logoutBtn").classList.toggle("hidden",!user);
   });
 }else{
-  updateAccount();
   render([]);
-  message("searchMsg","الواجهة جاهزة، لكن الاتصال بقاعدة البيانات ينتظر وضع المفتاح العام.");
+  message("searchMsg","الواجهة جاهزة. ضع المفتاح العام Supabase للاتصال بقاعدة البيانات.");
 }
 })();
 </script>
