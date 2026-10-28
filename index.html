@@ -31,6 +31,13 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
 .route{color:var(--g);font-weight:bold;font-size:17px}
 .price{font-weight:bold;font-size:18px;margin-top:8px}
 .hidden{display:none!important}
+.socials{display:flex;justify-content:center;gap:12px;margin:14px 0 8px}
+.social{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;text-decoration:none;font-weight:bold;font-size:22px}
+.whatsapp{background:#25D366}
+.facebook{background:#1877F2}
+.x-social{background:#000}
+.instagram{background:#C13584}
+.social svg{width:22px;height:22px;fill:currentColor}
 @media(max-width:560px){.roles,.fields,.filters,.cards{grid-template-columns:1fr}header{align-items:flex-start}.brand{font-size:21px}}
 </style>
 </head>
@@ -112,7 +119,21 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
   <div class="actions"><button class="primary" id="publishBtn">نشر الشحنة</button><button class="secondary" id="cancelBtn">إلغاء</button></div>
   <div id="addMsg" class="status hidden"></div>
 </section>
-<footer class="muted" style="text-align:center;padding:18px">نسخة اختبار أولية — تحقق من البيانات قبل أي اتفاق أو تحويل مالي.</footer>
+
+<footer class="muted" style="text-align:center;padding:18px">
+  نسخة اختبار أولية — تحقق من البيانات قبل أي اتفاق أو تحويل مالي.
+  <p style="margin:12px 0 0">تابع Barkoul.ma</p>
+  <div class="socials">
+    <a class="social whatsapp" href="#" data-social="whatsapp" aria-label="WhatsApp" title="واتساب">
+      <svg viewBox="0 0 24 24"><path d="M12 2a9.8 9.8 0 0 0-8.4 14.9L2.3 22l5.3-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3.1.8.8-3-.2-.4A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.5-.7-1.8-.8-.2-.1-.4-.1-.6.2l-.8 1c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.3.2-.5.6-1.1.1-.2 0-.4 0-.5l-.8-1.9c-.2-.5-.5-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.2.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.2-.3-.3-.5-.4z"/></svg>
+    </a>
+    <a class="social facebook" href="#" data-social="facebook" aria-label="Facebook" title="فيسبوك">f</a>
+    <a class="social x-social" href="#" data-social="x" aria-label="X" title="X">𝕏</a>
+    <a class="social instagram" href="#" data-social="instagram" aria-label="Instagram" title="إنستغرام">
+      <svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.5-3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>
+    </a>
+  </div>
+</footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
