@@ -140,8 +140,8 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
 (() => {
 "use strict";
 
-const SUPABASE_URL="https://pfquawfxmdczuhscuxkz.supabase.co";
-const SUPABASE_ANON_KEY="sb_publishable_NH0TOljmovGMbts5zo4e6Q_hNdJaSCf";
+const SUPABASE_URL="https://ajvpinnumhazuyziphwn.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
 
 const $=id=>document.getElementById(id);
 let db=null,user=null,cargos=[],pendingAdd=false;
@@ -225,7 +225,7 @@ async function loadCargos(){
   try{
     const {data,error}=await db.from("cargos")
       .select("id,title,origin_city,destination_city,goods_type,weight_text,truck_type,loading_date,offered_price_mad,notes,status")
-      .eq("status","available")
+      .eq("status","open")
       .order("created_at",{ascending:false})
       .limit(100);
     if(error)throw error;
@@ -235,7 +235,7 @@ async function loadCargos(){
   }catch(e){
     cargos=[];
     render([]);
-    message("searchMsg","تعذر تحميل الشحنات. تحقق من صلاحيات Supabase وسياسات RLS.\n"+(e.message||"خطأ غير معروف"),true);
+    message("searchMsg","تعذر تحميل الشحنات. تحقق من إعدادات Supabase وسياسات RLS.\n"+(e.message||"خطأ غير معروف"),true);
   }
 }
 
@@ -285,7 +285,7 @@ async function signup(){
       $("logoutBtn").classList.remove("hidden");
       if(pendingAdd)openAdd();
     }else{
-      message("authMsg","تم إرسال طلب إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.");
+      message("authMsg","تم طلب إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.");
     }
   }catch(e){
     message("authMsg",e.message||"تعذر إنشاء الحساب.",true);
@@ -342,11 +342,11 @@ async function publish(){
       origin_city,
       destination_city,
       weight_text:$("weight").value.trim()||null,
-      truck_type:$("truck").value||null,
+      truck_type:$("truck").value||"غير محدد",
       loading_date:$("date").value||null,
       offered_price_mad:price,
       notes:$("notes").value.trim()||null,
-      status:"available",
+      status:"open",
       owner_id:user.id
     });
     if(error)throw error;
@@ -354,9 +354,10 @@ async function publish(){
     message("addMsg","تم نشر الشحنة بنجاح.");
     ["title","goods","origin","destination","weight","date","price","notes"]
       .forEach(id=>$(id).value="");
+    $("truck").value="";
     await loadCargos();
   }catch(e){
-    message("addMsg","تعذر نشر الشحنة. تحقق من أسماء أعمدة الجدول وسياسات RLS.\n"+(e.message||"خطأ غير معروف"),true);
+    message("addMsg","تعذر نشر الشحنة. تحقق من إعدادات قاعدة البيانات والصلاحيات.\n"+(e.message||"خطأ غير معروف"),true);
   }finally{
     $("publishBtn").disabled=false;
   }
