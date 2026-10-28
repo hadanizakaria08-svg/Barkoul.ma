@@ -1,39 +1,437 @@
-alter table public.cargos enable row level security;
-alter table public.profiles enable row level security;
+HTML
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#126747">
+<title>Barkoul.ma | ربط الشحنات بسائقي الشاحنات</title>
+<style>
+:root{--g:#126747;--gd:#0b4c34;--mint:#e8f4ed;--bg:#f5f8f6;--ink:#192720;--muted:#68766e;--line:#dce5df;--white:#fff;--red:#fff0ee}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.65}
+button,input,select,textarea{font:inherit}
+button{border:0;border-radius:12px;padding:11px 15px;font-weight:750;cursor:pointer}
+.primary{background:var(--g);color:white}
+.secondary{background:var(--mint);color:var(--gd)}
+.top{background:var(--g);color:white;padding:18px 14px}
+.top-inner,main{max-width:980px;margin:auto}
+.brand{font-size:clamp(28px,6vw,40px);font-weight:900;margin:0}
+.tag{margin:0;color:#e1f2e8}
+.nav{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}
+.nav button{flex:1;background:#ffffff1b;color:white;border:1px solid #ffffff50;padding:10px 8px}
+.nav button.active{background:white;color:var(--g)}
+main{padding:14px}
+.hero{padding:18px 2px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin:13px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-weight:700;font-size:14px}
+.field input,.field select,.field textarea{width:100%;min-height:44px;border:1px solid #cbd7cf;border-radius:10px;padding:10px;background:white;color:var(--ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions button{flex:1}
+.notice{padding:12px 14px;border-radius:12px;background:var(--mint);margin:12px 0;color:#15573d}
+.notice.err{background:var(--red);color:#9b2118}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.shipment{background:white;border:1px solid var(--line);border-radius:15px;padding:15px;margin:12px 0}
+.shipment h3{margin:7px 0}
+.details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.details div{background:#f7faf8;border-radius:9px;padding:8px;overflow-wrap:anywhere}
+.small{font-size:12px}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:25px 10px}
+@media(max-width:600px){main{padding:10px}.grid{grid-template-columns:1fr}.nav button{font-size:13px}.details{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+<div class="top-inner">
+<h1 class="brand">Barkoul.ma 🚛</h1>
+<p class="tag">منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات</p>
+<nav class="nav" aria-label="القائمة">
+<button class="active" data-page="home">الرئيسية</button>
+<button data-page="add">أضف شحنة</button>
+<button data-page="search">ابحث عن شحنة</button>
+<button data-page="account">حسابي</button>
+</nav>
+</div>
+</header>
+<main>
+<div id="global-message" class="notice hidden" role="status"></div>
 
-drop policy if exists "Public can read open cargos" on public.cargos;
-create policy "Public can read open cargos"
-on public.cargos for select
-using (status = 'open');
+<section id="page-home" class="page">
+<div class="hero">
+<h2>شحنة مناسبة، وسائق مناسب</h2>
+<p class="muted">منصة لتسهيل التواصل بين أصحاب البضائع وسائقي الشاحنات في المغرب.</p>
+<div class="actions">
+<button class="primary" data-go="add">＋ أضف شحنة</button>
+<button class="secondary" data-go="search">⌕ ابحث عن شحنة</button>
+</div>
+</div>
+<div class="card">
+<strong>حالة الاتصال</strong>
+<p id="connection-status" class="muted">جارٍ التحقق من الاتصال...</p>
+<p class="small muted">هذه نسخة تجريبية. تحقق من بيانات الشحنة وهوية الطرف الآخر قبل الاتفاق على النقل.</p>
+</div>
+</section>
 
-drop policy if exists "Users insert own cargos" on public.cargos;
-create policy "Users insert own cargos"
-on public.cargos for insert to authenticated
-with check (owner_id = (select auth.uid()));
+<section id="page-account" class="page hidden">
+<div class="card">
+<h2>حسابك</h2>
+<p class="muted">أنشئ حساباً أو سجّل الدخول بالبريد الإلكتروني.</p>
+<div id="auth-fields">
+<form id="auth-form">
+<div class="field">
+<label for="full-name">الاسم الكامل (لإنشاء حساب)</label>
+<input id="full-name" maxlength="100" autocomplete="name" placeholder="اسمك الكامل">
+</div>
+<div class="field">
+<label for="phone">رقم الهاتف (اختياري)</label>
+<input id="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="رقم التواصل">
+</div>
+<div class="field">
+<label for="email">البريد الإلكتروني</label>
+<input id="email" type="email" required maxlength="254" autocomplete="email">
+</div>
+<div class="field">
+<label for="password">كلمة المرور</label>
+<input id="password" type="password" required minlength="8" autocomplete="current-password">
+</div>
+<div class="actions">
+<button class="primary" type="submit">تسجيل الدخول</button>
+<button class="secondary" type="button" id="signup">إنشاء حساب</button>
+</div>
+</form>
+</div>
+<div id="logged-in" class="hidden">
+<p id="user-info"></p>
+<button id="logout" class="secondary">تسجيل الخروج</button>
+</div>
+<div id="auth-message" aria-live="polite"></div>
+</div>
+</section>
 
-drop policy if exists "Users update own cargos" on public.cargos;
-create policy "Users update own cargos"
-on public.cargos for update to authenticated
-using (owner_id = (select auth.uid()))
-with check (owner_id = (select auth.uid()));
+<section id="page-add" class="page hidden">
+<div class="card">
+<h2>إضافة شحنة جديدة</h2>
+<p class="muted">تحتاج إلى تسجيل الدخول قبل نشر إعلان.</p>
+<form id="cargo-form">
+<div class="grid">
+<div class="field">
+<label for="title">عنوان الشحنة *</label>
+<input id="title" required maxlength="150" placeholder="مثلاً: نقل مواد البناء">
+</div>
+<div class="field">
+<label for="origin">مدينة الانطلاق *</label>
+<input id="origin" required maxlength="100" placeholder="الدار البيضاء">
+</div>
+<div class="field">
+<label for="destination">مدينة الوصول *</label>
+<input id="destination" required maxlength="100" placeholder="طنجة">
+</div>
+<div class="field">
+<label for="goods">نوع البضاعة *</label>
+<select id="goods" required>
+<option value="">اختر</option>
+<option>مواد غذائية</option>
+<option>ملابس ونسيج</option>
+<option>مواد البناء</option>
+<option>أثاث وأجهزة</option>
+<option>منتجات فلاحية</option>
+<option>معدات وآلات</option>
+<option>مواد صناعية</option>
+<option>بضائع عامة</option>
+<option>أخرى</option>
+</select>
+</div>
+<div class="field">
+<label for="weight">الوزن التقريبي</label>
+<input id="weight" maxlength="100" placeholder="5 أطنان">
+</div>
+<div class="field">
+<label for="truck">نوع الشاحنة *</label>
+<select id="truck" required>
+<option value="">اختر</option>
+<option>شاحنة كبيرة</option>
+<option>رأس قاطرة مع نصف مقطورة</option>
+<option>شاحنة بصندوق مغلق</option>
+<option>شاحنة مبردة</option>
+<option>شاحنة مسطحة</option>
+<option>صهريج</option>
+<option>حسب الحمولة</option>
+</select>
+</div>
+<div class="field">
+<label for="loading-date">تاريخ الشحن</label>
+<input id="loading-date" type="date">
+</div>
+<div class="field">
+<label for="price">السعر المقترح (درهم)</label>
+<input id="price" type="number" min="0" step="1" placeholder="اختياري">
+</div>
+</div>
+<div class="field">
+<label for="notes">تفاصيل إضافية</label>
+<textarea id="notes" maxlength="1000" rows="3"></textarea>
+</div>
+<button class="primary" type="submit">نشر الشحنة</button>
+</form>
+<div id="cargo-message" aria-live="polite"></div>
+</div>
+</section>
 
-drop policy if exists "Users delete own cargos" on public.cargos;
-create policy "Users delete own cargos"
-on public.cargos for delete to authenticated
-using (owner_id = (select auth.uid()));
+<section id="page-search" class="page hidden">
+<div class="card">
+<h2>الشحنات المتاحة</h2>
+<div class="grid">
+<div class="field">
+<label for="filter-origin">مدينة الانطلاق</label>
+<input id="filter-origin" maxlength="100" placeholder="كل المدن">
+</div>
+<div class="field">
+<label for="filter-destination">مدينة الوصول</label>
+<input id="filter-destination" maxlength="100" placeholder="كل المدن">
+</div>
+</div>
+<button id="refresh" class="primary">البحث عن الشحنات</button>
+<div id="search-message" aria-live="polite"></div>
+</div>
+<div id="results"></div>
+</section>
+</main>
 
-drop policy if exists "Users read own profile" on public.profiles;
-create policy "Users read own profile"
-on public.profiles for select to authenticated
-using (id = (select auth.uid()));
+<footer class="footer">Barkoul.ma · نسخة تجريبية قيد الاختبار</footer>
 
-drop policy if exists "Users create own profile" on public.profiles;
-create policy "Users create own profile"
-on public.profiles for insert to authenticated
-with check (id = (select auth.uid()));
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(()=>{
+'use strict';
 
-drop policy if exists "Users update own profile" on public.profiles;
-create policy "Users update own profile"
-on public.profiles for update to authenticated
-using (id = (select auth.uid()))
-with check (id = (select auth.uid()));
+const SUPABASE_URL='https://pfquawfxmdczuhscuxkz.supabase.co';
+const SUPABASE_KEY='sb_publishable_NH0TOljmovGMbts5zo4e6Q_hNdJaSCf';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let currentUser=null;
+
+function show(id,text,error=false){
+const el=$(id);
+el.textContent=text;
+el.classList.remove('hidden','err');
+if(error)el.classList.add('err');
+}
+function clear(id){
+$(id).textContent='';
+$(id).classList.add('hidden');
+}
+function esc(v){
+return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function go(page){
+document.querySelectorAll('.page').forEach(s=>s.classList.toggle('hidden',s.id!=='page-'+page));
+document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+clear('global-message');
+if(page==='search')loadCargos();
+if(page==='account')updateAccount();
+window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+
+function updateAccount(){
+const logged=!!currentUser;
+$('auth-fields').classList.toggle('hidden',logged);
+$('logged-in').classList.toggle('hidden',!logged);
+$('user-info').textContent=logged?'تم تسجيل الدخول: '+currentUser.email:'';
+}
+
+async function saveProfile(user,name,phone){
+const row={
+id:user.id,
+full_name:name||user.user_metadata?.full_name||'',
+phone:phone||user.user_metadata?.phone||'',
+role:'user'
+};
+const {error}=await db.from('profiles').upsert(row,{onConflict:'id'});
+if(error)console.error('Profile upsert failed:',error.message);
+}
+
+$('signup').addEventListener('click',async()=>{
+clear('auth-message');
+const email=$('email').value.trim();
+const password=$('password').value;
+const name=$('full-name').value.trim();
+const phone=$('phone').value.trim();
+
+if(!name||!email||password.length<8){
+show('auth-message','أدخل الاسم والبريد الإلكتروني وكلمة مرور من 8 أحرف على الأقل.',true);
+return;
+}
+
+const b=$('signup');
+b.disabled=true;
+const {data,error}=await db.auth.signUp({
+email,password,
+options:{data:{full_name:name,phone}}
+});
+b.disabled=false;
+
+if(error){
+show('auth-message',error.message,true);
+return;
+}
+if(data.user&&data.session){
+currentUser=data.user;
+await saveProfile(currentUser,name,phone);
+updateAccount();
+await checkSession();
+show('auth-message','تم إنشاء الحساب وتسجيل الدخول.');
+}else{
+show('auth-message','تم إرسال رسالة تأكيد إلى بريدك الإلكتروني. افتحها لتأكيد الحساب، ثم سجّل الدخول.');
+}
+});
+
+$('auth-form').addEventListener('submit',async e=>{
+e.preventDefault();
+clear('auth-message');
+const b=e.submitter;
+b.disabled=true;
+const {data,error}=await db.auth.signInWithPassword({
+email:$('email').value.trim(),
+password:$('password').value
+});
+b.disabled=false;
+
+if(error){
+show('auth-message',error.message,true);
+return;
+}
+currentUser=data.user;
+await checkSession();
+updateAccount();
+show('auth-message','تم تسجيل الدخول بنجاح.');
+});
+
+$('logout').addEventListener('click',async()=>{
+const {error}=await db.auth.signOut();
+if(error){
+show('global-message','تعذر تسجيل الخروج: '+error.message,true);
+return;
+}
+currentUser=null;
+updateAccount();
+show('global-message','تم تسجيل الخروج.');
+});
+
+async function checkSession(){
+const {data,error}=await db.auth.getSession();
+if(error){
+show('connection-status','تعذر التحقق من الاتصال بـ Supabase.',true);
+return;
+}
+currentUser=data.session?.user||null;
+updateAccount();
+$('connection-status').textContent='تم الاتصال بخدمة الحسابات. تسجيل الدخول مطلوب لنشر الشحنات.';
+}
+
+db.auth.onAuthStateChange((_event,session)=>{
+currentUser=session?.user||null;
+updateAccount();
+});
+
+$('cargo-form').addEventListener('submit',async e=>{
+e.preventDefault();
+clear('cargo-message');
+
+if(!currentUser){
+show('cargo-message','سجّل الدخول أولاً قبل نشر الشحنة.',true);
+go('account');
+return;
+}
+
+const origin=$('origin').value.trim();
+const destination=$('destination').value.trim();
+const price=$('price').value;
+
+if(origin.toLocaleLowerCase()===destination.toLocaleLowerCase()){
+show('cargo-message','مدينة الوصول يجب أن تختلف عن مدينة الانطلاق.',true);
+return;
+}
+
+const row={
+title:$('title').value.trim(),
+origin_city:origin,
+destination_city:destination,
+goods_type:$('goods').value,
+weight_text:$('weight').value.trim()||null,
+truck_type:$('truck').value,
+loading_date:$('loading-date').value||null,
+offered_price_mad:price===''?null:Number(price),
+notes:$('notes').value.trim()||null,
+status:'open',
+owner_id:currentUser.id
+};
+
+const b=e.submitter;
+b.disabled=true;
+const {error}=await db.from('cargos').insert(row);
+b.disabled=false;
+
+if(error){
+show('cargo-message','لم تُنشر الشحنة: '+error.message,true);
+return;
+}
+e.target.reset();
+show('cargo-message','تم نشر الشحنة بنجاح.');
+});
+
+async function loadCargos(){
+const host=$('results');
+host.textContent='جارٍ تحميل الشحنات...';
+clear('search-message');
+
+let query=db.from('cargos')
+.select('id,title,origin_city,destination_city,goods_type,weight_text,truck_type,loading_date,offered_price_mad,notes,status,created_at,owner_id')
+.eq('status','open')
+.order('created_at',{ascending:false})
+.limit(100);
+
+const origin=$('filter-origin').value.trim();
+const destination=$('filter-destination').value.trim();
+
+if(origin)query=query.ilike('origin_city','%'+origin.replace(/[%_,]/g,'')+'%');
+if(destination)query=query.ilike('destination_city','%'+destination.replace(/[%_,]/g,'')+'%');
+
+const {data,error}=await query;
+
+if(error){
+host.textContent='تعذر تحميل الشحنات.';
+show('search-message','خطأ في تحميل الشحنات: '+error.message,true);
+return;
+}
+if(!data.length){
+host.textContent='لا توجد شحنات مفتوحة مطابقة حالياً.';
+return;
+}
+
+host.innerHTML=data.map(s=>'<article class="shipment"><span>شحنة متاحة</span><h3>'+esc(s.origin_city)+' ← '+esc(s.destination_city)+'</h3><div class="details"><div><b>عنوان الشحنة</b><br>'+esc(s.title)+'</div><div><b>البضاعة</b><br>'+esc(s.goods_type)+'</div><div><b>الوزن</b><br>'+esc(s.weight_text||'غير محدد')+'</div><div><b>الشاحنة</b><br>'+esc(s.truck_type)+'</div><div><b>تاريخ الشحن</b><br>'+esc(s.loading_date||'حسب الاتفاق')+'</div><div><b>السعر المقترح</b><br>'+(s.offered_price_mad==null?'قابل للتفاوض':esc(s.offered_price_mad)+' درهم')+'</div></div><p>'+esc(s.notes||'لا توجد تفاصيل إضافية.')+'</p>'+(currentUser&&currentUser.id===s.owner_id?'<button class="secondary" data-delete="'+esc(s.id)+'">حذف إعلاني</button>':'')+'</article>').join('');
+
+host.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',async()=>{
+if(!confirm('هل تريد حذف هذه الشحنة؟'))return;
+b.disabled=true;
+const {error}=await db.from('cargos').delete().eq('id',Number(b.dataset.delete)).eq('owner_id',currentUser.id);
+if(error){
+show('search-message','تعذر حذف الشحنة: '+error.message,true);
+b.disabled=false;
+return;
+}
+await loadCargos();
+}));
+}
+
+$('refresh').addEventListener('click',loadCargos);
+checkSession().catch(()=>show('connection-status','تعذر الاتصال. تحقق من اتصال الإنترنت.',true));
+
+})();
+</script>
+</body>
+  </html>
