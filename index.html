@@ -70,7 +70,7 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
   <p class="muted">سجّل الدخول أو أنشئ حساباً لإضافة شحنة.</p>
   <div class="fields">
     <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="email"></div>
-    <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password"></div>
+    <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" minlength="8"></div>
   </div>
   <div class="actions">
     <button class="primary" id="loginBtn">تسجيل الدخول</button>
@@ -78,7 +78,7 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
     <button class="secondary hidden" id="logoutBtn">تسجيل الخروج</button>
     <button class="secondary" id="closeAuthBtn">إغلاق</button>
   </div>
-  <div id="authMsg" class="status hidden"></div>
+  <div id="authMsg" class="status hidden" role="status"></div>
 </section>
 
 <section class="panel" id="searchPanel">
@@ -100,7 +100,7 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
     <button class="primary" id="searchBtn">بحث</button>
     <button class="secondary" id="allBtn">عرض الكل</button>
   </div>
-  <div id="searchMsg" class="status">جارٍ تهيئة الموقع…</div>
+  <div id="searchMsg" class="status" role="status">جارٍ تهيئة الموقع…</div>
   <div id="cargoList" class="cards" style="margin-top:12px"></div>
 </section>
 
@@ -120,14 +120,14 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
       </select>
     </div>
     <div class="field"><label for="date">تاريخ التحميل</label><input id="date" type="date"></div>
-    <div class="field"><label for="price">السعر بالدرهم</label><input id="price" type="number" min="0"></div>
+    <div class="field"><label for="price">السعر بالدرهم</label><input id="price" type="number" min="0" step="0.01"></div>
     <div class="field" style="grid-column:1/-1"><label for="notes">ملاحظات</label><textarea id="notes" maxlength="500"></textarea></div>
   </div>
   <div class="actions">
     <button class="primary" id="publishBtn">نشر الشحنة</button>
     <button class="secondary" id="cancelBtn">إلغاء</button>
   </div>
-  <div id="addMsg" class="status hidden"></div>
+  <div id="addMsg" class="status hidden" role="status"></div>
 </section>
 
 <footer class="muted" style="text-align:center;padding:18px">
@@ -141,7 +141,7 @@ input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-ra
 "use strict";
 
 const SUPABASE_URL="https://pfquawfxmdczuhscuxkz.supabase.co";
-const SUPABASE_ANON_KEY="ضع_المفتاح_العام_هنا";
+const SUPABASE_ANON_KEY="sb_publishable_NH0TOljmovGMbts5zo4e6Q_hNdJaSCf";
 
 const $=id=>document.getElementById(id);
 let db=null,user=null,cargos=[],pendingAdd=false;
@@ -162,7 +162,7 @@ function escapeHTML(value){
 
 function ready(){
   if(!db){
-    message("searchMsg","الاتصال ينتظر وضع المفتاح العام Supabase.",true);
+    message("searchMsg","تعذر تهيئة الاتصال. تحقق من تحميل مكتبة Supabase والمفتاح العام.",true);
     return false;
   }
   return true;
@@ -231,11 +231,11 @@ async function loadCargos(){
     if(error)throw error;
     cargos=data||[];
     filter();
-    message("searchMsg",cargos.length?"تم تحميل الشحنات.":"لا توجد شحنات متاحة حالياً.");
+    message("searchMsg",cargos.length?"تم تحميل الشحنات.":"تم الاتصال بقاعدة البيانات، ولا توجد شحنات متاحة حالياً.");
   }catch(e){
     cargos=[];
     render([]);
-    message("searchMsg","تعذر تحميل الشحنات. تحقق من المفتاح وصلاحيات قاعدة البيانات.\n"+e.message,true);
+    message("searchMsg","تعذر تحميل الشحنات. تحقق من صلاحيات Supabase وسياسات RLS.\n"+(e.message||"خطأ غير معروف"),true);
   }
 }
 
@@ -247,16 +247,20 @@ async function login(){
     message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
     return;
   }
-  const {data,error}=await db.auth.signInWithPassword({email,password});
-  if(error){
-    message("authMsg",error.message,true);
-    return;
+  $("loginBtn").disabled=true;
+  try{
+    const {data,error}=await db.auth.signInWithPassword({email,password});
+    if(error)throw error;
+    user=data.user;
+    $("authPanel").classList.add("hidden");
+    $("logoutBtn").classList.remove("hidden");
+    message("searchMsg","تم تسجيل الدخول بنجاح.");
+    if(pendingAdd)openAdd();
+  }catch(e){
+    message("authMsg",e.message||"تعذر تسجيل الدخول.",true);
+  }finally{
+    $("loginBtn").disabled=false;
   }
-  user=data.user;
-  $("authPanel").classList.add("hidden");
-  $("logoutBtn").classList.remove("hidden");
-  message("searchMsg","تم تسجيل الدخول بنجاح.");
-  if(pendingAdd)openAdd();
 }
 
 async function signup(){
@@ -271,34 +275,39 @@ async function signup(){
     message("authMsg","كلمة المرور يجب أن تكون 8 أحرف على الأقل.",true);
     return;
   }
-  const {data,error}=await db.auth.signUp({email,password});
-  if(error){
-    message("authMsg",error.message,true);
-    return;
-  }
-  user=data.session?data.user:null;
-  if(user){
-    $("authPanel").classList.add("hidden");
-    $("logoutBtn").classList.remove("hidden");
-    if(pendingAdd)openAdd();
-  }else{
-    message("authMsg","تم إرسال طلب إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.");
+  $("signupBtn").disabled=true;
+  try{
+    const {data,error}=await db.auth.signUp({email,password});
+    if(error)throw error;
+    user=data.session?data.user:null;
+    if(user){
+      $("authPanel").classList.add("hidden");
+      $("logoutBtn").classList.remove("hidden");
+      if(pendingAdd)openAdd();
+    }else{
+      message("authMsg","تم إرسال طلب إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.");
+    }
+  }catch(e){
+    message("authMsg",e.message||"تعذر إنشاء الحساب.",true);
+  }finally{
+    $("signupBtn").disabled=false;
   }
 }
 
 async function logout(){
   if(!db||!user)return;
-  const {error}=await db.auth.signOut();
-  if(error){
-    message("authMsg",error.message,true);
-    return;
+  try{
+    const {error}=await db.auth.signOut();
+    if(error)throw error;
+    user=null;
+    pendingAdd=false;
+    $("addPanel").classList.add("hidden");
+    $("logoutBtn").classList.add("hidden");
+    message("authMsg","تم تسجيل الخروج.");
+    showAuth();
+  }catch(e){
+    message("authMsg",e.message||"تعذر تسجيل الخروج.",true);
   }
-  user=null;
-  pendingAdd=false;
-  $("addPanel").classList.add("hidden");
-  $("logoutBtn").classList.add("hidden");
-  message("authMsg","تم تسجيل الخروج.");
-  showAuth();
 }
 
 async function publish(){
@@ -347,7 +356,7 @@ async function publish(){
       .forEach(id=>$(id).value="");
     await loadCargos();
   }catch(e){
-    message("addMsg","تعذر نشر الشحنة. تحقق من صلاحيات Supabase.\n"+e.message,true);
+    message("addMsg","تعذر نشر الشحنة. تحقق من أسماء أعمدة الجدول وسياسات RLS.\n"+(e.message||"خطأ غير معروف"),true);
   }finally{
     $("publishBtn").disabled=false;
   }
@@ -376,22 +385,27 @@ $("allBtn").onclick=()=>{
 ["fromFilter","toFilter","goodsFilter","truckFilter"]
   .forEach(id=>$(id).addEventListener("input",filter));
 
-if(window.supabase&&SUPABASE_ANON_KEY!=="ضع_المفتاح_العام_هنا"){
-  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  db.auth.getSession().then(({data})=>{
-    user=data.session?.user||null;
-    $("logoutBtn").classList.toggle("hidden",!user);
-    loadCargos();
-  }).catch(()=>{
-    message("searchMsg","تعذر التحقق من جلسة الدخول.",true);
-  });
-  db.auth.onAuthStateChange((_event,session)=>{
-    user=session?.user||null;
-    $("logoutBtn").classList.toggle("hidden",!user);
-  });
+if(window.supabase&&SUPABASE_URL.startsWith("https://")&&SUPABASE_ANON_KEY.startsWith("sb_publishable_")){
+  try{
+    db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    db.auth.getSession().then(({data,error})=>{
+      if(error)throw error;
+      user=data.session?.user||null;
+      $("logoutBtn").classList.toggle("hidden",!user);
+      loadCargos();
+    }).catch(e=>{
+      message("searchMsg","تعذر التحقق من الاتصال أو جلسة الدخول.\n"+(e.message||""),true);
+    });
+    db.auth.onAuthStateChange((_event,session)=>{
+      user=session?.user||null;
+      $("logoutBtn").classList.toggle("hidden",!user);
+    });
+  }catch(e){
+    message("searchMsg","تعذر تهيئة Supabase.\n"+(e.message||""),true);
+  }
 }else{
   render([]);
-  message("searchMsg","الواجهة جاهزة. ضع المفتاح العام Supabase للاتصال بقاعدة البيانات.");
+  message("searchMsg","لم يتم تحميل مكتبة Supabase أو إعداد المفتاح العام بشكل صحيح.",true);
 }
 })();
 </script>
