@@ -1,0 +1,79 @@
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Barkoul.ma | الإدارة</title>
+<style>
+body{font-family:Arial;background:#f3f7f4;margin:0;color:#173c2c}
+main{max-width:650px;margin:35px auto;padding:16px}
+section{background:white;padding:20px;border-radius:15px;margin:15px 0}
+input,button{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border-radius:9px;border:1px solid #ccd8d0}
+button{background:#126747;color:white;font-weight:bold}
+.card{padding:12px;border:1px solid #ddd;border-radius:9px;margin:10px 0}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>🔐 إدارة Barkoul.ma</h1>
+<p>منطقة خاصة بالإدارة</p>
+<section id="login">
+<h2>دخول المدير</h2>
+<input id="email" type="email" placeholder="البريد الإلكتروني">
+<input id="password" type="password" placeholder="كلمة المرور">
+<button id="loginBtn">تسجيل الدخول</button>
+<p id="msg"></p>
+</section>
+<section id="dashboard" class="hidden">
+<h2>لوحة الإدارة</h2>
+<p id="welcome"></p>
+<h3>الشحنات</h3>
+<div id="cargos">جارٍ التحميل...</div>
+<button id="logoutBtn">تسجيل الخروج</button>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const URL="https://ajvpinnumhazuyziphwn.supabase.co";
+const KEY="sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
+const db=supabase.createClient(URL,KEY);
+const $=id=>document.getElementById(id);
+$("loginBtn").onclick=async()=>{
+ $("msg").textContent="جارٍ التحقق...";
+ const {data,error}=await db.auth.signInWithPassword({
+  email:$("email").value.trim(),
+  password:$("password").value
+ });
+ if(error){$("msg").textContent="فشل الدخول: "+error.message;return}
+ const {data:profile,error:pe}=await db.from("profiles")
+  .select("role").eq("id",data.user.id).maybeSingle();
+ if(pe||!profile||profile.role!=="admin"){
+  await db.auth.signOut();
+  $("msg").textContent="هذا الحساب غير مخول للإدارة.";
+  return;
+ }
+ $("login").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ $("welcome").textContent="تم التحقق من حساب الإدارة.";
+ const {data:rows,error:ce}=await db.from("cargos")
+  .select("id,title,origin_city,destination_city,status")
+  .order("created_at",{ascending:false}).limit(100);
+ $("cargos").textContent="";
+ if(ce){$("cargos").textContent="تعذر تحميل الشحنات؛ تحقق من الصلاحيات.";return}
+ if(!rows.length){$("cargos").textContent="لا توجد شحنات.";return}
+ rows.forEach(c=>{
+  const div=document.createElement("div");
+  div.className="card";
+  div.textContent=(c.title||"شحنة")+" — "+(c.origin_city||"؟")+" ← "+(c.destination_city||"؟")+" — "+(c.status||"");
+  $("cargos").appendChild(div);
+ });
+};
+$("logoutBtn").onclick=async()=>{
+ await db.auth.signOut();
+ location.reload();
+};
+</script>
+</body>
+</html>
