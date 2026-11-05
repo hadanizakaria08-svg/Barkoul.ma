@@ -2,413 +2,818 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#126747">
-<title>Barkoul.ma | الشحن في المغرب</title>
-<style>
-:root{--g:#126747;--light:#e8f4ed;--bg:#f5f8f6;--line:#dce6df}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:#17251e;font-family:Arial,Tahoma,sans-serif}
-.wrap{max-width:850px;margin:auto;padding:14px}
-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0}
-.brand{color:var(--g);font-size:24px;font-weight:bold}
-button{border:0;border-radius:10px;padding:12px 15px;font-weight:bold;cursor:pointer;font-family:inherit}
-button:disabled{opacity:.5}
-.primary{background:var(--g);color:white}
-.secondary{background:var(--light);color:var(--g)}
-.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
-.hero{background:var(--light);padding:22px;border-radius:18px}
-.roles,.fields,.filters,.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.role{background:white;border:1px solid var(--line);text-align:right;min-height:85px}
-label{display:block;font-weight:bold;font-size:14px;margin-bottom:5px}
-input,select,textarea{width:100%;padding:11px;border:1px solid #ccd8d0;border-radius:9px;font:inherit;background:white}
-.field{min-width:0}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.muted{color:#63736a;line-height:1.7}
-.status{padding:10px;background:var(--light);border-radius:9px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere}
-.card{background:white;border:1px solid var(--line);border-radius:12px;padding:13px;overflow-wrap:anywhere}
-.route{color:var(--g);font-weight:bold;font-size:17px}
-.price{font-weight:bold;font-size:18px;margin-top:8px}
-.hidden{display:none!important}
-.socials{display:flex;align-items:center;gap:7px}
-.social{width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;text-decoration:none;font-weight:bold;font-size:20px}
-.whatsapp{background:#25D366}.facebook{background:#1877F2}
-.x-social{background:#000}.instagram{background:#C13584}
-@media(max-width:560px){
-.wrap{padding:10px}.roles,.fields,.filters,.cards{grid-template-columns:1fr}
-.brand{font-size:20px}.social{width:30px;height:30px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#126747">
+  <meta name="description" content="Barkoul.ma منصة لربط أصحاب البضائع بسائقي الشاحنات في المغرب.">
+  <title>Barkoul.ma | الشحن في المغرب</title>
+
+  <style>
+    :root {
+      --green: #126747;
+      --green-dark: #0b4c34;
+      --green-light: #e8f4ed;
+      --background: #f5f8f6;
+      --border: #dce8df;
+      --text: #17251c;
+      --muted: #68766d;
+      --danger: #a52d2d;
+      --danger-bg: #fff0f0;
+      --white: #ffffff;
+      --shadow: 0 5px 20px rgba(20, 65, 42, .06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Arial, Tahoma, sans-serif;
+      line-height: 1.7;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid rgba(18, 103, 71, .22);
+      outline-offset: 2px;
+    }
+
+    .wrap {
+      width: min(960px, 94%);
+      margin: auto;
+    }
+
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .head {
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .brand {
+      color: var(--green);
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .primary {
+      background: var(--green);
+      color: white;
+    }
+
+    .primary:hover { background: var(--green-dark); }
+
+    .secondary {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .panel, .help, .hero {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 17px;
+      margin: 15px 0;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #e8f4ed, #f7fbf8);
+      padding: 25px 20px;
+      margin-top: 20px;
+    }
+
+    h1 { font-size: clamp(23px, 5vw, 32px); }
+    h2 { font-size: 21px; margin-top: 0; }
+    p { margin-top: 0; }
+
+    .roles, .grid, .filters, .cargo-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .role {
+      min-height: 85px;
+      text-align: right;
+      background: white;
+      color: var(--green);
+      border: 1px solid var(--border);
+      font-size: 16px;
+    }
+
+    .field {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbdacf;
+      border-radius: 9px;
+      background: white;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 12px 0;
+    }
+
+    .actions button { flex: 1; }
+
+    .full { width: 100%; }
+
+    .status {
+      padding: 11px;
+      border-radius: 9px;
+      margin-top: 12px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 14px;
+    }
+
+    .status.error {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .muted { color: var(--muted); }
+
+    .cargo-list { margin-top: 15px; }
+
+    .cargo-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .cargo-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .route {
+      color: var(--green);
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .price {
+      color: var(--green-dark);
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 8px;
+    }
+
+    .empty {
+      background: white;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
+
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center;
+      padding: 25px 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .roles, .grid, .filters, .cargo-list {
+        grid-template-columns: 1fr;
+      }
+
+      .head { align-items: flex-start; }
+      .brand { font-size: 21px; }
+      .hero { padding: 18px 14px; }
+      .panel { padding: 14px; }
+    }
+  </style>
 </head>
+
 <body>
-<div class="wrap">
+
 <header>
-  <div>
-    <div class="brand">🚚 Barkoul.ma</div>
-    <small>ربط الشحنات بسائقي الشاحنات في المغرب</small>
+  <div class="wrap head">
+    <div>
+      <div class="brand">🚚 Barkoul.ma</div>
+      <div class="small">ربط أصحاب البضائع بسائقي الشاحنات في المغرب</div>
+    </div>
+
+    <div class="actions">
+      <button id="accountBtn" class="secondary" type="button">دخول / حساب</button>
+      <button id="logoutBtn" class="secondary hidden" type="button">خروج</button>
+    </div>
   </div>
-  <nav class="socials" aria-label="مواقع التواصل">
-    <a class="social whatsapp" href="https://wa.me/" target="_blank" rel="noopener">◉</a>
-    <a class="social facebook" href="https://www.facebook.com/" target="_blank" rel="noopener">f</a>
-    <a class="social x-social" href="https://x.com/" target="_blank" rel="noopener">𝕏</a>
-    <a class="social instagram" href="https://www.instagram.com/" target="_blank" rel="noopener">◎</a>
-  </nav>
 </header>
 
-<section class="hero">
-  <h1>شحناتك، وسائقك المناسب في مكان واحد</h1>
-  <p>تصفح الشحنات دون تسجيل. الحساب مطلوب لإضافة شحنة.</p>
-  <div class="roles">
-    <button class="role" id="driverBtn">🚛 أنا سائق<br><small>البحث عن شحنة</small></button>
-    <button class="role" id="ownerBtn">📦 أنا صاحب بضاعة<br><small>إضافة شحنة</small></button>
-  </div>
-</section>
+<main class="wrap">
 
-<section class="panel hidden" id="authPanel">
-  <h2>الدخول أو إنشاء حساب</h2>
-  <p class="muted">سجّل الدخول أو أنشئ حساباً لإضافة شحنة.</p>
-  <div class="fields">
-    <div class="field"><label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="email"></div>
-    <div class="field"><label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" minlength="8"></div>
-  </div>
-  <div class="actions">
-    <button class="primary" id="loginBtn">تسجيل الدخول</button>
-    <button class="secondary" id="signupBtn">إنشاء حساب</button>
-    <button class="secondary hidden" id="logoutBtn">تسجيل الخروج</button>
-    <button class="secondary" id="closeAuthBtn">إغلاق</button>
-  </div>
-  <div id="authMsg" class="status hidden" role="status"></div>
-</section>
+  <section class="hero">
+    <h1>شحناتك وسائقك المناسب في مكان واحد</h1>
+    <p>ابحث عن الشحنات المتاحة أو انشر شحنتك بسهولة.</p>
 
-<section class="panel" id="searchPanel">
-  <h2>🔎 البحث عن شحنة</h2>
-  <div class="filters">
-    <div class="field"><label for="fromFilter">مدينة الانطلاق</label><input id="fromFilter" placeholder="الدار البيضاء"></div>
-    <div class="field"><label for="toFilter">مدينة الوصول</label><input id="toFilter" placeholder="مراكش"></div>
-    <div class="field"><label for="goodsFilter">نوع البضاعة</label><input id="goodsFilter"></div>
-    <div class="field"><label for="truckFilter">نوع الشاحنة</label>
-      <select id="truckFilter">
-        <option value="">كل الشاحنات</option>
-        <option>شاحنة صغيرة</option><option>3.5 طن</option><option>7.5 طن</option>
-        <option>10 طن</option><option>19 طن</option><option>شاحنة كبيرة</option>
-        <option>رأس قاطر ومقطورة</option><option>مبردة</option><option>حاويات</option>
-      </select>
+    <div class="roles">
+      <button id="driverBtn" class="role" type="button">
+        🚛 أنا سائق
+        <br><small>البحث عن شحنة</small>
+      </button>
+
+      <button id="ownerBtn" class="role" type="button">
+        📦 أنا صاحب بضاعة
+        <br><small>إضافة شحنة</small>
+      </button>
     </div>
-  </div>
-  <div class="actions">
-    <button class="primary" id="searchBtn">بحث</button>
-    <button class="secondary" id="allBtn">عرض الكل</button>
-  </div>
-  <div id="searchMsg" class="status" role="status">جارٍ تهيئة الموقع…</div>
-  <div id="cargoList" class="cards" style="margin-top:12px"></div>
-</section>
 
-<section class="panel hidden" id="addPanel">
-  <h2>＋ إضافة شحنة</h2>
-  <div class="fields">
-    <div class="field"><label for="title">عنوان الشحنة *</label><input id="title" maxlength="100"></div>
-    <div class="field"><label for="goods">نوع البضاعة *</label><input id="goods" maxlength="80"></div>
-    <div class="field"><label for="origin">مدينة الانطلاق *</label><input id="origin" maxlength="80"></div>
-    <div class="field"><label for="destination">مدينة الوصول *</label><input id="destination" maxlength="80"></div>
-    <div class="field"><label for="weight">الوزن</label><input id="weight" maxlength="80"></div>
-    <div class="field"><label for="truck">نوع الشاحنة</label>
-      <select id="truck">
-        <option value="">غير محدد</option><option>شاحنة صغيرة</option><option>3.5 طن</option>
-        <option>7.5 طن</option><option>10 طن</option><option>19 طن</option>
-        <option>شاحنة كبيرة</option><option>رأس قاطر ومقطورة</option><option>مبردة</option><option>حاويات</option>
-      </select>
+    <p id="userStatus" class="small">جارٍ التحقق من حالة الحساب...</p>
+  </section>
+
+  <section id="authPanel" class="panel hidden">
+    <h2 id="authTitle">الدخول إلى حسابك</h2>
+
+    <p class="muted">
+      يمكنك تصفح الشحنات دون تسجيل الدخول.
+      يلزم الحساب لنشر شحنة.
+    </p>
+
+    <form id="authForm">
+      <div class="field">
+        <label for="email">البريد الإلكتروني</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          required
+          maxlength="254"
+          placeholder="example@email.com">
+      </div>
+
+      <div class="field">
+        <label for="password">كلمة المرور</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          minlength="8"
+          required
+          placeholder="8 أحرف على الأقل">
+      </div>
+
+      <div class="actions">
+        <button id="loginBtn" class="primary" type="submit">تسجيل الدخول</button>
+        <button id="signupBtn" class="secondary" type="button">إنشاء حساب</button>
+      </div>
+    </form>
+
+    <button id="closeAuthBtn" class="secondary full" type="button">إغلاق</button>
+    <div id="authMsg" class="status hidden" role="status" aria-live="polite"></div>
+  </section>
+
+  <section id="searchPanel" class="panel">
+    <h2>🔎 البحث عن شحنة</h2>
+    <p class="muted">تصفح الشحنات المفتوحة دون الحاجة إلى تسجيل الدخول.</p>
+
+    <div class="filters">
+      <div class="field">
+        <label for="fromFilter">مدينة الانطلاق</label>
+        <input id="fromFilter" placeholder="مثلاً: الدار البيضاء">
+      </div>
+
+      <div class="field">
+        <label for="toFilter">مدينة الوصول</label>
+        <input id="toFilter" placeholder="مثلاً: مراكش">
+      </div>
+
+      <div class="field">
+        <label for="goodsFilter">نوع البضاعة</label>
+        <input id="goodsFilter" placeholder="مثلاً: خضار">
+      </div>
+
+      <div class="field">
+        <label for="truckFilter">نوع الشاحنة</label>
+        <select id="truckFilter">
+          <option value="">كل الشاحنات</option>
+          <option>شاحنة صغيرة</option>
+          <option>3.5 طن</option>
+          <option>7.5 طن</option>
+          <option>شاحنة 10 طن</option>
+          <option>شاحنة 19 طن</option>
+          <option>شاحنة كبيرة</option>
+          <option>نصف مقطورة</option>
+          <option>رأس قاطر ومقطورة</option>
+          <option>مبردة</option>
+          <option>حاوية</option>
+        </select>
+      </div>
     </div>
-    <div class="field"><label for="date">تاريخ التحميل</label><input id="date" type="date"></div>
-    <div class="field"><label for="price">السعر بالدرهم</label><input id="price" type="number" min="0" step="0.01"></div>
-    <div class="field" style="grid-column:1/-1"><label for="notes">ملاحظات</label><textarea id="notes" maxlength="500"></textarea></div>
-  </div>
-  <div class="actions">
-    <button class="primary" id="publishBtn">نشر الشحنة</button>
-    <button class="secondary" id="cancelBtn">إلغاء</button>
-  </div>
-  <div id="addMsg" class="status hidden" role="status"></div>
-</section>
 
-<footer class="muted" style="text-align:center;padding:18px">
-  نسخة اختبار أولية — تحقق من البيانات قبل الاتفاق أو تحويل الأموال.
+    <div class="actions">
+      <button id="searchBtn" class="primary" type="button">بحث</button>
+      <button id="allBtn" class="secondary" type="button">عرض الكل</button>
+      <button id="refreshBtn" class="secondary" type="button">تحديث</button>
+    </div>
+
+    <div id="searchMsg" class="status" role="status" aria-live="polite">
+      جارٍ الاتصال بقاعدة البيانات...
+    </div>
+
+    <div id="cargoList" class="cargo-list"></div>
+  </section>
+
+  <section id="addPanel" class="panel hidden">
+    <h2>＋ إضافة شحنة جديدة</h2>
+
+    <p class="muted">
+      أدخل المعلومات بدقة. لا تضع رقم هاتفك أو بياناتك الخاصة في الملاحظات.
+    </p>
+
+    <form id="cargoForm">
+
+      <div class="grid">
+
+        <div class="field">
+          <label for="title">عنوان الشحنة *</label>
+          <input id="title" required maxlength="100" placeholder="مثلاً: شحنة خضار">
+        </div>
+
+        <div class="field">
+          <label for="goods">نوع البضاعة *</label>
+          <input id="goods" required maxlength="80">
+        </div>
+
+        <div class="field">
+          <label for="origin">مدينة الانطلاق *</label>
+          <input id="origin" required maxlength="80">
+        </div>
+
+        <div class="field">
+          <label for="destination">مدينة الوصول *</label>
+          <input id="destination" required maxlength="80">
+        </div>
+
+        <div class="field">
+          <label for="weight">الوزن التقريبي</label>
+          <input id="weight" maxlength="80" placeholder="مثلاً: 5 أطنان">
+        </div>
+
+        <div class="field">
+          <label for="truck">نوع الشاحنة</label>
+          <select id="truck">
+            <option value="">غير محدد</option>
+            <option>شاحنة صغيرة</option>
+            <option>3.5 طن</option>
+            <option>7.5 طن</option>
+            <option>شاحنة 10 طن</option>
+            <option>شاحنة 19 طن</option>
+            <option>شاحنة كبيرة</option>
+            <option>نصف مقطورة</option>
+            <option>رأس قاطر ومقطورة</option>
+            <option>مبردة</option>
+            <option>حاوية</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="date">تاريخ التحميل</label>
+          <input id="date" type="date">
+        </div>
+
+        <div class="field">
+          <label for="price">السعر المقترح بالدرهم</label>
+          <input id="price" type="number" min="0" step="0.01" inputmode="decimal">
+        </div>
+
+        <div class="field" style="grid-column:1/-1">
+          <label for="notes">ملاحظات إضافية</label>
+          <textarea id="notes" maxlength="500" placeholder="معلومات إضافية عن البضاعة أو التحميل..."></textarea>
+        </div>
+
+      </div>
+
+      <button id="publishBtn" class="primary full" type="submit">
+        نشر الشحنة
+      </button>
+
+      <button id="cancelBtn" class="secondary full" type="button">
+        إلغاء
+      </button>
+
+    </form>
+
+    <div id="addMsg" class="status hidden" role="status" aria-live="polite"></div>
+  </section>
+
+</main>
+
+<footer>
+  Barkoul.ma — نسخة اختبار أولية
+  <br>
+  تحقق من البيانات والاتفاق قبل أي عملية نقل أو تحويل مالي.
 </footer>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 (() => {
-"use strict";
+  "use strict";
 
-const SUPABASE_URL="https://ajvpinnumhazuyziphwn.supabase.co";
-const SUPABASE_ANON_KEY="sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
+  // إعدادات مشروع Supabase الحالي
+  const SUPABASE_URL = "https://ajvpinnumhazuyziphwn.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
 
-const $=id=>document.getElementById(id);
-let db=null,user=null,cargos=[],pendingAdd=false;
+  const $ = id => document.getElementById(id);
 
-function message(id,text,error=false){
-  const el=$(id);
-  el.textContent=text;
-  el.classList.remove("hidden");
-  el.style.background=error?"#fff0f0":"#e8f4ed";
-  el.style.color=error?"#a52d2d":"#126747";
-}
+  let db = null;
+  let currentUser = null;
+  let cargos = [];
+  let loadingCargos = false;
 
-function escapeHTML(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-
-function ready(){
-  if(!db){
-    message("searchMsg","تعذر تهيئة الاتصال. تحقق من تحميل مكتبة Supabase والمفتاح العام.",true);
-    return false;
+  function showMessage(id, text, isError = false) {
+    const el = $(id);
+    el.textContent = text;
+    el.classList.remove("hidden");
+    el.classList.toggle("error", isError);
   }
-  return true;
-}
 
-function showAuth(){
-  $("authPanel").classList.remove("hidden");
-  $("authPanel").scrollIntoView({behavior:"smooth"});
-}
+  function hideMessage(id) {
+    $(id).classList.add("hidden");
+  }
 
-function openAdd(){
-  if(!user){
-    pendingAdd=true;
-    showAuth();
-    message("authMsg","سجّل الدخول أو أنشئ حساباً أولاً لإضافة شحنة.");
-    return;
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
   }
-  pendingAdd=false;
-  $("addPanel").classList.remove("hidden");
-  $("addPanel").scrollIntoView({behavior:"smooth"});
-}
 
-function render(items){
-  const list=$("cargoList");
-  if(!items.length){
-    list.innerHTML='<p class="muted">لا توجد شحنات مطابقة حالياً.</p>';
-    return;
+  function normalize(value) {
+    return String(value ?? "")
+      .trim()
+      .toLocaleLowerCase("ar");
   }
-  list.innerHTML=items.map(c=>`
-    <article class="card">
-      <h3>${escapeHTML(c.title||c.goods_type||"شحنة")}</h3>
-      <div class="route">${escapeHTML(c.origin_city||"غير محددة")} ← ${escapeHTML(c.destination_city||"غير محددة")}</div>
-      <p class="muted">
-        البضاعة: ${escapeHTML(c.goods_type||"غير محددة")}<br>
-        الوزن: ${escapeHTML(c.weight_text||"غير محدد")}<br>
-        الشاحنة: ${escapeHTML(c.truck_type||"غير محددة")}<br>
-        تاريخ التحميل: ${escapeHTML(c.loading_date||"غير محدد")}
-      </p>
-      <div class="price">${c.offered_price_mad==null?"السعر غير محدد":escapeHTML(c.offered_price_mad)+" درهم"}</div>
-    </article>
-  `).join("");
-}
 
-function filter(){
-  const from=$("fromFilter").value.trim().toLowerCase();
-  const to=$("toFilter").value.trim().toLowerCase();
-  const goods=$("goodsFilter").value.trim().toLowerCase();
-  const truck=$("truckFilter").value;
-  render(cargos.filter(c=>
-    (!from||String(c.origin_city||"").toLowerCase().includes(from))&&
-    (!to||String(c.destination_city||"").toLowerCase().includes(to))&&
-    (!goods||String(c.goods_type||"").toLowerCase().includes(goods))&&
-    (!truck||c.truck_type===truck)
-  ));
-}
+  function translateError(error) {
+    const message = String(error?.message || "");
 
-async function loadCargos(){
-  if(!ready())return;
-  $("cargoList").textContent="جارٍ تحميل الشحنات…";
-  try{
-    const {data,error}=await db.from("cargos")
-      .select("id,title,origin_city,destination_city,goods_type,weight_text,truck_type,loading_date,offered_price_mad,notes,status")
-      .eq("status","open")
-      .order("created_at",{ascending:false})
-      .limit(100);
-    if(error)throw error;
-    cargos=data||[];
-    filter();
-    message("searchMsg",cargos.length?"تم تحميل الشحنات.":"تم الاتصال بقاعدة البيانات، ولا توجد شحنات متاحة حالياً.");
-  }catch(e){
-    cargos=[];
-    render([]);
-    message("searchMsg","تعذر تحميل الشحنات. تحقق من إعدادات Supabase وسياسات RLS.\n"+(e.message||"خطأ غير معروف"),true);
-  }
-}
-
-async function login(){
-  if(!ready())return;
-  const email=$("email").value.trim();
-  const password=$("password").value;
-  if(!email||!password){
-    message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
-    return;
-  }
-  $("loginBtn").disabled=true;
-  try{
-    const {data,error}=await db.auth.signInWithPassword({email,password});
-    if(error)throw error;
-    user=data.user;
-    $("authPanel").classList.add("hidden");
-    $("logoutBtn").classList.remove("hidden");
-    message("searchMsg","تم تسجيل الدخول بنجاح.");
-    if(pendingAdd)openAdd();
-  }catch(e){
-    message("authMsg",e.message||"تعذر تسجيل الدخول.",true);
-  }finally{
-    $("loginBtn").disabled=false;
-  }
-}
-
-async function signup(){
-  if(!ready())return;
-  const email=$("email").value.trim();
-  const password=$("password").value;
-  if(!email||!password){
-    message("authMsg","أدخل البريد الإلكتروني وكلمة المرور.",true);
-    return;
-  }
-  if(password.length<8){
-    message("authMsg","كلمة المرور يجب أن تكون 8 أحرف على الأقل.",true);
-    return;
-  }
-  $("signupBtn").disabled=true;
-  try{
-    const {data,error}=await db.auth.signUp({email,password});
-    if(error)throw error;
-    user=data.session?data.user:null;
-    if(user){
-      $("authPanel").classList.add("hidden");
-      $("logoutBtn").classList.remove("hidden");
-      if(pendingAdd)openAdd();
-    }else{
-      message("authMsg","تم طلب إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.");
+    if (/Invalid login credentials/i.test(message)) {
+      return "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
     }
-  }catch(e){
-    message("authMsg",e.message||"تعذر إنشاء الحساب.",true);
-  }finally{
-    $("signupBtn").disabled=false;
-  }
-}
 
-async function logout(){
-  if(!db||!user)return;
-  try{
-    const {error}=await db.auth.signOut();
-    if(error)throw error;
-    user=null;
-    pendingAdd=false;
+    if (/Email not confirmed/i.test(message)) {
+      return "يجب تأكيد بريدك الإلكتروني أولاً.";
+    }
+
+    if (/User already registered/i.test(message)) {
+      return "هذا البريد مسجل من قبل. حاول تسجيل الدخول.";
+    }
+
+    if (/Password should be at least/i.test(message)) {
+      return "كلمة المرور قصيرة. استخدم 8 أحرف على الأقل.";
+    }
+
+    if (/row-level security|permission denied|42501/i.test(message)) {
+      return "رفضت صلاحيات قاعدة البيانات هذه العملية. يجب مراجعة سياسات RLS في Supabase.";
+    }
+
+    if (/Failed to fetch|NetworkError/i.test(message)) {
+      return "تعذر الاتصال بالإنترنت أو بخدمة Supabase.";
+    }
+
+    return message || "حدث خطأ غير معروف. حاول مرة أخرى.";
+  }
+
+  function updateAccountUI() {
+    $("logoutBtn").classList.toggle("hidden", !currentUser);
+
+    $("accountBtn").textContent = currentUser
+      ? "حسابي"
+      : "دخول / حساب";
+
+    $("userStatus").textContent = currentUser
+      ? "أنت مسجل الدخول. يمكنك نشر شحنة."
+      : "أنت تتصفح كزائر. تسجيل الدخول مطلوب لنشر شحنة.";
+  }
+
+  function showAuth() {
+    $("authPanel").classList.remove("hidden");
+    $("authPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function closeAuth() {
+    $("authPanel").classList.add("hidden");
+  }
+
+  function showAdd() {
+    if (!currentUser) {
+      showAuth();
+      showMessage("authMsg", "سجل الدخول أو أنشئ حساباً أولاً حتى تتمكن من نشر شحنة.");
+      return;
+    }
+
+    $("addPanel").classList.remove("hidden");
+    $("addPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function hideAdd() {
     $("addPanel").classList.add("hidden");
-    $("logoutBtn").classList.add("hidden");
-    message("authMsg","تم تسجيل الخروج.");
-    showAuth();
-  }catch(e){
-    message("authMsg",e.message||"تعذر تسجيل الخروج.",true);
-  }
-}
-
-async function publish(){
-  if(!user){
-    openAdd();
-    return;
-  }
-  if(!ready())return;
-
-  const title=$("title").value.trim();
-  const goods_type=$("goods").value.trim();
-  const origin_city=$("origin").value.trim();
-  const destination_city=$("destination").value.trim();
-
-  if(!title||!goods_type||!origin_city||!destination_city){
-    message("addMsg","املأ عنوان الشحنة ونوع البضاعة ومدينتي الانطلاق والوصول.",true);
-    return;
+    hideMessage("addMsg");
   }
 
-  const raw=$("price").value.trim();
-  const price=raw===""?null:Number(raw);
-  if(price!==null&&(!Number.isFinite(price)||price<0)){
-    message("addMsg","أدخل سعراً صحيحاً.",true);
-    return;
+  function renderCargos(items) {
+    const list = $("cargoList");
+
+    if (!items.length) {
+      list.innerHTML = '<div class="empty">لا توجد شحنات مطابقة حالياً.</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(cargo => {
+      const date = cargo.loading_date
+        ? escapeHTML(cargo.loading_date)
+        : "غير محدد";
+
+      const price = cargo.offered_price_mad == null
+        ? "السعر غير محدد"
+        : escapeHTML(cargo.offered_price_mad) + " درهم";
+
+      return `
+        <article class="cargo-card">
+          <h3>📦 ${escapeHTML(cargo.title || cargo.goods_type || "شحنة")}</h3>
+
+          <div class="route">
+            ${escapeHTML(cargo.origin_city || "؟")}
+            ←
+            ${escapeHTML(cargo.destination_city || "؟")}
+          </div>
+
+          <p class="muted">
+            البضاعة: ${escapeHTML(cargo.goods_type || "غير محددة")}
+            <br>
+            الوزن: ${escapeHTML(cargo.weight_text || "غير محدد")}
+            <br>
+            الشاحنة: ${escapeHTML(cargo.truck_type || "غير محددة")}
+            <br>
+            تاريخ التحميل: ${date}
+          </p>
+
+          <div class="price">${price}</div>
+
+          <p class="small">
+            بيانات الاتصال غير معروضة للزوار.
+          </p>
+        </article>
+      `;
+    }).join("");
   }
 
-  $("publishBtn").disabled=true;
-  try{
-    const {error}=await db.from("cargos").insert({
-      title,
-      goods_type,
-      origin_city,
-      destination_city,
-      weight_text:$("weight").value.trim()||null,
-      truck_type:$("truck").value||"غير محدد",
-      loading_date:$("date").value||null,
-      offered_price_mad:price,
-      notes:$("notes").value.trim()||null,
-      status:"open",
-      owner_id:user.id
+  function applyFilters() {
+    const from = normalize($("fromFilter").value);
+    const to = normalize($("toFilter").value);
+    const goods = normalize($("goodsFilter").value);
+    const truck = $("truckFilter").value;
+
+    const filtered = cargos.filter(cargo => {
+      const matchFrom = !from ||
+        normalize(cargo.origin_city).includes(from);
+
+      const matchTo = !to ||
+        normalize(cargo.destination_city).includes(to);
+
+      const matchGoods = !goods ||
+        normalize(cargo.goods_type).includes(goods);
+
+      const matchTruck = !truck ||
+        cargo.truck_type === truck;
+
+      return matchFrom && matchTo && matchGoods && matchTruck;
     });
-    if(error)throw error;
 
-    message("addMsg","تم نشر الشحنة بنجاح.");
-    ["title","goods","origin","destination","weight","date","price","notes"]
-      .forEach(id=>$(id).value="");
-    $("truck").value="";
-    await loadCargos();
-  }catch(e){
-    message("addMsg","تعذر نشر الشحنة. تحقق من إعدادات قاعدة البيانات والصلاحيات.\n"+(e.message||"خطأ غير معروف"),true);
-  }finally{
-    $("publishBtn").disabled=false;
+    renderCargos(filtered);
+
+    if (cargos.length) {
+      showMessage(
+        "searchMsg",
+        "عدد الشحنات المطابقة: " + filtered.length
+      );
+    }
   }
-}
 
-$("driverBtn").onclick=()=>$("searchPanel").scrollIntoView({behavior:"smooth"});
-$("ownerBtn").onclick=openAdd;
-$("loginBtn").onclick=login;
-$("signupBtn").onclick=signup;
-$("logoutBtn").onclick=logout;
-$("closeAuthBtn").onclick=()=>{
-  $("authPanel").classList.add("hidden");
-  pendingAdd=false;
-};
-$("publishBtn").onclick=publish;
-$("cancelBtn").onclick=()=>{
-  $("addPanel").classList.add("hidden");
-  pendingAdd=false;
-};
-$("searchBtn").onclick=filter;
-$("allBtn").onclick=()=>{
-  ["fromFilter","toFilter","goodsFilter"].forEach(id=>$(id).value="");
-  $("truckFilter").value="";
-  filter();
-};
-["fromFilter","toFilter","goodsFilter","truckFilter"]
-  .forEach(id=>$(id).addEventListener("input",filter));
+  async function loadCargos() {
+    if (!db || loadingCargos) return;
 
-if(window.supabase&&SUPABASE_URL.startsWith("https://")&&SUPABASE_ANON_KEY.startsWith("sb_publishable_")){
-  try{
-    db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-    db.auth.getSession().then(({data,error})=>{
-      if(error)throw error;
-      user=data.session?.user||null;
-      $("logoutBtn").classList.toggle("hidden",!user);
-      loadCargos();
-    }).catch(e=>{
-      message("searchMsg","تعذر التحقق من الاتصال أو جلسة الدخول.\n"+(e.message||""),true);
-    });
-    db.auth.onAuthStateChange((_event,session)=>{
-      user=session?.user||null;
-      $("logoutBtn").classList.toggle("hidden",!user);
-    });
-  }catch(e){
-    message("searchMsg","تعذر تهيئة Supabase.\n"+(e.message||""),true);
+    loadingCargos = true;
+    $("refreshBtn").disabled = true;
+
+    $("cargoList").innerHTML =
+      '<div class="empty">جارٍ تحميل الشحنات...</div>';
+
+    showMessage("searchMsg", "جارٍ الاتصال بقاعدة البيانات...");
+
+    try {
+      const { data, error } = await db
+        .from("cargos")
+        .select(
+          "id,title,origin_city,destination_city,goods_type,weight_text,truck_type,loading_date,offered_price_mad,status,created_at"
+        )
+        .eq("status", "open")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      cargos = data || [];
+      applyFilters();
+
+      showMessage(
+        "searchMsg",
+        cargos.length
+          ? "تم تحميل الشحنات المفتوحة بنجاح."
+          : "لا توجد شحنات مفتوحة حالياً."
+      );
+
+    } catch (error) {
+      cargos = [];
+      renderCargos([]);
+
+      showMessage(
+        "searchMsg",
+        "تعذر تحميل الشحنات.\n" + translateError(error),
+        true
+      );
+
+    } finally {
+      loadingCargos = false;
+      $("refreshBtn").disabled = false;
+    }
   }
-}else{
-  render([]);
-  message("searchMsg","لم يتم تحميل مكتبة Supabase أو إعداد المفتاح العام بشكل صحيح.",true);
-}
-})();
-</script>
-</body>
-</html>
+
+  async function login(event) {
+    event.preventDefault();
+
+    const email = $("email").value.trim();
+    const password = $("password").value;
+
+    if (!email || !password) {
+      showMessage("authMsg", "أدخل البريد الإلكتروني وكلمة المرور.", true);
+      return;
+    }
+
+    $("loginBtn").disabled = true;
+
+    try {
+      const { data, error } = await db.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      currentUser = data.user;
+      updateAccountUI();
+
+      showMessage("authMsg", "تم تسجيل الدخول بنجاح.");
+      closeAuth();
+
+    } catch (error) {
+      showMessage("authMsg", translateError(error), true);
+
+    } finally {
+      $("loginBtn").disabled = false;
+    }
+  }
+
+  async function signup() {
+    const email = $("email").value.trim();
+    const password = $("password").value;
+
+    if (!email || !password) {
+      showMessage("authMsg", "أدخل البريد الإلكتروني وكلمة المرور.", true);
+      return;
+    }
+
+    if (password.length < 8) {
+      showMessage("authMsg", "كلمة المرور يجب أن تكون 8 أحرف على الأقل.", true);
+      return;
+    }
+
+    $("signupBtn").disabled = true;
+
+    try {
+      const { data, error } = await db.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        currentUser = data.user;
+        updateAccountUI();
+
+        showMessage("authMsg", "تم إنشاء الحساب وتسجيل الدخول.");
+        closeAuth();
+
+      } else {
+        showMessage(
+          "authMsg",
+          "تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيده، ثم عد إلى الموقع وسجل الدخول."
+        );
+      }
+
+    } catch (error) {
+      showMessage("authMsg", translateError(error), true);
+
+    } finally {
+      $("signupBtn").disabled = false;
+    }
+  }
+
+  async function logout() {
+    if (!db || !currentUser) return;
+
+    $("logoutBtn").disabled = true;
+
+    try {
+      const { error } = await db.auth.signOut();
+
+      if (error) throw error;
+
+      currentUser = null;
+      updateAccountUI();
+      hideAdd();
+
+      showMessage("authMsg", "تم تسجيل الخروج. يمكنك متابعة التصفح كزائر.");
+
+    } catch (error) {
+      showMessage("authMsg", translateError(error), true);
+
+    } finally {
+      $("logoutBtn").disabled = false;
+    }
+  }
+
+  async function publishCargo(event) {
