@@ -12,24 +12,22 @@ This is an engineering test baseline, not a certification or penetration-test re
 ## Automated gates
 
 1. TypeScript strict typecheck.
-2. Domain unit tests using Vitest.
-3. Production Vite build.
-4. Chromium browser acceptance tests using Playwright.
-5. axe-core WCAG 2.2 AA automated scan of the initial screen.
-6. RTL metadata, primary navigation, anonymous publishing restrictions, labelled controls, and 360px horizontal-overflow smoke tests.
-7. Full production dependency audit: any advisory in a production dependency fails CI.
-8. Full dependency audit: every advisory fails CI except the single documented, time-limited upstream picomatch exception below.
-9. A lockfile boundary test confirms every picomatch copy is development-only and build/test tools are not runtime dependencies.
-10. CI installs from the committed lockfile with `npm ci`; it does not silently resolve a new dependency tree.
+2. Domain unit tests using Node's built-in test runner through tsx.
+3. Production browser bundle generated with esbuild.
+4. Lightweight Node development server used for local browser tests.
+5. Chromium browser acceptance tests using Playwright.
+6. axe-core WCAG 2.2 AA automated scan of the initial screen.
+7. RTL metadata, primary navigation, anonymous publishing restrictions, labelled controls, and 360px horizontal-overflow smoke tests.
+8. Full `npm audit` across production and development dependencies; any advisory fails CI.
+9. A dependency-boundary check ensures picomatch, Vite, Vitest and Workbox are absent from the resolved dependency tree.
+10. CI installs from the generated lockfile using `npm ci`.
+11. PWA manifest and a small same-origin service worker are maintained directly. The service worker caches only the app shell and same-origin static assets; Supabase API traffic is never cached.
 
-## Temporary upstream dependency exception — not a fix
+## Dependency-remediation decision
 
-- **Advisory:** GHSA-fc5q-39xc-vjpf / CVE-2026-112366, ReDoS in picomatch repeated extglob parsing.
-- **Upstream status checked 2026-11-18:** GitHub's advisory lists affected versions through 4.0.7 and no patched version. Candidate upstream fixes are still unmerged and one has known behavioral edge cases. We do not pull an unreviewed fork or invent a patched version number.
-- **Current exposure:** picomatch is pulled only by development/build tooling. The lockfile gate fails if any picomatch copy becomes a production dependency. Production dependency audit must remain completely clean.
-- **Mitigation:** do not accept user-controlled glob patterns in app/runtime code; keep glob matching limited to trusted build configuration. The exception permits only this exact advisory and its transitive dependency chain; every unrelated advisory fails CI.
-- **Expiry:** 2026-12-01 23:59 UTC. At expiry CI fails until the upstream advisory is re-triaged and a real fix or an explicitly renewed risk decision is recorded.
-- **Residual risk:** development/build tooling remains affected according to the published advisory. This is a controlled temporary exception, not a claim that the dependency is patched.
+The published upstream advisory **GHSA-fc5q-39xc-vjpf / CVE-2026-112366** affected picomatch through version 4.0.7 and had no patched release at the time of remediation. Rather than pin an unpatched version or import an unreviewed third-party fork, the project removed the build/test dependency chain that introduced picomatch: Vite, Vitest, vite-plugin-pwa, Workbox and picomatch itself. The replacement uses esbuild, Node's built-in test runner, tsx and a minimal Node development server.
+
+CI must confirm these package names are absent and that a full dependency audit reports zero vulnerabilities. This removes the vulnerable package from Barkoul.ma's resolved dependency tree; it does not claim that the upstream picomatch project has been fixed.
 
 ## Known exclusions — not yet passed
 
