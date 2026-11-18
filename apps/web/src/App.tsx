@@ -94,7 +94,7 @@ export default function App() {
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
     setBusy(true);
     try {
-      await publishCargo(user.id, normalizedDraft);
+      await publishCargo(normalizedDraft);
       setDraft(initialDraft); setPublishMessage("تم إرسال الشحنة. سنحدّث القائمة.");
       await refresh();
     } catch (e) { setPublishMessage(e instanceof Error ? e.message : "تعذر نشر الشحنة."); }
