@@ -23,7 +23,7 @@ describe("cargo domain rules", () => {
   it("rejects a past date and negative price", () => {
     const errors=validateCargoDraft({...draft,loading_date:"2026-01-01",offered_price_mad:-5},"2026-11-18");
     expect(errors).toContain("تاريخ النقل لا يمكن أن يكون في الماضي.");
-    expect(errors).toContain("السعر يجب أن يكون رقماً صحيحاً غير سالب.");
+    expect(errors).toContain("السعر يجب أن يكون قيمة رقمية غير سالبة.");
   });
   it("accepts decimal MAD prices because the publishing form allows cents", () => {
     expect(validateCargoDraft({...draft,offered_price_mad:1200.5},"2026-11-18")).toEqual([]);
