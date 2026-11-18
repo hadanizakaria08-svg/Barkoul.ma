@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { filterCargos, validateCargoDraft, type Cargo, type CargoDraft } from "./index";
+import {
+  filterCargos,
+  normalizeCargoDraft,
+  validateCargoDraft,
+  type Cargo,
+  type CargoDraft
+} from "./index";
 
 const draft: CargoDraft = {
   title: "نقل خضر", origin_city: "الدار البيضاء", destination_city: "مراكش",
@@ -17,24 +23,61 @@ describe("cargo domain rules", () => {
   it("accepts a valid future cargo", () => {
     assert.deepEqual(validateCargoDraft(draft,"2026-11-18"), []);
   });
+
   it("rejects same origin and destination", () => {
     assert.ok(validateCargoDraft({...draft,destination_city:"الدار البيضاء"},"2026-11-18")
       .includes("مدينة الانطلاق والوصول يجب ألا تكونا متطابقتين."));
   });
+
   it("rejects a past date and negative price", () => {
     const errors=validateCargoDraft({...draft,loading_date:"2026-01-01",offered_price_mad:-5},"2026-11-18");
     assert.ok(errors.includes("تاريخ النقل لا يمكن أن يكون في الماضي."));
     assert.ok(errors.includes("السعر يجب أن يكون قيمة رقمية غير سالبة."));
   });
+
   it("accepts decimal MAD prices because the publishing form allows cents", () => {
     assert.deepEqual(validateCargoDraft({...draft,offered_price_mad:1200.5},"2026-11-18"), []);
   });
+
   it("rejects whitespace-only required fields", () => {
     const errors=validateCargoDraft({...draft,title:"   ",goods_type:"  "},"2026-11-18");
     assert.ok(errors.includes("عنوان الشحنة مطلوب."));
     assert.ok(errors.includes("نوع البضاعة مطلوب."));
   });
+
   it("filters routes without case sensitivity", () => {
     assert.deepEqual(filterCargos(cargos,"الدار البيضاء","مراكش","شاحنة كبيرة").map(c=>c.id), [1]);
+  });
+
+  it("rejects impossible calendar dates and non-ISO date strings", () => {
+    assert.ok(validateCargoDraft({...draft,loading_date:"2027-02-30"},"2026-11-18")
+      .includes("تاريخ النقل غير صالح."));
+    assert.ok(validateCargoDraft({...draft,loading_date:"10/01/2027"},"2026-11-18")
+      .includes("تاريخ النقل غير صالح."));
+  });
+
+  it("rejects truck categories outside the supported list", () => {
+    assert.ok(validateCargoDraft({...draft,truck_type:"سيارة خاصة"},"2026-11-18")
+      .includes("نوع الشاحنة غير مدعوم."));
+  });
+
+  it("normalizes surrounding whitespace and empty optional values before saving", () => {
+    assert.deepEqual(normalizeCargoDraft({
+      ...draft,
+      title:"  نقل خضر  ",
+      origin_city:" الدار البيضاء ",
+      weight_text:"   ",
+      notes:"  ملاحظة  "
+    }), {
+      ...draft,
+      title:"نقل خضر",
+      origin_city:"الدار البيضاء",
+      weight_text:null,
+      notes:"ملاحظة"
+    });
+  });
+
+  it("filters truck categories after trimming search input", () => {
+    assert.deepEqual(filterCargos(cargos,"","","  شاحنة كبيرة  ").map(c=>c.id), [1,2]);
   });
 });
