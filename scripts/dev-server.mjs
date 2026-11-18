@@ -11,8 +11,12 @@ const valueAfter = (flag, fallback) => {
   const index = args.indexOf(flag);
   return index >= 0 && args[index + 1] ? args[index + 1] : fallback;
 };
-const host = valueAfter("--host", "0.0.0.0");
+// Expose the development server to the local device only unless explicitly overridden.
+const host = valueAfter("--host", "127.0.0.1");
 const port = Number(valueAfter("--port", process.env.PORT ?? "5173"));
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  throw new Error("PORT must be an integer between 1 and 65535.");
+}
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -35,7 +39,13 @@ const server = http.createServer(async (request, response) => {
   }
   try {
     const url = new URL(request.url ?? "/", "http://localhost");
-    const pathname = decodeURIComponent(url.pathname);
+    let pathname;
+    try {
+      pathname = decodeURIComponent(url.pathname);
+    } catch {
+      response.writeHead(400).end("Bad request");
+      return;
+    }
     const target = path.resolve(dist, "." + pathname);
     if (target !== dist && !target.startsWith(dist + path.sep)) {
       response.writeHead(400).end("Bad request");
