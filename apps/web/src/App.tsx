@@ -24,6 +24,7 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [authMode, setAuthMode] = useState<"login"|"signup">("login");
   const [authMessage, setAuthMessage] = useState("");
+  const [resetMode, setResetMode] = useState(false);
   const [draft, setDraft] = useState<CargoDraft>(initialDraft);
   const [publishMessage, setPublishMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -68,7 +69,7 @@ export default function App() {
     finally { setBusy(false); }
   }
 
-  async function submitCargo(event: FormEvent) {
+  async function sendPasswordReset() {\n    if (!db || !email.trim()) { setAuthMessage("أدخل بريدك الإلكتروني أولاً."); return; }\n    setBusy(true); setAuthMessage("");\n    try {\n      const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + window.location.pathname });\n      if (error) throw error;\n      setAuthMessage("إذا كان البريد مسجلاً، فستصلك رسالة لإعادة تعيين كلمة المرور.");\n    } catch (e) { setAuthMessage(e instanceof Error ? e.message : "تعذر إرسال رسالة الاستعادة."); }\n    finally { setBusy(false); }\n  }\n\n  async function submitCargo(event: FormEvent) {
     event.preventDefault(); setPublishMessage("");
     if (!user) { setPublishMessage("سجّل الدخول أولاً."); return; }
     const errors = validateCargoDraft(draft, todayLocal());
@@ -107,8 +108,8 @@ export default function App() {
           <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
       </section>
 
-      <section className="section split" id="account"><div><p className="eyebrow">حسابك على Barkoul</p><h2>{authMode === "login" ? "مرحباً بعودتك" : "أنشئ حسابك"}</h2><p className="muted">يمكنك تصفح الشحنات دون حساب. يلزم تسجيل الدخول لنشر شحنة.</p></div>
-        <form className="form-card" onSubmit={submitAuth}>{authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}<label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label><label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label><button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button><button type="button" className="text-button" onClick={()=>{setAuthMode(authMode==="login"?"signup":"login");setAuthMessage("");}}>{authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>{authMessage && <p className="form-message" role="status">{authMessage}</p>}</form>
+      <section className="section split" id="account"><div><p className="eyebrow">حسابك على Barkoul</p><h2>{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "مرحباً بعودتك" : "أنشئ حسابك"}</h2><p className="muted">يمكنك تصفح الشحنات دون حساب. يلزم تسجيل الدخول لنشر شحنة.</p></div>
+        <form className="form-card" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>{!resetMode && authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}<label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>{!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}<button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>{!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}<button type="button" className="text-button" onClick={()=>{setResetMode(false);setAuthMode(authMode==="login"?"signup":"login");setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>{authMessage && <p className="form-message" role="status">{authMessage}</p>}</form>
       </section>
 
       <section className="section" id="publish"><div className="section-heading"><div><p className="eyebrow">أضف فرصة نقل</p><h2>نشر شحنة جديدة</h2></div></div>
