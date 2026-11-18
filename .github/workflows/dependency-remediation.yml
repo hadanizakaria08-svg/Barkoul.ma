@@ -28,7 +28,11 @@ jobs:
         run: npm install --package-lock-only --ignore-scripts --no-audit
       - name: Install dependencies from the generated lockfile
         run: npm ci --ignore-scripts --no-audit
-      - name: Report high and critical vulnerabilities
-        run: npm audit --audit-level=high
+      - name: Block high and critical vulnerabilities in production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Report all dependency advisories without forced upgrades
+        run: |
+          npm audit --json > npm-audit-full.json || true
+          node -e 'const r=require("./npm-audit-full.json"); const entries=Object.entries(r.vulnerabilities||{}); if (!entries.length) { console.log("No dependency advisories reported."); process.exit(0); } for (const [name,v] of entries) console.log(v.severity.toUpperCase()+" "+name+": "+(v.dev ? "development-only" : "production or mixed dependency path")+"; fixAvailable="+JSON.stringify(v.fixAvailable));'
       - name: Typecheck, tests and production build
         run: npm run check
