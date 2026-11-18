@@ -26,11 +26,18 @@ export async function listOpenCargos(): Promise<Cargo[]> {
   return (data ?? []) as Cargo[];
 }
 
-export async function publishCargo(userId: string, draft: CargoDraft): Promise<void> {
+export async function publishCargo(draft: CargoDraft): Promise<void> {
   const db = getSupabase();
   if (!db) throw new Error("لم يتم إعداد اتصال قاعدة البيانات بعد.");
+
+  // Resolve the owner from the verified Supabase session, never from a caller-supplied ID.
+  const { data, error: authError } = await db.auth.getUser();
+  if (authError || !data.user) {
+    throw new Error("يجب تسجيل الدخول قبل نشر الشحنة.");
+  }
+
   const { error } = await db.from("cargos").insert({
-    owner_id: userId,
+    owner_id: data.user.id,
     ...draft,
     status: "open"
   });
