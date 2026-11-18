@@ -1,0 +1,43 @@
+name: Barkoul dependency remediation
+on:
+  push:
+    branches: ["rebuild/**"]
+    paths:
+      - "package.json"
+      - "apps/**/package.json"
+      - "packages/**/package.json"
+      - ".github/workflows/dependency-remediation.yml"
+permissions:
+  contents: write
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Generate reproducible lockfile
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Apply compatible security fixes
+        run: npm audit fix --ignore-scripts
+      - name: Install exactly from lockfile
+        run: npm ci --ignore-scripts
+      - name: Security audit
+        run: npm audit --audit-level=high
+      - name: Typecheck, tests and production build
+        run: npm run check
+      - name: Commit verified lockfile
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore: lock dependencies after security remediation"
+            git push
+          else
+            echo "Lockfile already current; no commit needed."
+          fi
