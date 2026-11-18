@@ -14,6 +14,7 @@
     "test": "npm run test --workspace @barkoul/domain",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm test && npm run build",
+    "security:runtime-deps": "node scripts/check-runtime-dependency-boundary.mjs",
     "mobile:sync": "cap sync",
     "mobile:android": "cap open android",
     "mobile:ios": "cap open ios"
@@ -29,10 +30,5 @@
   },
   "dependencies": {
     "@capacitor/core": "^7.6.10"
-  },
-  "overrides": {
-    "picomatch": "^4.0.7",
-    "glob": "^14.0.2",
-    "minimatch": "^11.0.1"
   }
 }
