@@ -31,20 +31,14 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Refresh lockfile from reviewed manifests
+      - name: Generate lockfile from reviewed manifests
         run: npm install --package-lock-only --ignore-scripts --no-audit
-      - name: Apply only non-breaking dependency security updates
-        run: npm audit fix --package-lock-only --ignore-scripts
       - name: Install exact lockfile
         run: npm ci --ignore-scripts
-      - name: Verify vulnerable tooling is absent from production dependency paths
+      - name: Verify removed vulnerable packages are absent
         run: npm run security:runtime-deps
-      - name: Block every production dependency advisory
-        run: npm audit --omit=dev
-      - name: Audit all dependencies; allow only the time-limited upstream picomatch exception
-        run: |
-          npm audit --json > npm-audit-full.json || AUDIT_STATUS=$?
-          node scripts/check-audit-exceptions.mjs npm-audit-full.json
+      - name: Block all dependency vulnerabilities
+        run: npm audit
       - name: Typecheck, unit tests and production build
         run: npm run check
       - name: Install Chromium for browser acceptance tests
@@ -58,7 +52,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package-lock.json
           if ! git diff --cached --quiet; then
-            git commit -m "chore: lock audited dependency tree"
+            git commit -m "chore: lock dependency-free security baseline"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           else
             echo "The audited lockfile is already current."
