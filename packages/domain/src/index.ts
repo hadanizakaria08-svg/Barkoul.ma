@@ -47,7 +47,7 @@ export function validateCargoDraft(draft: CargoDraft, today: string): string[] {
   }
   if (draft.offered_price_mad !== null &&
       (!Number.isFinite(draft.offered_price_mad) || draft.offered_price_mad < 0)) {
-    errors.push("السعر يجب أن يكون رقماً صحيحاً غير سالب.");
+    errors.push("السعر يجب أن يكون قيمة رقمية غير سالبة.");
   }
   if (draft.title.length > 120) errors.push("عنوان الشحنة أطول من الحد المسموح.");
   if (draft.origin_city.length > 100 || draft.destination_city.length > 100) {
