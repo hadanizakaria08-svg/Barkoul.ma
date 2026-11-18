@@ -1,0 +1,15 @@
+{
+  "name": "barkoul-ma",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "npm run dev --workspace @barkoul/web",
+    "build": "npm run build --workspace @barkoul/web",
+    "typecheck": "npm run typecheck --workspace @barkoul/web",
+    "test": "npm run test --workspace @barkoul/domain",
+    "check": "npm run typecheck && npm run test && npm run build"
+  },
+  "engines": { "node": ">=20" }
+}
