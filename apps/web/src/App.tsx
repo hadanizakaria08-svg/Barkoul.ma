@@ -8,6 +8,10 @@ const initialDraft: CargoDraft = {
 };
 
 const truckTypes = ["شاحنة كبيرة", "شاحنة متوسطة", "شاحنة صغيرة", "جرار ومقطورة", "شاحنة تبريد"];
+const todayLocal = () => {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
+};
 
 export default function App() {
   const db = getSupabase();
@@ -16,6 +20,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [user, setUser] = useState<{id:string; email?:string} | null>(null);
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [authMode, setAuthMode] = useState<"login"|"signup">("login");
   const [authMessage, setAuthMessage] = useState("");
@@ -54,7 +59,7 @@ export default function App() {
     try {
       const result = authMode === "login"
         ? await db.auth.signInWithPassword({email:email.trim(),password})
-        : await db.auth.signUp({email:email.trim(),password});
+        : await db.auth.signUp({email:email.trim(),password,options:{data:{full_name:fullName.trim()}}});
       if (result.error) throw result.error;
       setAuthMessage(authMode === "signup" && !result.data.session
         ? "تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك."
@@ -66,7 +71,7 @@ export default function App() {
   async function submitCargo(event: FormEvent) {
     event.preventDefault(); setPublishMessage("");
     if (!user) { setPublishMessage("سجّل الدخول أولاً."); return; }
-    const errors = validateCargoDraft(draft, new Date().toLocaleDateString("en-CA"));
+    const errors = validateCargoDraft(draft, todayLocal());
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
     setBusy(true);
     try {
@@ -103,11 +108,11 @@ export default function App() {
       </section>
 
       <section className="section split" id="account"><div><p className="eyebrow">حسابك على Barkoul</p><h2>{authMode === "login" ? "مرحباً بعودتك" : "أنشئ حسابك"}</h2><p className="muted">يمكنك تصفح الشحنات دون حساب. يلزم تسجيل الدخول لنشر شحنة.</p></div>
-        <form className="form-card" onSubmit={submitAuth}><label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label><label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label><button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button><button type="button" className="text-button" onClick={()=>{setAuthMode(authMode==="login"?"signup":"login");setAuthMessage("");}}>{authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>{authMessage && <p className="form-message" role="status">{authMessage}</p>}</form>
+        <form className="form-card" onSubmit={submitAuth}>{authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}<label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label><label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label><button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button><button type="button" className="text-button" onClick={()=>{setAuthMode(authMode==="login"?"signup":"login");setAuthMessage("");}}>{authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>{authMessage && <p className="form-message" role="status">{authMessage}</p>}</form>
       </section>
 
       <section className="section" id="publish"><div className="section-heading"><div><p className="eyebrow">أضف فرصة نقل</p><h2>نشر شحنة جديدة</h2></div></div>
-        <form className="form-card cargo-form" onSubmit={submitCargo}><label>عنوان الشحنة<input required maxLength={120} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></label><div className="form-grid"><label>مدينة الانطلاق<input required maxLength={100} value={draft.origin_city} onChange={e=>setDraft({...draft,origin_city:e.target.value})}/></label><label>مدينة الوصول<input required maxLength={100} value={draft.destination_city} onChange={e=>setDraft({...draft,destination_city:e.target.value})}/></label><label>نوع البضاعة<input required value={draft.goods_type} onChange={e=>setDraft({...draft,goods_type:e.target.value})} placeholder="خضر، فواكه، مواد بناء…"/></label><label>الوزن<input value={draft.weight_text ?? ""} onChange={e=>setDraft({...draft,weight_text:e.target.value || null})}/></label><label>نوع الشاحنة<select required value={draft.truck_type} onChange={e=>setDraft({...draft,truck_type:e.target.value})}><option value="">اختر النوع</option>{truckTypes.map(t=><option key={t}>{t}</option>)}</select></label><label>تاريخ النقل<input type="date" required min={new Date().toLocaleDateString("en-CA")} value={draft.loading_date} onChange={e=>setDraft({...draft,loading_date:e.target.value})}/></label><label>السعر المقترح (درهم)<input type="number" min="0" step="0.01" value={draft.offered_price_mad ?? ""} onChange={e=>setDraft({...draft,offered_price_mad:e.target.value===""?null:Number(e.target.value)})}/></label></div><label>ملاحظات<textarea maxLength={1000} value={draft.notes ?? ""} onChange={e=>setDraft({...draft,notes:e.target.value || null})}/></label><button className="button button-primary" disabled={busy || !user}>{busy?"جارٍ النشر…":"نشر الشحنة"}</button>{publishMessage && <p className="form-message" role="status">{publishMessage}</p>}</form>
+        <form className="form-card cargo-form" onSubmit={submitCargo}><label>عنوان الشحنة<input required maxLength={120} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></label><div className="form-grid"><label>مدينة الانطلاق<input required maxLength={100} value={draft.origin_city} onChange={e=>setDraft({...draft,origin_city:e.target.value})}/></label><label>مدينة الوصول<input required maxLength={100} value={draft.destination_city} onChange={e=>setDraft({...draft,destination_city:e.target.value})}/></label><label>نوع البضاعة<input required value={draft.goods_type} onChange={e=>setDraft({...draft,goods_type:e.target.value})} placeholder="خضر، فواكه، مواد بناء…"/></label><label>الوزن<input value={draft.weight_text ?? ""} onChange={e=>setDraft({...draft,weight_text:e.target.value || null})}/></label><label>نوع الشاحنة<select required value={draft.truck_type} onChange={e=>setDraft({...draft,truck_type:e.target.value})}><option value="">اختر النوع</option>{truckTypes.map(t=><option key={t}>{t}</option>)}</select></label><label>تاريخ النقل<input type="date" required min={todayLocal()} value={draft.loading_date} onChange={e=>setDraft({...draft,loading_date:e.target.value})}/></label><label>السعر المقترح (درهم)<input type="number" min="0" step="0.01" value={draft.offered_price_mad ?? ""} onChange={e=>setDraft({...draft,offered_price_mad:e.target.value===""?null:Number(e.target.value)})}/></label></div><label>ملاحظات<textarea maxLength={1000} value={draft.notes ?? ""} onChange={e=>setDraft({...draft,notes:e.target.value || null})}/></label><button className="button button-primary" disabled={busy || !user}>{busy?"جارٍ النشر…":"نشر الشحنة"}</button>{publishMessage && <p className="form-message" role="status">{publishMessage}</p>}</form>
       </section>
     </main>
     <footer><strong>Barkoul.ma</strong><span>منصة مغربية قيد التطوير والاختبار.</span></footer>
