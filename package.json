@@ -3,10 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "npm run dev --workspace @barkoul/web",
     "build": "npm run build --workspace @barkoul/web",
@@ -19,14 +16,13 @@
     "mobile:android": "cap open android",
     "mobile:ios": "cap open ios"
   },
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=20" },
   "devDependencies": {
     "@capacitor/cli": "^7.6.10",
     "@capacitor/android": "^7.6.10",
     "@capacitor/ios": "^7.6.10",
-    "@playwright/test": "^1.56.1"
+    "@playwright/test": "^1.56.1",
+    "esbuild": "^0.25.12"
   },
   "dependencies": {
     "@capacitor/core": "^7.6.10"
