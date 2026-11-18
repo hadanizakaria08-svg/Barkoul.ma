@@ -1,5 +1,13 @@
 export type CargoStatus = "open" | "reserved" | "completed" | "cancelled";
 
+export const TRUCK_TYPES = [
+  "شاحنة كبيرة",
+  "شاحنة متوسطة",
+  "شاحنة صغيرة",
+  "جرار ومقطورة",
+  "شاحنة تبريد"
+] as const;
+
 export interface Cargo {
   id: number;
   title: string;
@@ -31,19 +39,46 @@ export function normalizeSearch(value: string): string {
   return value.trim().toLocaleLowerCase("ar");
 }
 
+export function normalizeCargoDraft(draft: CargoDraft): CargoDraft {
+  return {
+    ...draft,
+    title: draft.title.trim(),
+    origin_city: draft.origin_city.trim(),
+    destination_city: draft.destination_city.trim(),
+    goods_type: draft.goods_type.trim(),
+    weight_text: draft.weight_text?.trim() || null,
+    truck_type: draft.truck_type.trim(),
+    loading_date: draft.loading_date.trim(),
+    notes: draft.notes?.trim() || null
+  };
+}
+
+function isValidIsoDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
 export function validateCargoDraft(draft: CargoDraft, today: string): string[] {
   const errors: string[] = [];
   if (!draft.title.trim()) errors.push("عنوان الشحنة مطلوب.");
   if (!draft.origin_city.trim()) errors.push("مدينة الانطلاق مطلوبة.");
   if (!draft.destination_city.trim()) errors.push("مدينة الوصول مطلوبة.");
   if (!draft.goods_type.trim()) errors.push("نوع البضاعة مطلوب.");
-  if (!draft.truck_type.trim()) errors.push("نوع الشاحنة مطلوب.");
-  if (!draft.loading_date) errors.push("تاريخ النقل مطلوب.");
+  if (!draft.truck_type.trim()) {
+    errors.push("نوع الشاحنة مطلوب.");
+  } else if (!(TRUCK_TYPES as readonly string[]).includes(draft.truck_type.trim())) {
+    errors.push("نوع الشاحنة غير مدعوم.");
+  }
+  if (!draft.loading_date) {
+    errors.push("تاريخ النقل مطلوب.");
+  } else if (!isValidIsoDate(draft.loading_date)) {
+    errors.push("تاريخ النقل غير صالح.");
+  } else if (draft.loading_date < today) {
+    errors.push("تاريخ النقل لا يمكن أن يكون في الماضي.");
+  }
   if (normalizeSearch(draft.origin_city) === normalizeSearch(draft.destination_city)) {
     errors.push("مدينة الانطلاق والوصول يجب ألا تكونا متطابقتين.");
-  }
-  if (draft.loading_date && draft.loading_date < today) {
-    errors.push("تاريخ النقل لا يمكن أن يكون في الماضي.");
   }
   if (draft.offered_price_mad !== null &&
       (!Number.isFinite(draft.offered_price_mad) || draft.offered_price_mad < 0)) {
@@ -52,6 +87,10 @@ export function validateCargoDraft(draft: CargoDraft, today: string): string[] {
   if (draft.title.length > 120) errors.push("عنوان الشحنة أطول من الحد المسموح.");
   if (draft.origin_city.length > 100 || draft.destination_city.length > 100) {
     errors.push("اسم المدينة أطول من الحد المسموح.");
+  }
+  if (draft.goods_type.length > 100) errors.push("نوع البضاعة أطول من الحد المسموح.");
+  if (draft.weight_text && draft.weight_text.length > 100) {
+    errors.push("وصف الوزن أطول من الحد المسموح.");
   }
   if (draft.notes && draft.notes.length > 1000) errors.push("الملاحظات أطول من الحد المسموح.");
   return errors;
@@ -65,9 +104,10 @@ export function filterCargos(
 ): Cargo[] {
   const o = normalizeSearch(origin);
   const d = normalizeSearch(destination);
+  const t = normalizeSearch(truck);
   return cargos.filter((cargo) =>
     (!o || normalizeSearch(cargo.origin_city).includes(o)) &&
     (!d || normalizeSearch(cargo.destination_city).includes(d)) &&
-    (!truck || cargo.truck_type === truck)
+    (!t || normalizeSearch(cargo.truck_type) === t)
   );
 }
