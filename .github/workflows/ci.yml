@@ -19,7 +19,7 @@ jobs:
         run: npm install --package-lock-only --ignore-scripts --no-audit
       - name: Install exact dependency tree
         run: npm ci --ignore-scripts
-      - name: Verify vulnerable tooling cannot enter runtime dependencies
+      - name: Verify removed vulnerable packages are absent
         run: npm run security:runtime-deps
       - name: Typecheck, unit tests and production build
         run: npm run check
