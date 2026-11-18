@@ -15,24 +15,42 @@ on:
       - "packages/**/package.json"
       - ".github/workflows/dependency-remediation.yml"
 permissions:
-  contents: read
+  contents: write
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Generate a temporary lockfile without changing dependency ranges
+          node-version: 22
+      - name: Generate a lockfile without changing dependency ranges
         run: npm install --package-lock-only --ignore-scripts --no-audit
-      - name: Install dependencies from the generated lockfile
+      - name: Apply only semver-compatible dependency security fixes
+        run: npm audit fix --package-lock-only --ignore-scripts
+      - name: Install the audited dependency tree
         run: npm ci --ignore-scripts --no-audit
-      - name: Block high and critical vulnerabilities in production dependencies
+      - name: Block high and critical production dependency vulnerabilities
         run: npm audit --omit=dev --audit-level=high
-      - name: Report all dependency advisories without forced upgrades
-        run: |
-          npm audit --json > npm-audit-full.json || true
-          node -e 'const r=require("./npm-audit-full.json"); const entries=Object.entries(r.vulnerabilities||{}); if (!entries.length) { console.log("No dependency advisories reported."); process.exit(0); } for (const [name,v] of entries) console.log(v.severity.toUpperCase()+" "+name+": "+(v.dev ? "development-only" : "production or mixed dependency path")+"; fixAvailable="+JSON.stringify(v.fixAvailable));'
-      - name: Typecheck, tests and production build
+      - name: Block remaining high and critical dependency vulnerabilities
+        run: npm audit --audit-level=high
+      - name: Typecheck, unit tests and production build
         run: npm run check
+      - name: Install Chromium for browser acceptance tests
+        run: npx playwright install --with-deps chromium
+      - name: Run browser, responsive and WCAG 2.2 AA checks
+        run: npm run test:e2e
+      - name: Commit the verified lockfile on the development branch
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: lock audited dependency tree"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            echo "The audited lockfile is already current."
+          fi
