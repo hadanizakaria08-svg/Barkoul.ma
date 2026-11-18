@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { filterCargos, validateCargoDraft, type Cargo, type CargoDraft } from "@barkoul/domain";
+import { filterCargos, normalizeCargoDraft, TRUCK_TYPES, validateCargoDraft, type Cargo, type CargoDraft } from "@barkoul/domain";
 import { getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
 
 const initialDraft: CargoDraft = {
@@ -7,7 +7,6 @@ const initialDraft: CargoDraft = {
   weight_text: "", truck_type: "", loading_date: "", offered_price_mad: null, notes: ""
 };
 
-const truckTypes = ["شاحنة كبيرة", "شاحنة متوسطة", "شاحنة صغيرة", "جرار ومقطورة", "شاحنة تبريد"];
 const todayLocal = () => {
   const now = new Date();
   return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
@@ -90,11 +89,12 @@ export default function App() {
   async function submitCargo(event: FormEvent) {
     event.preventDefault(); setPublishMessage("");
     if (!user) { setPublishMessage("سجّل الدخول أولاً."); return; }
-    const errors = validateCargoDraft(draft, todayLocal());
+    const normalizedDraft = normalizeCargoDraft(draft);
+    const errors = validateCargoDraft(normalizedDraft, todayLocal());
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
     setBusy(true);
     try {
-      await publishCargo(user.id, draft);
+      await publishCargo(user.id, normalizedDraft);
       setDraft(initialDraft); setPublishMessage("تم إرسال الشحنة. سنحدّث القائمة.");
       await refresh();
     } catch (e) { setPublishMessage(e instanceof Error ? e.message : "تعذر نشر الشحنة."); }
@@ -121,7 +121,7 @@ export default function App() {
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
 
       <section className="section" id="search"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
-        <div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع الشاحنة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{truckTypes.map(t=><option key={t}>{t}</option>)}</select></label></div>
+        <div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع الشاحنة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}</select></label></div>
         {loading ? <p className="muted">جاري تحميل الشحنات…</p> : error ? <p className="notice notice-warn">{error}</p> : visible.length === 0 ? <p className="empty">لا توجد شحنات مطابقة حالياً.</p> :
           <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
       </section>
