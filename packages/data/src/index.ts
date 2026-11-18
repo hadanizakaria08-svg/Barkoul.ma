@@ -37,8 +37,8 @@ export async function publishCargo(draft: CargoDraft): Promise<void> {
   }
 
   const { error } = await db.from("cargos").insert({
-    owner_id: data.user.id,
     ...draft,
+    owner_id: data.user.id,
     status: "open"
   });
   if (error) throw error;
