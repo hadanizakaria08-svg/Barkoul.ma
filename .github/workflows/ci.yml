@@ -14,8 +14,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install workspace dependencies
-        run: npm install --ignore-scripts
+          cache: npm
+      - name: Install exact locked workspace dependencies
+        run: npm ci --ignore-scripts
+      - name: Verify vulnerable tooling cannot enter runtime dependencies
+        run: npm run security:runtime-deps
       - name: Typecheck, unit tests and production build
         run: npm run check
       - name: Install Chromium for browser acceptance tests
