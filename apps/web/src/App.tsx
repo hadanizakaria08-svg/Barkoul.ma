@@ -69,7 +69,18 @@ export default function App() {
     finally { setBusy(false); }
   }
 
-  async function sendPasswordReset() {\n    if (!db || !email.trim()) { setAuthMessage("أدخل بريدك الإلكتروني أولاً."); return; }\n    setBusy(true); setAuthMessage("");\n    try {\n      const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + window.location.pathname });\n      if (error) throw error;\n      setAuthMessage("إذا كان البريد مسجلاً، فستصلك رسالة لإعادة تعيين كلمة المرور.");\n    } catch (e) { setAuthMessage(e instanceof Error ? e.message : "تعذر إرسال رسالة الاستعادة."); }\n    finally { setBusy(false); }\n  }\n\n  async function submitCargo(event: FormEvent) {
+  async function sendPasswordReset() {
+    if (!db || !email.trim()) { setAuthMessage("أدخل بريدك الإلكتروني أولاً."); return; }
+    setBusy(true); setAuthMessage("");
+    try {
+      const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + window.location.pathname });
+      if (error) throw error;
+      setAuthMessage("إذا كان البريد مسجلاً، فستصلك رسالة لإعادة تعيين كلمة المرور.");
+    } catch (e) { setAuthMessage(e instanceof Error ? e.message : "تعذر إرسال رسالة الاستعادة."); }
+    finally { setBusy(false); }
+  }
+
+  async function submitCargo(event: FormEvent) {
     event.preventDefault(); setPublishMessage("");
     if (!user) { setPublishMessage("سجّل الدخول أولاً."); return; }
     const errors = validateCargoDraft(draft, todayLocal());
