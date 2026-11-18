@@ -1,4 +1,4 @@
-const CACHE_NAME = "barkoul-static-v1";
+const CACHE_NAME = "barkoul-static-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -28,16 +28,11 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
+    // Never persist navigation URLs: auth callbacks may contain one-time codes or tokens.
     event.respondWith(
-      fetch(request).then((response) => {
-        if (response.ok && response.type === "basic") {
-          const copy = response.clone();
-          void caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        }
-        return response;
-      }).catch(async () => {
-        const cached = await caches.match(request);
-        return cached || caches.match(new URL("./", self.registration.scope).toString());
+      fetch(request).catch(async () => {
+        return (await caches.match(new URL("./", self.registration.scope).toString()))
+          || Response.error();
       })
     );
     return;
