@@ -1,4 +1,4 @@
-name: Barkoul dependency remediation
+name: Barkoul dependency audit
 on:
   push:
     branches: ["rebuild/**"]
@@ -7,36 +7,28 @@ on:
       - "apps/**/package.json"
       - "packages/**/package.json"
       - ".github/workflows/dependency-remediation.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "apps/**/package.json"
+      - "packages/**/package.json"
+      - ".github/workflows/dependency-remediation.yml"
 permissions:
-  contents: write
+  contents: read
 jobs:
-  remediate:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Generate reproducible lockfile
-        run: npm install --package-lock-only --ignore-scripts
-      - name: Apply security fixes including isolated major upgrades
-        run: npm audit fix --force --ignore-scripts
-      - name: Install exactly from lockfile
-        run: npm ci --ignore-scripts
-      - name: Security audit
+      - name: Generate a temporary lockfile without changing dependency ranges
+        run: npm install --package-lock-only --ignore-scripts --no-audit
+      - name: Install dependencies from the generated lockfile
+        run: npm ci --ignore-scripts --no-audit
+      - name: Report high and critical vulnerabilities
         run: npm audit --audit-level=high
       - name: Typecheck, tests and production build
         run: npm run check
-      - name: Commit verified lockfile
-        run: |
-          if ! git diff --quiet -- package-lock.json package.json apps packages; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json package.json apps packages
-            git commit -m "chore: remediate vulnerable dependencies and lock versions"
-            git push
-          else
-            echo "Lockfile already current; no commit needed."
-          fi
