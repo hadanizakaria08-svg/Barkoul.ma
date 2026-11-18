@@ -1,0 +1,12 @@
+[package]
+name = "barkoul-desktop"
+version = "0.1.0"
+description = "Barkoul.ma desktop application"
+authors = ["Barkoul.ma"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
