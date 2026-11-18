@@ -22,9 +22,9 @@ test("exposes labelled search and account controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByLabel("من مدينة")).toBeVisible();
   await expect(page.getByLabel("إلى مدينة")).toBeVisible();
-  await expect(page.getByLabel("نوع الشاحنة")).toBeVisible();
-  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
-  await expect(page.getByLabel("كلمة المرور")).toBeVisible();
+  await expect(page.locator("#search").getByLabel("نوع الشاحنة")).toBeVisible();
+  await expect(page.locator("#account").getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.locator("#account").getByLabel("كلمة المرور")).toBeVisible();
 });
 
 test("does not introduce horizontal scrolling on a narrow mobile viewport", async ({ page }) => {
