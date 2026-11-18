@@ -41,11 +41,11 @@ jobs:
             for (const [name, item] of entries) {
               console.log(JSON.stringify({ package: name, severity: item.severity, developmentOnly: item.dev, via: item.via.map(v => typeof v === "string" ? v : v.name) }));
             }
-            const blockers = entries.filter(([name, item]) =>
-              ["high", "critical"].includes(item.severity) && (!item.dev || name !== "picomatch")
+            const blockers = entries.filter(([, item]) =>
+              ["high", "critical"].includes(item.severity) && !item.dev
             );
             if (blockers.length) {
-              console.error("Blocking high/critical vulnerabilities outside the documented development-only picomatch advisory:", blockers.map(([name]) => name).join(", "));
+              console.error("Blocking high/critical vulnerabilities reachable from production dependencies:", blockers.map(([name]) => name).join(", "));
               process.exit(1);
             }
             const picomatch = report.vulnerabilities?.picomatch;
