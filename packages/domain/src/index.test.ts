@@ -25,6 +25,14 @@ describe("cargo domain rules", () => {
     expect(errors).toContain("تاريخ النقل لا يمكن أن يكون في الماضي.");
     expect(errors).toContain("السعر يجب أن يكون رقماً صحيحاً غير سالب.");
   });
+  it("accepts decimal MAD prices because the publishing form allows cents", () => {
+    expect(validateCargoDraft({...draft,offered_price_mad:1200.5},"2026-11-18")).toEqual([]);
+  });
+  it("rejects whitespace-only required fields", () => {
+    const errors=validateCargoDraft({...draft,title:"   ",goods_type:"  "},"2026-11-18");
+    expect(errors).toContain("عنوان الشحنة مطلوب.");
+    expect(errors).toContain("نوع البضاعة مطلوب.");
+  });
   it("filters routes without case sensitivity", () => {
     expect(filterCargos(cargos,"الدار البيضاء","مراكش","شاحنة كبيرة").map(c=>c.id)).toEqual([1]);
   });
