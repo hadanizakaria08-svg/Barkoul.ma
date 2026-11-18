@@ -12,7 +12,8 @@
     "build": "npm run build --workspace @barkoul/web",
     "typecheck": "npm run typecheck --workspace @barkoul/web",
     "test": "npm run test --workspace @barkoul/domain",
-    "check": "npm run typecheck && npm run test && npm run build",
+    "test:e2e": "playwright test",
+    "check": "npm run typecheck && npm test && npm run build",
     "mobile:sync": "cap sync",
     "mobile:android": "cap open android",
     "mobile:ios": "cap open ios"
@@ -21,12 +22,13 @@
     "node": ">=20"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.6.10"
+    "@capacitor/cli": "^7.6.10",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/ios": "^7.6.10",
+    "@playwright/test": "^1.56.1"
   },
   "dependencies": {
-    "@capacitor/core": "^7.6.10",
-    "@capacitor/android": "^7.6.10",
-    "@capacitor/ios": "^7.6.10"
+    "@capacitor/core": "^7.6.10"
   },
   "overrides": {
     "picomatch": "^4.0.7",
