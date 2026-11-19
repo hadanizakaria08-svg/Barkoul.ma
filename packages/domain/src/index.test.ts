@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  canPublishCargo,
   filterCargos,
   normalizeCargoDraft,
   validateCargoDraft,
@@ -20,6 +21,15 @@ const cargos: Cargo[] = [
 ];
 
 describe("cargo domain rules", () => {
+  it("allows publishing only for owner and admin profiles", () => {
+    assert.equal(canPublishCargo("owner"), true);
+    assert.equal(canPublishCargo("admin"), true);
+    assert.equal(canPublishCargo("user"), false);
+    assert.equal(canPublishCargo("driver"), false);
+    assert.equal(canPublishCargo(null), false);
+    assert.equal(canPublishCargo("unknown"), false);
+  });
+
   it("accepts a valid future cargo", () => {
     assert.deepEqual(validateCargoDraft(draft,"2026-11-18"), []);
   });
