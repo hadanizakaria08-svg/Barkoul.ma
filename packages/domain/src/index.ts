@@ -1,5 +1,12 @@
 export type CargoStatus = "open" | "reserved" | "completed" | "cancelled";
 
+export type ProfileRole = "user" | "driver" | "owner" | "admin";
+
+/** Only owners and administrators may create cargo records under the current RLS model. */
+export function canPublishCargo(role: string | null | undefined): boolean {
+  return role === "owner" || role === "admin";
+}
+
 export const TRUCK_TYPES = [
   "شاحنة كبيرة",
   "شاحنة متوسطة",
