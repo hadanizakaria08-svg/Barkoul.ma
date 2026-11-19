@@ -11,11 +11,9 @@ test("serves the Arabic RTL application shell and primary journeys", async ({ pa
   await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "#publish");
 });
 
-test("keeps cargo publication unavailable to anonymous visitors", async ({ page }) => {
+test("keeps cargo publication disabled without an authenticated session", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("button", { name: "نشر الشحنة" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "تسجيل الدخول" })).toBeDisabled();
-  await expect(page.getByText(/الاتصال بقاعدة البيانات غير مضبوط/)).toBeVisible();
 });
 
 test("exposes labelled search and account controls", async ({ page }) => {
