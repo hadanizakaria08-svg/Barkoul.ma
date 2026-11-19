@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { Cargo, CargoDraft } from "@barkoul/domain";
+import { canPublishCargo, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
 
 let client: SupabaseClient | null = null;
 
@@ -26,6 +26,26 @@ export async function listOpenCargos(): Promise<Cargo[]> {
   return (data ?? []) as Cargo[];
 }
 
+export async function getCurrentProfileRole(): Promise<ProfileRole | null> {
+  const db = getSupabase();
+  if (!db) throw new Error("لم يتم إعداد اتصال قاعدة البيانات بعد.");
+
+  const { data: authData, error: authError } = await db.auth.getUser();
+  if (authError) throw authError;
+  if (!authData.user) return null;
+
+  const { data, error } = await db.from("profiles")
+    .select("role")
+    .eq("id", authData.user.id)
+    .maybeSingle();
+  if (error) throw error;
+
+  const role = data?.role;
+  return role === "user" || role === "driver" || role === "owner" || role === "admin"
+    ? role
+    : null;
+}
+
 export async function publishCargo(draft: CargoDraft): Promise<void> {
   const db = getSupabase();
   if (!db) throw new Error("لم يتم إعداد اتصال قاعدة البيانات بعد.");
@@ -34,6 +54,15 @@ export async function publishCargo(draft: CargoDraft): Promise<void> {
   const { data, error: authError } = await db.auth.getUser();
   if (authError || !data.user) {
     throw new Error("يجب تسجيل الدخول قبل نشر الشحنة.");
+  }
+
+  const { data: profile, error: profileError } = await db.from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  if (!canPublishCargo(profile?.role)) {
+    throw new Error("حسابك مسجل، لكن دورك الحالي لا يسمح بنشر الشحنات. يلزم تفعيل دور صاحب البضاعة من الإدارة.");
   }
 
   const { error } = await db.from("cargos").insert({
