@@ -30,9 +30,6 @@ for (const file of await collect(root)) {
   }
 }
 
-assert.deepEqual(
-  violations,
-  [],
-  \`Unsafe DOM/code-execution patterns found:\n\${violations.map((v) => \`\${v.file}: \${v.rule}\`).join("\n")}\`
-);
+const details = violations.map((item) => item.file + ": " + item.rule).join("\n");
+assert.equal(violations.length, 0, "Unsafe DOM/code-execution patterns found:\n" + details);
 console.log("Source security guard passed: no direct HTML injection or dynamic code execution sinks found.");
