@@ -115,3 +115,7 @@
 
 /* Keep muted text readable against the light public-page surface. */
 .muted{color:#4b5d72}
+
+
+/* Keep the Barkoul wordmark legible on the dark reference header. */
+.reference-brand .brand-word > span{color:#ffd34d}
