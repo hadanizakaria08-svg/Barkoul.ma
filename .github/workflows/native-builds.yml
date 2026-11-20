@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/native-builds.yml'
       - 'apps/web/**'
       - 'apps/desktop/**'
       - 'capacitor.config.ts'
