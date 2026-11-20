@@ -33,7 +33,7 @@ jobs:
         run: npm run build --workspace @barkoul/web
         env:
           VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_ANON_KEY: sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn
       - name: Generate Android project and sync Capacitor
         run: |
           npx cap add android
@@ -64,7 +64,7 @@ jobs:
         run: npm run build --workspace @barkoul/web
         env:
           VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_ANON_KEY: sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn
       - name: Generate iOS project and sync Capacitor
         run: |
           npx cap add ios
@@ -99,7 +99,7 @@ jobs:
         run: npm run build --workspace @barkoul/web
         env:
           VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_ANON_KEY: sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn
       - name: Build Tauri executable without installer bundling
         run: npm run build --workspace @barkoul/desktop -- --no-bundle
       - uses: actions/upload-artifact@v4
