@@ -42,9 +42,9 @@ export function createPhantomSnapshot(nowMs = Date.now()) {
 export function classifyShieldSignal(input = {}) {
   const text = String(input.payload ?? "").toLowerCase();
   const indicators = [
-    ["sql-probe", /(?:union\\s+select|or\\s+1=1|information_schema)/],
-    ["path-probe", /(?:\.\\.\\/|%2e%2e%2f|etc\\/passwd)/],
-    ["script-probe", /(?:<script|javascript:|onerror\\s*=)/]
+    ["sql-probe", /(?:union\s+select|or\s+1=1|information_schema)/],
+    ["path-probe", /(?:\.\.\/|%2e%2e%2f|etc\/passwd)/],
+    ["script-probe", /(?:<script|javascript:|onerror\s*=)/]
   ];
   const detected = indicators.filter(([, pattern]) => pattern.test(text)).map(([name]) => name);
   const severity = detected.length >= 2 ? "high" : detected.length === 1 ? "elevated" : "normal";
