@@ -6,7 +6,7 @@ let failed = false;
 
 for (const file of files) {
   const html = fs.readFileSync(file, "utf8");
-  const ids = [...html.matchAll(/\b id=["']([^"']+)["']/g)].map((match) => match[1]);
+  const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map((match) => match[1]);
   const seen = new Set();
 
   for (const id of ids) {
