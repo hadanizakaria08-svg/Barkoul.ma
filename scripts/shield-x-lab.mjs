@@ -21,7 +21,7 @@ export function createPhantomSnapshot(nowMs = Date.now()) {
     generatedAtSecond: second,
     generation: suffix,
     profiles: Object.freeze([
-      Object.freeze({ id: `DECOY-P-${suffix}`, displayName: pick(SYNTHETIC_NAMES, 0), phone: "+212 600 000 000" })
+      Object.freeze({ id: `DECOY-P-${suffix}`, displayName: pick(SYNTHETIC_NAMES, 0), phone: "DECOY-NO-CONTACT" })
     ]),
     cargos: Object.freeze([
       Object.freeze({
