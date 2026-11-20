@@ -39,14 +39,18 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (/\.(?:js|css|svg|png|ico|woff2)$/.test(url.pathname)) {
+    // Bundle filenames are stable (app.js/app.css), so network-first prevents stale releases.
+    // The last known good asset remains available when the network is unavailable.
     event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+      fetch(request).then(async (response) => {
         if (response.ok && response.type === "basic") {
-          const copy = response.clone();
-          void caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, response.clone());
         }
         return response;
-      }))
+      }).catch(async () => {
+        return (await caches.match(request)) || Response.error();
+      })
     );
   }
 });
