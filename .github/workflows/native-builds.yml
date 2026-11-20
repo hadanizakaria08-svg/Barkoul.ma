@@ -10,10 +10,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: native-builds-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   android-debug:
     name: Android debug APK
@@ -55,7 +51,7 @@ jobs:
 
   ios-simulator:
     name: iOS simulator build (unsigned)
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
