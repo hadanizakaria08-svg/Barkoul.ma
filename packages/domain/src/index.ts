@@ -161,3 +161,25 @@ export function filterCargos(
     (!t || normalizeSearch(cargo.truck_type) === t)
   );
 }
+
+export const DRIVER_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024;
+export const DRIVER_DOCUMENT_MIME_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp"
+] as const;
+
+/** Client-side feedback only; Storage bucket rules remain the server-side boundary. */
+export function validateDriverDocumentFile(file: { type: string; size: number }): string | null {
+  if (!Number.isFinite(file.size) || file.size <= 0) {
+    return "الملف فارغ أو غير صالح.";
+  }
+  if (file.size > DRIVER_DOCUMENT_MAX_BYTES) {
+    return "حجم الملف يتجاوز 10 ميغابايت.";
+  }
+  if (!(DRIVER_DOCUMENT_MIME_TYPES as readonly string[]).includes(file.type)) {
+    return "نوع الملف غير مدعوم. اختر PDF أو صورة JPG أو PNG أو WebP.";
+  }
+  return null;
+}
