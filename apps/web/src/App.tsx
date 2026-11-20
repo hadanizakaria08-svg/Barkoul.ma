@@ -121,6 +121,7 @@ export default function App() {
         ? await db.auth.signInWithPassword({email:email.trim(),password})
         : await db.auth.signUp({email:email.trim(),password,options:{data:{full_name:fullName.trim()}}});
       if (result.error) throw result.error;
+      setPassword("");
       setAuthMessage(authMode === "signup" && !result.data.session
         ? "تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك."
         : "تمت العملية بنجاح.");
