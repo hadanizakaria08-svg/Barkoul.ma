@@ -283,3 +283,61 @@ input::placeholder,textarea::placeholder{color:#8b9aab}
  .category-grid a strong{font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){.home-cta,.home-feature-card{transition:none}}
+
+
+/* Approved Barkoul brand palette: blue, red, amber, green and calm neutrals. */
+:root{
+  --navy:#123B68;
+  --blue:#1558A6;
+  --blue-2:#287BCB;
+  --sky:#EAF3FC;
+  --ink:#26364A;
+  --muted:#607286;
+  --line:#DCE5EF;
+  --white:#FFFFFF;
+  --gold:#F5A623;
+  --green:#16A085;
+  color:#26364A;
+  background:#F4F7FB;
+}
+body{background:#F4F7FB;color:#26364A}
+.home-topbar{background:#FFFFFF;color:#123B68;border-bottom-color:#DCE5EF}
+.home-brand,.home-brand .brand-word{color:#1558A6}
+.home-brand .brand-word>span{color:#F5A623}
+.home-brand .brand-truck{color:#1558A6}
+.home-topbar nav{color:#26364A}
+.home-nav-link:hover,.text-button:hover{color:#1558A6}
+.home-topbar .account-entry{background:#F4F7FB;border-color:#D5E1ED;color:#1558A6}
+.home-hero{background:linear-gradient(135deg,#F4F7FB 0%,#EAF3FC 54%,#FFFFFF 100%)}
+.home-kicker{border-color:#DCE5EF;color:#1558A6;background:#FFFFFF}
+.home-kicker>span{color:#16A085}
+.home-hero-copy h1{color:#123B68}
+.home-hero-copy h1 span{color:#1558A6}
+.home-hero-copy>p,.home-feature-copy span{color:#607286}
+.home-cta-primary{background:#F5A623;color:#26364A}
+.home-cta-primary:hover{background:#E89A17}
+.home-cta-secondary{border-color:#BFD3E7;background:#FFFFFF;color:#1558A6}
+.home-trust-points b{background:#E2F4EF;color:#137D68}
+.home-hero-visual{background:#EAF3FC}
+.home-map-card{border-color:#FFFFFF;background:#FFFFFF}
+.home-map-card strong{color:#123B68}
+.home-map-card span{color:#607286}
+.home-feature-card{border-color:#DCE5EF;background:#FFFFFF}
+.home-feature-card:hover{border-color:#AFC9E3}
+.home-feature-visual,.home-feature-map{background:linear-gradient(145deg,#EEF5FC,#DCEAF7)}
+.home-feature-copy{color:#123B68}
+.home-feature-copy b{color:#1558A6}
+.cargo-categories{border-color:#DCE5EF;background:#F4F7FB}
+.category-grid a{border-color:#DCE5EF;color:#1558A6;background:#FFFFFF}
+.category-grid a:hover{border-color:#8FB7DE;background:#EEF5FC}
+.button-primary{background:#1558A6;color:#FFFFFF}
+.button-primary:hover:not(:disabled){background:#123B68}
+.button-outline{color:#1558A6;border-color:#BFD3E7}
+.button-outline:hover:not(:disabled),.button-light:hover{background:#EEF5FC}
+.tag{background:#EAF3FC;color:#1558A6}
+.route span{color:#1558A6}
+.price{color:#137D68}
+.text-button{color:#1558A6}
+.form-message{background:#EAF3FC;color:#123B68}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline-color:#F5A623}
+@media(forced-colors:active){.home-cta,.button{border:1px solid ButtonText}}
