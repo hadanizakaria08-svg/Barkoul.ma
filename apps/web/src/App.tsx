@@ -30,13 +30,44 @@ function MoroccoMark() {
   </svg>;
 }
 
+function FeatureArt({kind}:{kind:"boxes"|"fleet"|"driver"}) {
+  if (kind === "boxes") return <svg viewBox="0 0 320 190" role="img" aria-label="طرود وصناديق شحن">
+    <ellipse cx="160" cy="170" rx="126" ry="12" fill="#9bbbd2"/>
+    <path d="M38 130h244v35H38z" fill="#b77b35"/><path d="M48 130v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35" stroke="#e6b66f" strokeWidth="5"/>
+    <g stroke="#a96827" strokeWidth="2"><path d="m60 80 48-24 49 24-49 25z" fill="#eebd78"/><path d="M60 80v49l48 24v-48z" fill="#d9984e"/><path d="M108 105v48l49-24V80z" fill="#c9823e"/><path d="m142 66 42-22 45 22-45 23z" fill="#f5cc8e"/><path d="M142 66v43l42 22V89z" fill="#dfa45e"/><path d="M184 89v42l45-22V66z" fill="#c98643"/><path d="m176 105 38-19 40 19-40 20z" fill="#edbd7d"/><path d="M176 105v37l38 19v-36z" fill="#d9984e"/><path d="M214 125v36l40-19v-37z" fill="#c9823e"/></g>
+  </svg>;
+  if (kind === "fleet") return <svg viewBox="0 0 320 190" role="img" aria-label="شاحنة نقل بضائع">
+    <ellipse cx="160" cy="164" rx="132" ry="12" fill="#a9c3d5"/>
+    <path d="M24 63h184v81H24z" rx="8" fill="#1457a7"/><path d="M35 73h162v60H35z" fill="#e9f4ff"/><path d="M208 91h49l36 35v18h-85z" fill="#e7353c"/><path d="M223 99h29l25 26h-54z" fill="#bdeaff"/><path d="M18 138h280v12H18z" fill="#173c60"/>
+    <circle cx="76" cy="151" r="19" fill="#263746"/><circle cx="76" cy="151" r="8" fill="#cbd8e2"/><circle cx="244" cy="151" r="19" fill="#263746"/><circle cx="244" cy="151" r="8" fill="#cbd8e2"/>
+    <path d="M35 82h162M35 97h162M35 112h162" stroke="#b8d5ed" strokeWidth="3"/>
+  </svg>;
+  return <svg viewBox="0 0 320 190" role="img" aria-label="سائق توصيل">
+    <rect x="0" y="0" width="320" height="190" fill="#d8efff"/>
+    <circle cx="160" cy="65" r="42" fill="#c9875d"/><path d="M118 62q3-48 45-45 40 3 44 47-21-17-43-17-23 0-46 15" fill="#173d62"/>
+    <path d="M91 185q6-78 69-78 66 0 70 78" fill="#1559a4"/><path d="M143 112h34l-17 26z" fill="#fff"/><path d="M152 138h16l12 47h-40z" fill="#0d3d78"/>
+    <path d="M205 111q28-8 39 13l-22 19-21-14z" fill="#c9875d"/><path d="m219 121 17 12-9 8-18-12z" fill="#fff"/>
+    <circle cx="145" cy="67" r="4" fill="#253746"/><circle cx="175" cy="67" r="4" fill="#253746"/><path d="M148 84q12 12 25 0" fill="none" stroke="#7b3d2c" strokeWidth="4" strokeLinecap="round"/>
+  </svg>;
+}
 function FeatureCard({kind,title,subtitle,href}:{kind:"boxes"|"fleet"|"driver";title:string;subtitle:string;href:string}) {
   return <a className="reference-feature" href={href}>
-    <div className={`reference-feature-art art-${kind}`} aria-hidden="true">
-      <img loading="lazy" src={kind==="boxes" ? "https://images.pexels.com/photos/6170458/pexels-photo-6170458.jpeg?auto=compress&cs=tinysrgb&w=720" : kind==="fleet" ? "https://images.pexels.com/photos/16180770/pexels-photo-16180770.jpeg?auto=compress&cs=tinysrgb&w=720" : "https://images.pexels.com/photos/6169166/pexels-photo-6169166.jpeg?auto=compress&cs=tinysrgb&w=720"} alt="" />
-    </div>
+    <div className={`reference-feature-art art-${kind}`}><FeatureArt kind={kind}/></div>
     <div className="reference-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">›</b></div>
   </a>;
+}
+function HeroTruckScene() {
+  return <svg className="reference-hero-scene" viewBox="0 0 1200 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="شاحنات تنقل البضائع على طريق مغربي">
+    <defs><linearGradient id="heroSky" x2="0" y2="1"><stop stopColor="#63c7ff"/><stop offset="1" stopColor="#e8f7ff"/></linearGradient><linearGradient id="heroRoad" x2="0" y2="1"><stop stopColor="#596b7c"/><stop offset="1" stopColor="#172d45"/></linearGradient></defs>
+    <rect width="1200" height="430" fill="url(#heroSky)"/>
+    <g fill="#fff" opacity=".8"><ellipse cx="180" cy="82" rx="100" ry="27"/><ellipse cx="235" cy="70" rx="65" ry="34"/><ellipse cx="780" cy="72" rx="120" ry="28"/><ellipse cx="850" cy="58" rx="70" ry="35"/></g>
+    <path d="M0 260 170 185 310 255 490 170 680 260 870 185 1040 250 1200 190v110H0z" fill="#9ac7b2"/>
+    <path d="M0 288q260-60 480 0t720-5v147H0z" fill="#75a66b"/>
+    <path d="M0 318 1200 278v152H0z" fill="url(#heroRoad)"/>
+    <path d="M0 365 1200 325" stroke="#fff" strokeWidth="8" strokeDasharray="55 38" opacity=".9"/>
+    <g transform="translate(80 170)"><rect x="0" y="36" width="440" height="135" rx="8" fill="#1260ad"/><rect x="18" y="51" width="404" height="103" fill="#edf6ff"/><path d="M440 77h105l78 75v19H440z" fill="#1455a0"/><path d="M468 91h66l57 59H468z" fill="#a8e2ff"/><rect x="445" y="158" width="178" height="18" fill="#e8333d"/><circle cx="112" cy="178" r="35" fill="#1d2d3b"/><circle cx="112" cy="178" r="15" fill="#d7e2eb"/><circle cx="520" cy="178" r="35" fill="#1d2d3b"/><circle cx="520" cy="178" r="15" fill="#d7e2eb"/></g>
+    <g transform="translate(700 230) scale(.66)"><rect x="0" y="36" width="300" height="135" rx="8" fill="#e7edf2"/><rect x="18" y="51" width="265" height="103" fill="#f7fbff"/><path d="M300 77h105l78 75v19H300z" fill="#d72c35"/><path d="M328 91h66l57 59H328z" fill="#a8e2ff"/><circle cx="112" cy="178" r="35" fill="#1d2d3b"/><circle cx="112" cy="178" r="15" fill="#d7e2eb"/><circle cx="380" cy="178" r="35" fill="#1d2d3b"/><circle cx="380" cy="178" r="15" fill="#d7e2eb"/></g>
+  </svg>;
 }
 
 export default function App() {
@@ -246,8 +277,7 @@ export default function App() {
         <div className="reference-sky" aria-hidden="true"></div>
         <div className="reference-headline"><h1>ربط الشحنات<br/><span>بسائقي الشاحنات في المغرب</span></h1><i></i></div>
         <div className="reference-landscape">
-          <img className="reference-hero-photo" src="https://images.pexels.com/photos/20234936/pexels-photo-20234936.jpeg?auto=compress&cs=tinysrgb&w=1800" alt="شاحنات نقل بضائع تسير على الطريق" fetchPriority="high" />
-          <div className="reference-photo-shade" aria-hidden="true"></div>
+          <HeroTruckScene/>
           <MoroccoMark/>
         </div>
         <div className="reference-actions">
