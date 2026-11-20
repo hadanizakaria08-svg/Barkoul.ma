@@ -92,7 +92,13 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
   }
 
   async function sendDocument(){
-    if(!db||!file)return; setBusy(true); setMessage("");
+    if(!db||!file)return;
+    const allowedTypes = new Set(["application/pdf","image/jpeg","image/png","image/webp"]);
+    if (!allowedTypes.has(file.type) || file.size <= 0 || file.size > 10 * 1024 * 1024) {
+      setMessage("الملف غير مقبول. استخدم PDF أو JPG أو PNG أو WEBP بحجم لا يتجاوز 10 ميغابايت.");
+      return;
+    }
+    setBusy(true); setMessage("");
     const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100);
     const path=userId+"/"+crypto.randomUUID()+"-"+safeName;
     try{
@@ -108,10 +114,19 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
     if(!db)return; setBusy(true); setMessage("");
     try{
       let latitude:number|null=null,longitude:number|null=null;
-      if(withGps){const position=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000}));latitude=position.coords.latitude;longitude=position.coords.longitude;}
+      if(withGps && navigator.geolocation){
+        try {
+          const position=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000}));
+          latitude=position.coords.latitude; longitude=position.coords.longitude;
+        } catch {
+          // GPS is optional: never block a valid trip-state transition because location is unavailable.
+        }
+      }
       const {error}=await db.rpc("update_trip_progress",{p_trip_id:trip.id,p_status:status,p_latitude:latitude,p_longitude:longitude});
-      if(error)throw error; setMessage("تم تحديث حالة الرحلة."); await load();
-    }catch{setMessage(withGps?"تعذر تحديث الموقع. تحقق من إذن الموقع والاتصال.":"تعذر تحديث الرحلة؛ تحقق من الحالة الحالية وصلاحياتك.");}finally{setBusy(false);}
+      if(error)throw error;
+      setMessage(withGps && latitude===null ? "تم تحديث الرحلة دون موقع GPS؛ يمكنك تفعيل إذن الموقع لإرساله لاحقاً." : "تم تحديث حالة الرحلة.");
+      await load();
+    }catch{setMessage("تعذر تحديث الرحلة؛ تحقق من الحالة الحالية وصلاحياتك.");}finally{setBusy(false);}
   }
 
   return <section className="section" id="workspace">
