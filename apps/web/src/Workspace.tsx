@@ -144,7 +144,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
           {(t.status==="agreed"||t.status==="loading")&&<button className="button button-outline" disabled={busy} onClick={()=>void progress(t,"cancelled")}>إلغاء الرحلة</button>}
         </div>
       </article>)}
-    </div>}
+    </div>
     {message&&<p className="form-message" role="status">{message}</p>}
   </section>;
 }
