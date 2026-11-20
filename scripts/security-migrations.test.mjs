@@ -109,11 +109,14 @@ describe("database mutation boundaries", () => {
     assert.ok(atomicWorkflowMigration.includes("SET status='matched'"));
   });
 
-  it("binds driver-document rows to their own uploaded object and protects verified files", () => {
+  it("binds driver-document rows to their own uploaded object and protects referenced files", () => {
     assert.ok(atomicWorkflowMigration.includes("storage_path LIKE ((SELECT auth.uid())::text || '/%')"));
     assert.ok(atomicWorkflowMigration.includes("o.bucket_id='driver-documents'"));
     assert.ok(atomicWorkflowMigration.includes("o.name=driver_documents.storage_path"));
     assert.ok(atomicWorkflowMigration.includes("d.review_status='verified'"));
+    const deleteGuard = atomicWorkflowMigration.split("CREATE POLICY driver_documents_bucket_delete_guard")[1] ?? "";
+    assert.ok(deleteGuard.includes("NOT EXISTS"));
+    assert.ok(deleteGuard.includes("WHERE d.storage_path=storage.objects.name"));
     assert.ok(atomicWorkflowMigration.includes("CREATE POLICY driver_documents_bucket_delete_guard"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR SELECT TO authenticated"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR INSERT TO authenticated"));
