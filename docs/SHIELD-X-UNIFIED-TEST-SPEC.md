@@ -28,12 +28,22 @@
 - **Cyber Cage:** isolated sandbox boundary; no route to production Supabase, GitHub secrets, admin endpoints or customer Storage.
 - **Laser Chamber:** visual lab map of suspicious paths and tripwires; it is a software visualization, not a physical laser or device-control system.
 - **Phantom Flash:** visible theatrical message: «ابتسم! تم التقاط الصورة بنجاح». It must never request camera access or imply a real photo was captured.
-- **Chain system:** independent modules, fault containment, clean rebuild from known-good version, and recovery drills.
+- **Chain system:** independent modules, fault containment, clean rebuild from a known-good signed/versioned artifact, health verification before reconnection, and recovery drills. On a detected module fault, isolate only that module, preserve evidence outside it, replace it automatically with its trusted clean counterpart, verify its health/integrity, then reconnect it. The recovery path must not copy executable state or untrusted data from the damaged module. Keep critical identity/data authorization controls available while noncritical modules recover. Record detection, isolation, replacement, verification, and reconnection timestamps. The offline lab models this synchronously; production recovery time is bounded by deployment architecture and must be measured rather than promised as literally instantaneous.
 - **Spectrum sensors:** Radar = correlation of request/session events; IR = behavioral-change signal; UV = hidden-pattern/metadata checks; RF = connection metadata and traffic-shape signals. These are software analogies, not physical sensors.
 - **Military-inspired resilience:** radar-style early detection, tank-inspired layered defense, submarine-inspired quiet monitoring and signal correlation. No weapons, targeting, or military control.
 - **Ethical hacker techniques:** authorized asset inventory, passive observation, controlled staging probes, honeypots, vulnerability validation, incident evidence and remediation. No third-party targeting.
 
-## Lab implementation in this branch
+## Chain System — rapid self-healing contract
++- Each module has an independent health check and a trusted, versioned clean replacement artifact.
++- A fault triggers containment of that module only; unrelated modules remain available.
++- Replacement is automatic only from an approved known-good artifact. Never clone the damaged module's runtime, files, secrets, or state into the replacement.
++- Verify artifact identity/integrity and run health checks before reconnecting the replacement.
++- If verification fails, keep the module isolated, retry only from another approved clean artifact, and raise an operator alert; do not reconnect a failed replacement.
++- Store a redacted evidence record outside the module for detection, isolation, replacement, verification, and recovery outcome.
++- Measure recovery time (MTTR). “In the blink of an eye” is the target, not a guarantee; production timing depends on the actual supervisor, hosting, artifact availability, and dependency graph.
++- Test that a failed Phantom Room or Chameleon module cannot take down identity, authorization, or core cargo workflows.
++
++## Lab implementation in this branch
 `scripts/shield-x-lab.mjs` is a Node-only, offline simulation:
 - creates synthetic Phantom Room records that change each second;
 - classifies sample payloads as observations only;
