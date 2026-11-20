@@ -122,8 +122,10 @@ export default function App() {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => { if (active) setRoleRequest(data as typeof roleRequest); })
-      .catch(() => { if (active) setRoleRequest(null); });
+      .then(
+        ({ data }) => { if (active) setRoleRequest(data as typeof roleRequest); },
+        () => { if (active) setRoleRequest(null); }
+      );
     return () => { active = false; };
   }, [db, user?.id]);
 
