@@ -10,365 +10,44 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    :root {
-      --green:#173f78;
-      --green2:#2463a6;
-      --orange:#eab84c;
-      --bg:#f3f7fc;
-      --white:#fff;
-      --text:#17283d;
-      --muted:#64748b;
-      --border:#dce5f0;
-      --danger:#b42318;
-      --success:#17633b;
-      --blue:#244d85;
-    }
-
-    * { box-sizing:border-box; }
-
-    html { scroll-behavior:smooth; }
-
-    body {
-      margin:0;
-      font-family:Arial,Tahoma,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      line-height:1.7;
-    }
-
-    button,input,select,textarea { font:inherit; }
-
-    button { cursor:pointer; }
-
-    button:disabled {
-      opacity:.6;
-      cursor:not-allowed;
-    }
-
-    .topbar {
-      background:var(--green);
-      color:white;
-      padding:14px 5%;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
-    .logo {
-      font-size:27px;
-      font-weight:bold;
-      color:white;
-    }
-
-    .logo span { color:var(--orange); }
-
-    .top-actions,.hero-actions {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:9px;
-      flex-wrap:wrap;
-    }
-
-    .btn {
-      border:0;
-      border-radius:9px;
-      padding:11px 17px;
-      font-weight:bold;
-      transition:.2s;
-    }
-
-    .btn:hover:not(:disabled) {
-      filter:brightness(.94);
-      transform:translateY(-1px);
-    }
-
-    .btn-primary {
-      background:var(--orange);
-      color:#17231e;
-    }
-
-    .btn-green {
-      background:var(--green2);
-      color:white;
-    }
-
-    .btn-light {
-      background:white;
-      color:var(--green);
-      border:1px solid var(--border);
-    }
-
-    .btn-danger {
-      background:var(--danger);
-      color:white;
-    }
-
-    .hero {
-      background:linear-gradient(135deg,#173f78,#2463a6);
-      color:white;
-      padding:48px 6%;
-      text-align:center;
-    }
-
-    .hero h1 {
-      font-size:clamp(26px,5vw,42px);
-      margin:0 0 12px;
-    }
-
-    .hero p {
-      max-width:650px;
-      margin:0 auto 23px;
-      color:#e4eee8;
-    }
-
-    .container {
-      width:min(1100px,94%);
-      margin:25px auto;
-    }
-
-    .panel {
-      background:white;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:20px;
-      margin-bottom:20px;
-      box-shadow:0 3px 12px #173c3210;
-    }
-
-    h2 {
-      color:var(--green);
-      margin:0 0 15px;
-      font-size:21px;
-    }
-
-    .grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-      gap:13px;
-    }
-
-    .field { margin-bottom:13px; }
-
-    label {
-      display:block;
-      font-weight:bold;
-      font-size:14px;
-      margin-bottom:5px;
-    }
-
-    input,select,textarea {
-      width:100%;
-      padding:11px;
-      border:1px solid var(--border);
-      border-radius:8px;
-      background:white;
-      color:var(--text);
-      outline:none;
-    }
-
-    input:focus,select:focus,textarea:focus {
-      border-color:var(--green2);
-      box-shadow:0 0 0 2px #2463a618;
-    }
-
-    textarea {
-      min-height:90px;
-      resize:vertical;
-    }
-
-    .notice {
-      padding:11px 13px;
-      border-radius:8px;
-      background:#edf3fb;
-      color:var(--green);
-      margin:12px 0;
-      font-size:14px;
-    }
-
-    .status {
-      display:none;
-      padding:11px 13px;
-      border-radius:8px;
-      margin:12px 0;
-      overflow-wrap:anywhere;
-      font-size:14px;
-    }
-
-    .status.success {
-      display:block;
-      background:#e6f5eb;
-      color:var(--success);
-    }
-
-    .status.error {
-      display:block;
-      background:#fff0ee;
-      color:var(--danger);
-    }
-
-    .status.info {
-      display:block;
-      background:#edf3ff;
-      color:var(--blue);
-    }
-
-    .cargo-list {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:14px;
-      margin:15px 0;
-    }
-
-    .cargo-card {
-      background:white;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:16px;
-      box-shadow:0 2px 8px #173c3210;
-      overflow-wrap:anywhere;
-    }
-
-    .cargo-card h3 {
-      margin:0 0 10px;
-      color:var(--green);
-      font-size:19px;
-    }
-
-    .route {
-      font-size:17px;
-      font-weight:bold;
-      margin:10px 0;
-      color:var(--green2);
-    }
-
-    .cargo-detail {
-      color:var(--muted);
-      font-size:14px;
-      margin:5px 0;
-    }
-
-    .price {
-      color:var(--green2);
-      font-weight:bold;
-      margin-top:10px;
-    }
-
-    .empty {
-      text-align:center;
-      color:var(--muted);
-      padding:25px;
-      background:white;
-      border-radius:10px;
-      border:1px dashed var(--border);
-      grid-column:1/-1;
-    }
-
-    .small {
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .hidden { display:none !important; }
-
-    .footer {
-      background:var(--green);
-      color:white;
-      text-align:center;
-      padding:24px 10px;
-      margin-top:35px;
-    }
-
-    .footer a {
-      color:var(--orange);
-      text-decoration:none;
-      margin:0 8px;
-    }
-
-    .footer a:hover { text-decoration:underline; }
-
-    .section-actions {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .user-info {
-      color:white;
-      font-size:13px;
-      max-width:200px;
-      overflow-wrap:anywhere;
-    }
-
-    .required-note {
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:12px;
-    }
-
-    @media(max-width:600px) {
-      .topbar {
-        justify-content:center;
-        text-align:center;
-      }
-
-      .top-actions { width:100%; }
-
-      .top-actions .btn { flex:1; }
-
-      .hero { padding:34px 5%; }
-
-      .panel { padding:15px; }
-
-      .container { width:94%; }
-
-      .cargo-list {
-        grid-template-columns:1fr;
-      }
-    }
-  
-/* Barkoul.ma — polished responsive blue/white interface */
 :root{
-  --green:#0b4a9b;--green2:#1767c5;--orange:#f2b84b;
+  --blue:#0b4a9b;--blue2:#1767c5;--gold:#f2b84b;
   --bg:#f4f7fc;--white:#fff;--text:#142b49;--muted:#64748b;
-  --border:#dce5f0;--danger:#b42318;--success:#17633b;--blue:#0b4a9b;
+  --border:#dce5f0;--danger:#b42318;--success:#17633b;
 }
+*{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:24px}
-body{background:#f4f7fc;color:#142b49;font-family:Tahoma,Arial,sans-serif}
-button,input,select,textarea{font-family:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;line-height:1.7}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+img{max-width:100%}
+.hidden{display:none!important}
 .site-contact{background:#0b3978;color:#fff;padding:8px clamp(16px,4vw,56px);display:flex;justify-content:space-between;align-items:center;gap:8px 18px;flex-wrap:wrap;font-size:13px}
 .site-nav{background:#fff;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px clamp(16px,4vw,56px);box-shadow:0 3px 18px #12345a12;position:relative;z-index:5}
-.brand{font-size:29px;font-weight:900;color:#0b4a9b;white-space:nowrap;letter-spacing:-.8px;line-height:1.2}
-.brand small{font-size:11px;display:block;letter-spacing:0;color:#64748b;text-align:center;margin-top:3px;font-weight:600}
+.brand{font-size:29px;font-weight:900;color:var(--blue);white-space:nowrap;letter-spacing:-.8px;line-height:1.2}
+.brand small{font-size:11px;display:block;letter-spacing:0;color:var(--muted);text-align:center;margin-top:3px;font-weight:600}
 .nav-links{display:flex;align-items:center;gap:clamp(12px,2vw,26px);font-weight:700}
 .nav-links a{color:#263d5c;text-decoration:none;font-size:14px;transition:color .2s}
-.nav-links a:hover{color:#1767c5}
+.nav-links a:hover{color:var(--blue2)}
 .nav-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.site-nav .btn{border-radius:12px;padding:10px 16px;min-height:42px}
-.btn{border-radius:11px}
-.btn-primary{background:#0b58b2;color:#fff}
+.user-info{color:var(--blue);font-size:13px;max-width:200px;overflow-wrap:anywhere}
+.btn{border:0;border-radius:11px;padding:11px 17px;font-weight:800;transition:filter .2s,transform .2s}
+.btn:hover:not(:disabled){filter:brightness(.96);transform:translateY(-1px)}
+.btn-primary,.btn-green{background:#0b58b2;color:#fff}
 .btn-light{background:#eaf2fc;color:#174a86;border:1px solid #d4e3f6}
-.btn-green{background:#0b58b2;color:#fff}
-.site-hero{
-  position:relative;overflow:hidden;isolation:isolate;
-  min-height:430px;padding:clamp(34px,5vw,66px) clamp(18px,5vw,72px);
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
-  align-items:center;gap:clamp(24px,4vw,54px);
-  color:#092c67;background:linear-gradient(115deg,#f4f8ff 0%,#e6f0ff 55%,#d8e8ff 100%);
-}
+.btn-danger{background:var(--danger);color:#fff}
+.site-nav .btn{border-radius:12px;padding:10px 16px;min-height:42px}
+.site-hero{position:relative;overflow:hidden;isolation:isolate;min-height:430px;padding:clamp(34px,5vw,66px) clamp(18px,5vw,72px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:center;gap:clamp(24px,4vw,54px);color:#092c67;background:linear-gradient(115deg,#f4f8ff 0%,#e6f0ff 55%,#d8e8ff 100%)}
 .site-hero:before{content:"";position:absolute;z-index:-1;width:420px;height:420px;border-radius:50%;background:#fff8;top:-230px;left:-100px}
 .hero-copy{text-align:right;max-width:610px}
 .hero-copy h1{font-size:clamp(38px,5.2vw,64px);line-height:1.12;margin:0 0 12px;color:#073b80;font-weight:900;letter-spacing:-1.5px}
 .hero-copy p{font-size:clamp(18px,2vw,25px);font-weight:800;line-height:1.6;margin:0 0 24px;color:#234b7f}
-.hero-kicker{display:inline-flex;align-items:center;background:#d9e9ff;color:#0b4a9b;border:1px solid #c4dcfb;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:800;margin-bottom:20px}
+.hero-kicker{display:inline-flex;align-items:center;background:#d9e9ff;color:var(--blue);border:1px solid #c4dcfb;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:800;margin-bottom:20px}
 .hero-actions{display:flex;justify-content:flex-start;gap:12px;flex-wrap:wrap}
 .site-hero .btn{border-radius:12px;padding:14px 22px;font-size:16px;min-width:174px;min-height:52px;box-shadow:0 7px 18px #0b4a9b1c}
-.site-hero .btn-primary{background:#0b58b2;color:#fff}
-.site-hero .btn-light{background:#fff;color:#0b4a9b;border:1px solid #c9dcf5}
-.hero-visual{display:grid;grid-template-columns:minmax(0,1fr)  minmax(110px,.34fr);align-items:center;gap:14px;width:100%;min-width:0;min-height:260px}
+.site-hero .btn-light{background:#fff;color:var(--blue);border:1px solid #c9dcf5}
+.hero-visual{display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,.32fr);align-items:center;gap:14px;width:100%;min-width:0;min-height:260px}
 .truck-photo{display:block;width:100%;height:clamp(210px,25vw,330px);min-width:0;aspect-ratio:16/10;object-fit:cover;object-position:center;border-radius:22px;box-shadow:0 18px 42px #092d6628;border:5px solid #fff;background:#fff}
 .morocco-map-image{display:block;width:100%;max-width:150px;height:clamp(180px,22vw,270px);justify-self:center;object-fit:contain;object-position:center;background:#fff;border:1px solid #e0e9f5;border-radius:18px;padding:10px;box-shadow:0 12px 30px #092d6618}
 .categories{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;padding:24px clamp(16px,3.5vw,52px);background:#fff}
@@ -381,9 +60,32 @@ button,input,select,textarea{font-family:inherit}
 .benefit b{display:block;font-size:27px;margin-bottom:4px}
 .container{width:min(1120px,94%);margin:28px auto 48px}
 .panel{background:#fff;border:1px solid #e2eaf4;box-shadow:0 8px 28px #143e760c;border-radius:18px;padding:clamp(17px,2.5vw,28px);margin-bottom:20px}
-h2{color:#0b4a9b}
-.footer{background:#082f69;color:#fff}
-.footer a{color:#fff}
+h2{color:var(--blue);margin:0 0 15px;font-size:21px}
+h3{color:var(--blue);margin:14px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:13px}
+.field{margin-bottom:13px;min-width:0}
+label{display:block;font-weight:800;font-size:14px;margin-bottom:5px}
+input,select,textarea{width:100%;min-width:0;padding:11px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px #1767c51a}
+textarea{min-height:90px;resize:vertical}
+.notice{padding:11px 13px;border-radius:9px;background:#edf3fb;color:var(--blue);margin:12px 0;font-size:14px}
+.status{display:none;padding:11px 13px;border-radius:9px;margin:12px 0;overflow-wrap:anywhere;font-size:14px}
+.status.success{display:block;background:#e6f5eb;color:var(--success)}
+.status.error{display:block;background:#fff0ee;color:var(--danger)}
+.status.info{display:block;background:#edf3ff;color:var(--blue)}
+.cargo-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin:15px 0}
+.cargo-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 2px 8px #173c3210;overflow-wrap:anywhere}
+.cargo-card h3{margin:0 0 10px;color:var(--blue);font-size:19px}
+.route{font-size:17px;font-weight:800;margin:10px 0;color:var(--blue2)}
+.cargo-detail{color:var(--muted);font-size:14px;margin:5px 0}
+.price{color:var(--blue2);font-weight:800;margin-top:10px}
+.empty{text-align:center;color:var(--muted);padding:25px;background:#fff;border-radius:10px;border:1px dashed var(--border);grid-column:1/-1}
+.small,.required-note{font-size:12px;color:var(--muted)}
+.required-note{margin-bottom:12px}
+.section-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.footer{background:#082f69;color:#fff;text-align:center;padding:24px 10px;margin-top:35px}
+.footer a{color:#fff;text-decoration:none;margin:0 8px}
+.footer a:hover{text-decoration:underline}
 @media(max-width:900px){
   .site-nav{flex-wrap:wrap}
   .nav-links{order:3;width:100%;justify-content:center;flex-wrap:wrap}
@@ -403,7 +105,7 @@ h2{color:#0b4a9b}
   .brand{font-size:25px}
   .nav-actions{width:100%;justify-content:center}
   .nav-actions .btn{flex:1;min-width:0}
-  .nav-links{gap:10px 16px;font-size:13px}
+  .nav-links{gap:10px 16px}
   .nav-links a{font-size:13px}
   .site-hero{padding:30px 16px 26px}
   .hero-copy h1{font-size:38px}
@@ -419,9 +121,10 @@ h2{color:#0b4a9b}
   .category .emoji{font-size:29px}
   .benefits{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 12px;padding:12px 5px}
   .benefit{font-size:12px;padding:9px 5px;border-left:0;border-bottom:1px solid #cbdcf1}
-  .benefit:nth-last-child(-n+1){border-bottom:0}
+  .benefit:last-child{border-bottom:0}
   .container{width:calc(100% - 24px);margin:18px auto 34px}
   .panel{padding:16px;border-radius:15px}
+  .section-actions .btn{flex:1}
 }
 @media(max-width:360px){
   .hero-visual{grid-template-columns:minmax(0,1fr) 76px}
@@ -429,8 +132,7 @@ h2{color:#0b4a9b}
   .morocco-map-image{height:150px}
   .hero-actions{grid-template-columns:1fr}
 }
-
-  </style>
+</style>
 </head>
 
 <body>
@@ -449,7 +151,7 @@ h2{color:#0b4a9b}
     <p>ربط أصحاب البضائع بسائقي الشاحنات</p>
     <div class="hero-actions"><button class="btn btn-primary" id="searchHeroBtn" type="button">⌕　أبحث عن شحنة</button><button class="btn btn-light" id="publishHeroBtn" type="button">＋　أنشر شحنة</button></div>
   </div>
-  <div class="hero-visual"><img class="morocco-map-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Map_of_Morocco.svg" alt="خريطة المغرب كاملة" loading="lazy"><img class="truck-photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=85" alt="شاحنة نقل بضائع" loading="lazy"></div>
+  <div class="hero-visual"><img class="truck-photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=85" alt="شاحنة نقل بضائع" loading="lazy"><img class="morocco-map-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Morocco_full_map.svg" alt="خريطة المغرب كاملة" loading="lazy"></div>
 </section>
 <section class="categories" id="services" aria-label="تصنيفات الشحنات">
   <div class="category"><span class="emoji">🚛</span>بضائع متنوعة</div><div class="category"><span class="emoji">🍎</span>خضر وفواكه</div><div class="category"><span class="emoji">🧱</span>مواد البناء</div><div class="category"><span class="emoji">🍽️</span>مواد غذائية</div><div class="category"><span class="emoji">🛋️</span>أثاث وأجهزة</div><div class="category"><span class="emoji">❄️</span>شاحنة تبريد</div>
@@ -778,11 +480,18 @@ const SUPABASE_ANON_KEY =
   "sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
 
 if (!window.supabase || !window.supabase.createClient) {
-  document.body.innerHTML =
-    '<div style="padding:30px;text-align:center;font-family:Arial">' +
-    '<h2>تعذر تحميل نظام الاتصال</h2>' +
-    '<p>تحقق من اتصال الإنترنت ثم أعد تحميل الصفحة.</p>' +
-    '</div>';
+  const connectionStatus = document.getElementById("globalStatus");
+
+  if (connectionStatus) {
+    connectionStatus.textContent =
+      "تعذر تحميل نظام الاتصال. تحقق من الإنترنت ثم أعد تحميل الصفحة.";
+    connectionStatus.className = "status error";
+  } else {
+    const message = document.createElement("p");
+    message.textContent =
+      "تعذر تحميل نظام الاتصال. تحقق من الإنترنت ثم أعد تحميل الصفحة.";
+    document.body.appendChild(message);
+  }
 
   throw new Error("Supabase library unavailable");
 }
