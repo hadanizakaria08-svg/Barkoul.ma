@@ -104,6 +104,9 @@ jobs:
           VITE_SUPABASE_ANON_KEY: sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn
       - name: Build Tauri executable without installer bundling
         run: npm run build --workspace @barkoul/desktop -- --no-bundle
+        env:
+          VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn
       - uses: actions/upload-artifact@v4
         with:
           name: barkoul-windows-portable-unsigned
