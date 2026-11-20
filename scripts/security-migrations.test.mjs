@@ -93,6 +93,7 @@ describe("database mutation boundaries", () => {
     assert.ok(atomicWorkflowMigration.includes("FROM public.cargos c"));
     assert.ok(atomicWorkflowMigration.includes("FOR UPDATE"));
     assert.ok(atomicWorkflowMigration.includes("p_proposed_price_mad <= 0"));
+    assert.ok(atomicWorkflowMigration.includes("p_proposed_price_mad::text IN ('NaN','Infinity','-Infinity')"));
     assert.ok(atomicWorkflowMigration.includes("p.role='driver'"));
     assert.ok(atomicWorkflowMigration.includes("d.review_status='verified'"));
     assert.ok(atomicWorkflowMigration.includes("CREATE OR REPLACE FUNCTION public.create_negotiation"));
