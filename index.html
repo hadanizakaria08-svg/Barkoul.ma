@@ -1385,7 +1385,8 @@ function workspaceButton(label, handler, className = "btn btn-light") {
 async function loadWorkspace() {
   if (!currentUser || workspaceLoading) return;
   workspaceLoading = true;
-  $("workspacePanel").classList.remove("hidden");
+  $("workspacePanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
+  if (!["driver","owner","admin"].includes(currentProfileRole)) return;
   $("driverDocsPanel").classList.toggle("hidden", currentProfileRole !== "driver");
   $("myNegotiationsPanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
   $("myTripsPanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
@@ -1401,6 +1402,7 @@ async function loadWorkspace() {
         ? "تم التحقق من وثائقك. يمكنك إرسال عروض على الشحنات المفتوحة."
         : "أكمل رفع وثائقك وانتظر مراجعة الإدارة قبل تقديم عروض الأسعار.";
       renderMyDocuments();
+      applyFilters();
     } else {
       driverVerified = false;
     }
@@ -1535,8 +1537,11 @@ async function renderTrips(trips) {
         await loadWorkspace();
       } catch (e) { showGlobalMessage("تعذر تحديث الرحلة: " + (e.message || ""), "error"); }
     };
-    if (["agreed","loading"].includes(t.status)) {
-      buttons.push(workspaceButton("بدء التحميل / تأكيد التحميل", () => move("loading"), "btn btn-green"));
+    if (t.status === "agreed") {
+      buttons.push(workspaceButton("بدء التحميل", () => move("loading"), "btn btn-green"));
+      buttons.push(workspaceButton("إلغاء الرحلة", () => { if (confirm("هل تريد إلغاء الرحلة؟")) move("cancelled"); }, "btn btn-danger"));
+    }
+    if (t.status === "loading") {
       buttons.push(workspaceButton("إلغاء الرحلة", () => { if (confirm("هل تريد إلغاء الرحلة؟")) move("cancelled"); }, "btn btn-danger"));
     }
     if (t.status === "loading" && currentUser.id === t.driver_id) buttons.push(workspaceButton("انطلاق الشحنة", () => move("in_transit"), "btn btn-green"));
