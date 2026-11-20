@@ -117,3 +117,73 @@ export function buildSensorSummary({ radar = 0, ir = 0, uv = 0, rf = 0 } = {}) {
     response: "observe-and-record"
   });
 }
+
+
+// Offline Chain System model: isolate one failed module and replace it only
+// from an injected trusted factory. This is a synchronous lab simulation,
+// not an operating-system supervisor or production auto-recovery service.
+export class SelfHealingModuleChain {
+  #modules = new Map();
+  #evidence = [];
+
+  register(name, trustedFactory, healthCheck = value => value?.healthy === true) {
+    if (!/^[a-z][a-z0-9-]{1,40}$/i.test(name) || this.#modules.has(name)) {
+      throw new Error("Invalid or duplicate module name");
+    }
+    if (typeof trustedFactory !== "function" || typeof healthCheck !== "function") {
+      throw new TypeError("A trusted factory and health check are required");
+    }
+    const instance = trustedFactory();
+    if (!healthCheck(instance)) throw new Error("Initial trusted module failed health check");
+    this.#modules.set(name, { trustedFactory, healthCheck, instance, status: "healthy", version: 1 });
+    this.#record(name, "registered", "healthy");
+    return instance;
+  }
+
+  #record(module, event, status) {
+    this.#evidence.push(Object.freeze({ module, event, status, at: new Date().toISOString() }));
+  }
+
+  recover(name) {
+    const entry = this.#modules.get(name);
+    if (!entry) throw new Error("Unknown module");
+    entry.status = "isolated";
+    this.#record(name, "fault-detected-and-isolated", "isolated");
+
+    try {
+      // Never reuse the damaged instance or transfer its runtime state.
+      const replacement = entry.trustedFactory();
+      if (!entry.healthCheck(replacement)) {
+        this.#record(name, "replacement-health-check-failed", "isolated");
+        return Object.freeze({ recovered: false, status: "isolated", version: entry.version });
+      }
+      entry.instance = replacement;
+      entry.version += 1;
+      entry.status = "healthy";
+      this.#record(name, "trusted-replacement-verified-and-reconnected", "healthy");
+      return Object.freeze({ recovered: true, status: "healthy", version: entry.version });
+    } catch {
+      this.#record(name, "replacement-error", "isolated");
+      return Object.freeze({ recovered: false, status: "isolated", version: entry.version });
+    }
+  }
+
+  get(name) {
+    const entry = this.#modules.get(name);
+    if (!entry || entry.status !== "healthy") return undefined;
+    return entry.instance;
+  }
+
+  status() {
+    return Object.freeze(Object.fromEntries(
+      [...this.#modules].map(([name, entry]) => [name, Object.freeze({
+        status: entry.status,
+        version: entry.version
+      })])
+    ));
+  }
+
+  evidence() {
+    return this.#evidence.map(item => ({ ...item }));
+  }
+}
