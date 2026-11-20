@@ -6,7 +6,7 @@ let failed = false;
 
 for (const file of files) {
   const html = fs.readFileSync(file, "utf8");
-  const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)]
+  const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
     .map(match => match[1]).filter(source => source.trim());
 
   if (!scripts.length) {
@@ -23,10 +23,10 @@ for (const file of files) {
     }
   }
 
-  const ids = [...html.matchAll(/\\bid=["']([^"']+)["']/g)].map(match => match[1]);
+  const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(match => match[1]);
   const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
   const missing = [...new Set(
-    [...html.matchAll(/\\$\\(["']([^"']+)["']\\)/g)]
+    [...html.matchAll(/\$\(["']([^"']+)["']\)/g)]
       .map(match => match[1]).filter(id => !ids.includes(id))
   )];
 
