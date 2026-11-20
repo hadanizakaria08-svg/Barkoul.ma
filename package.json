@@ -18,7 +18,8 @@
     "mobile:sync": "cap sync",
     "mobile:android": "cap open android",
     "mobile:ios": "cap open ios",
-    "security:source": "node scripts/check-source-security.mjs"
+    "security:source": "node scripts/check-source-security.mjs",
+    "check:legacy-html": "node scripts/check-legacy-html.mjs"
   },
   "engines": {
     "node": ">=20"

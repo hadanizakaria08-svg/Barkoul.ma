@@ -1,119 +1,131 @@
-
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Barkoul.ma | الإدارة</title>
+<meta name="theme-color" content="#173f78">
+<title>Barkoul.ma | لوحة الإدارة</title>
 <style>
-body{font-family:Arial;background:#f3f7f4;margin:0;color:#173c2c}
-main{max-width:650px;margin:35px auto;padding:16px}
-section{background:white;padding:20px;border-radius:15px;margin:15px 0}
-input,button{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border-radius:9px;border:1px solid #ccd8d0}
-button{background:#126747;color:white;font-weight:bold}
-.card{padding:12px;border:1px solid #ddd;border-radius:9px;margin:10px 0}
-.hidden{display:none}
-#msg{overflow-wrap:anywhere;color:#a12626}
+:root{--blue:#173f78;--blue2:#2463a6;--bg:#f3f7fc;--line:#dce5f0;--text:#17283d;--muted:#64748b;--red:#b42318;--green:#16734b}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+header{background:var(--blue);color:white;padding:16px}main{width:min(1100px,94%);margin:22px auto}
+h1,h2,h3{margin-top:0}h1{font-size:23px}h2{font-size:19px;color:var(--blue)}
+.panel,.section,.card{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+input,select,button{font:inherit;border-radius:9px;padding:11px;border:1px solid var(--line)}
+input,select{width:100%;background:white;color:var(--text);margin:5px 0 10px}
+button{cursor:pointer;font-weight:bold;background:var(--blue);color:white;border:0;margin:4px}
+button.secondary{background:#eaf1fa;color:var(--blue)}button.danger{background:var(--red)}button.success{background:var(--green)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stats{font-size:24px;font-weight:bold;color:var(--blue)}
+.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}.status{padding:10px;border-radius:8px;background:#eef4fb;margin:10px 0;overflow-wrap:anywhere}
+.error{background:#fff0ef;color:var(--red)}.ok{background:#eaf7ef;color:var(--green)}
+.actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.card{margin:9px 0}.card strong{color:var(--blue)}
+.empty{padding:15px;text-align:center;color:var(--muted);background:#f8fafc;border-radius:10px}
+label{font-weight:bold;font-size:14px}
 </style>
 </head>
 <body>
+<header><main style="margin:0 auto"><h1>🔐 Barkoul.ma — لوحة الإدارة</h1><div>إدارة طلبات الحسابات ووثائق السائقين والعمولات والشحنات</div></main></header>
 <main>
-<h1>🔐 إدارة Barkoul.ma</h1>
-<p>منطقة خاصة بالإدارة</p>
-<section id="login">
+<section id="login" class="panel">
 <h2>دخول المدير</h2>
-<input id="email" type="email" placeholder="البريد الإلكتروني" value="hadanizakaria08@gmail.com">
-<input id="password" type="password" placeholder="كلمة المرور">
-<button id="loginBtn" type="button">تسجيل الدخول</button>
-<p id="msg">أدخل كلمة المرور للمتابعة.</p>
+<label for="email">البريد الإلكتروني</label><input id="email" type="email" autocomplete="username" required>
+<label for="password">كلمة المرور</label><input id="password" type="password" autocomplete="current-password" required>
+<button id="loginBtn" type="button">تسجيل الدخول</button><div id="msg" class="status">هذه الصفحة مخصصة لحساب المدير فقط.</div>
 </section>
 <section id="dashboard" class="hidden">
-<h2>لوحة الإدارة</h2>
-<p id="welcome"></p>
-<h3>الشحنات</h3>
-<div id="cargos">جارٍ التحميل...</div>
-<button id="logoutBtn" type="button">تسجيل الخروج</button>
+<div class="grid">
+<div class="panel"><div class="muted">طلبات التفعيل</div><div id="roleCount" class="stats">—</div></div>
+<div class="panel"><div class="muted">وثائق قيد المراجعة</div><div id="docCount" class="stats">—</div></div>
+<div class="panel"><div class="muted">عمولات مستحقة</div><div id="chargeCount" class="stats">—</div></div>
+<div class="panel"><div class="muted">الشحنات المفتوحة</div><div id="cargoCount" class="stats">—</div></div>
+</div>
+<div class="panel"><div class="actions"><button id="refreshBtn" type="button">تحديث البيانات</button><button id="logoutBtn" class="secondary" type="button">تسجيل الخروج</button></div><div id="dashboardMsg" class="status">تم التحقق من صلاحية المدير.</div></div>
+<section class="section"><h2>طلبات تفعيل الحسابات</h2><div id="roleRequests"></div></section>
+<section class="section"><h2>وثائق السائقين</h2><p class="muted">لا تصبح الوثيقة معتمدة إلا بعد مراجعتها يدوياً.</p><div id="documents"></div></section>
+<section class="section"><h2>العمولات المستحقة</h2><p class="muted">عمولة صاحب البضاعة 10 دراهم، وعمولة السائق 20 درهماً لكل رحلة مكتملة.</p><div id="charges"></div></section>
+<section class="section"><h2>الشحنات</h2><div id="cargos"></div></section>
+<section class="section"><h2>سجل إجراءات الإدارة</h2><div id="audit"></div></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+"use strict";
 (async function(){
- const $=id=>document.getElementById(id);
- const btn=$("loginBtn");
- const msg=$("msg");
-
- if(!window.supabase){
-  msg.textContent="تعذر تحميل خدمة الدخول. تحقق من الإنترنت.";
-  return;
- }
-
- const db=window.supabase.createClient(
-  "https://ajvpinnumhazuyziphwn.supabase.co",
-  "sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn"
- );
-
- btn.addEventListener("click",async()=>{
-  btn.disabled=true;
-  msg.textContent="جارٍ التحقق من الحساب...";
-
-  try{
-   const {data,error}=await db.auth.signInWithPassword({
-    email:$("email").value.trim(),
-    password:$("password").value
-   });
-   if(error) throw error;
-   if(!data.user) throw new Error("لم يتم العثور على الحساب.");
-
-   const {data:profile,error:pe}=await db.from("profiles")
-    .select("role").eq("id",data.user.id).maybeSingle();
-
-   if(pe) throw pe;
-   if(!profile||profile.role!=="admin"){
-    await db.auth.signOut();
-    throw new Error("هذا الحساب غير مخول للإدارة.");
-   }
-
-   $("login").classList.add("hidden");
-   $("dashboard").classList.remove("hidden");
-   $("welcome").textContent="تم تسجيل الدخول.";
-
-   const area=$("cargos");
-   area.textContent="جارٍ تحميل الشحنات...";
-
-   const {data:rows,error:ce}=await db.from("cargos")
-    .select("id,title,origin_city,destination_city,status")
-    .order("created_at",{ascending:false}).limit(100);
-
-   if(ce){
-    area.textContent="تعذر تحميل الشحنات: "+ce.message;
-    return;
-   }
-
-   area.textContent="";
-   if(!rows||rows.length===0){
-    area.textContent="لا توجد شحنات.";
-    return;
-   }
-
-   rows.forEach(c=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.textContent=(c.title||"شحنة")+" — "+
-     (c.origin_city||"؟")+" ← "+(c.destination_city||"؟")+
-     " — "+(c.status||"");
-    area.appendChild(div);
-   });
-  }catch(e){
-   msg.textContent="تعذر الدخول: "+(e.message||String(e));
-  }finally{
-   btn.disabled=false;
-  }
- });
-
- $("logoutBtn").addEventListener("click",async()=>{
-  await db.auth.signOut();
-  location.reload();
- });
+const $=id=>document.getElementById(id);
+const db=window.supabase.createClient("https://ajvpinnumhazuyziphwn.supabase.co","sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let currentUser=null;
+function message(target,text,type=""){const el=$(target);el.textContent=text;el.className="status "+type;}
+function empty(target,text){$(target).replaceChildren();const p=document.createElement("div");p.className="empty";p.textContent=text;$(target).appendChild(p);}
+function card(target,title,details,buttons=[]){
+ const box=document.createElement("article");box.className="card";
+ const h=document.createElement("strong");h.textContent=title;box.appendChild(h);
+ for(const line of details){const p=document.createElement("p");p.textContent=line;box.appendChild(p);}
+ if(buttons.length){const row=document.createElement("div");row.className="actions";for(const b of buttons)row.appendChild(b);box.appendChild(row);}
+ $(target).appendChild(box);return box;
+}
+function action(label,fn,kind=""){const b=document.createElement("button");b.type="button";b.textContent=label;if(kind)b.className=kind;b.addEventListener("click",fn);return b;}
+async function requireAdmin(user){
+ const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+ if(error)throw error;
+ if(data?.role!=="admin")throw new Error("هذا الحساب ليس حساب مدير مخولاً.");
+ currentUser=user;$("login").classList.add("hidden");$("dashboard").classList.remove("hidden");
+ await loadAll();
+}
+async function signIn(){
+ $("loginBtn").disabled=true;message("msg","جارٍ التحقق من الحساب...");
+ try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await requireAdmin(data.user);}
+ catch(e){await db.auth.signOut();message("msg",e.message||"تعذر تسجيل الدخول.","error");}
+ finally{$("loginBtn").disabled=false;}
+}
+async function loadAll(){
+ message("dashboardMsg","جارٍ تحميل بيانات الإدارة...");
+ try{
+ const [roles,docs,charges,cargos,audit]=await Promise.all([
+  db.from("profile_role_requests").select("id,user_id,requested_role,status,created_at").eq("status","pending").order("created_at",{ascending:false}).limit(100),
+  db.from("driver_documents").select("id,driver_id,document_type,storage_path,review_status,uploaded_at").eq("review_status","pending").order("uploaded_at",{ascending:false}).limit(100),
+  db.from("commission_charges").select("id,trip_id,payer_id,payer_role,amount_mad,status,created_at").eq("status","due").order("created_at",{ascending:false}).limit(100),
+  db.from("cargos").select("id,title,origin_city,destination_city,status,created_at").order("created_at",{ascending:false}).limit(100),
+  db.from("admin_audit_log").select("id,action,target_table,target_id,created_at").order("created_at",{ascending:false}).limit(50)
+ ]);
+ for(const x of [roles,docs,charges,cargos,audit])if(x.error)throw x.error;
+ $("roleCount").textContent=roles.data.length;$("docCount").textContent=docs.data.length;$("chargeCount").textContent=charges.data.length;$("cargoCount").textContent=cargos.data.filter(x=>x.status==="open").length;
+ const ids=[...new Set([...roles.data.map(x=>x.user_id),...docs.data.map(x=>x.driver_id),...charges.data.map(x=>x.payer_id)])];
+ let profileMap={};
+ if(ids.length){const {data,error}=await db.from("profiles").select("id,full_name,phone,role").in("id",ids);if(error)throw error;for(const p of data)profileMap[p.id]=p;}
+ $("roleRequests").replaceChildren();
+ if(!roles.data.length)empty("roleRequests","لا توجد طلبات تفعيل معلقة.");
+ for(const r of roles.data){const p=profileMap[r.user_id]||{};card("roleRequests","طلب رقم "+r.id,["الاسم: "+(p.full_name||"غير مسجل"),"الهاتف: "+(p.phone||"غير مسجل"),"الصفة المطلوبة: "+(r.requested_role==="driver"?"سائق":"صاحب بضائع"),"تاريخ الطلب: "+new Date(r.created_at).toLocaleString("ar-MA")],[action("موافقة",async()=>{await rpcAction("admin_review_role_request",{p_request_id:r.id,p_approve:true},"تمت الموافقة على الطلب.");},"success"),action("رفض",async()=>{await rpcAction("admin_review_role_request",{p_request_id:r.id,p_approve:false},"تم رفض الطلب.");},"danger")]);}
+ $("documents").replaceChildren();
+ if(!docs.data.length)empty("documents","لا توجد وثائق معلقة.");
+ for(const d of docs.data){const p=profileMap[d.driver_id]||{};card("documents","وثيقة رقم "+d.id,["السائق: "+(p.full_name||d.driver_id),"نوع الوثيقة: "+d.document_type,"الحالة: "+d.review_status,"المسار: "+d.storage_path],[action("فتح الوثيقة",async()=>{const popup=window.open("about:blank","_blank");if(!popup){message("dashboardMsg","اسمح بفتح النوافذ المنبثقة لعرض الوثيقة.","error");return;}popup.opener=null;const {data,error}=await db.storage.from("driver-documents").createSignedUrl(d.storage_path,60);if(error){popup.close();throw error;}popup.location.href=data.signedUrl;}),action("اعتماد",async()=>{await rpcAction("admin_review_driver_document",{p_document_id:d.id,p_status:"verified"},"تم اعتماد الوثيقة.");},"success"),action("رفض",async()=>{await rpcAction("admin_review_driver_document",{p_document_id:d.id,p_status:"rejected"},"تم رفض الوثيقة.");},"danger")]);}
+ $("charges").replaceChildren();
+ if(!charges.data.length)empty("charges","لا توجد عمولات مستحقة.");
+ for(const c of charges.data){const p=profileMap[c.payer_id]||{};const box=card("charges","عمولة رقم "+c.id,["المستفيد من الدفع: "+(p.full_name||c.payer_id),"الصفة: "+c.payer_role,"المبلغ: "+c.amount_mad+" درهم","الرحلة: "+c.trip_id]);
+ const method=document.createElement("select");method.innerHTML='<option value="cash">نقداً</option><option value="electronic">إلكترونياً</option>';
+ const ref=document.createElement("input");ref.placeholder="مرجع الأداء الإلكتروني (إجباري عند اختياره)";
+ const pay=action("تسجيل الأداء",async()=>{const m=method.value;if(m==="electronic"&&!ref.value.trim()){message("dashboardMsg","أدخل مرجع الأداء الإلكتروني أولاً.","error");return;}await rpcAction("admin_record_commission_payment",{p_charge_id:c.id,p_method:m,p_reference:ref.value.trim()||null},"تم تسجيل الأداء.");},"success");
+ box.appendChild(method);box.appendChild(ref);box.appendChild(pay);}
+ $("cargos").replaceChildren();
+ if(!cargos.data.length)empty("cargos","لا توجد شحنات.");
+ for(const c of cargos.data)card("cargos","شحنة رقم "+c.id,[(c.title||"شحنة")+" — "+c.origin_city+" ← "+c.destination_city,"الحالة: "+c.status]);
+ $("audit").replaceChildren();
+ if(!audit.data.length)empty("audit","لا توجد إجراءات مسجلة بعد.");
+ for(const a of audit.data)card("audit",a.action,["الجدول: "+(a.target_table||"—"),"المعرف: "+(a.target_id||"—"),new Date(a.created_at).toLocaleString("ar-MA")]);
+ message("dashboardMsg","تم تحديث البيانات بنجاح.","ok");
+ }catch(e){console.error(e);message("dashboardMsg","تعذر تحميل بعض بيانات الإدارة: "+(e.message||String(e)),"error");}
+}
+async function rpcAction(name,args,successText){
+ try{const {error}=await db.rpc(name,args);if(error)throw error;message("dashboardMsg",successText,"ok");await loadAll();}
+ catch(e){message("dashboardMsg","تعذر تنفيذ العملية: "+(e.message||String(e)),"error");}
+}
+$("loginBtn").addEventListener("click",signIn);
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn();});
+$("refreshBtn").addEventListener("click",loadAll);
+$("logoutBtn").addEventListener("click",async()=>{await db.auth.signOut();location.reload();});
+const {data:{session}}=await db.auth.getSession();
+if(session){try{await requireAdmin(session.user);}catch(e){await db.auth.signOut();message("msg",e.message||"سجل الدخول بحساب مدير.","error");}}
 })();
 </script>
 </body>
