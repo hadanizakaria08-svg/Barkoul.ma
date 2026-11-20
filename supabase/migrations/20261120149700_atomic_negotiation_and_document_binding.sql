@@ -320,7 +320,6 @@ USING (
     AND NOT EXISTS (
       SELECT 1 FROM public.driver_documents d
       WHERE d.storage_path=storage.objects.name
-        AND d.review_status='verified'
     )
   )
 );
