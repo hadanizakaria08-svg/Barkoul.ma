@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { canPublishCargo, filterCargos, normalizeCargoDraft, TRUCK_TYPES, validateCargoDraft, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
 import { getCurrentProfileRole, getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
+import AdminRoom from "./AdminRoom";
 
 const initialDraft: CargoDraft = {
   title: "", origin_city: "", destination_city: "", goods_type: "",
@@ -33,6 +34,13 @@ export default function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [truck, setTruck] = useState("");
+  const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
+
+  useEffect(() => {
+    const syncRoute = () => setAdminRoute(window.location.hash === "#admin");
+    window.addEventListener("hashchange", syncRoute);
+    return () => window.removeEventListener("hashchange", syncRoute);
+  }, []);
 
   async function refresh() {
     setLoading(true); setError("");
@@ -146,9 +154,21 @@ export default function App() {
     finally { setBusy(false); }
   }
 
+  if (adminRoute) {
+    return <AdminRoom
+      user={user}
+      profileRole={profileRole}
+      profileLoading={profileLoading}
+      profileError={profileError}
+      onRefreshRole={() => void refreshProfileRole()}
+      onSignOut={() => { void db?.auth.signOut(); }}
+    />;
+  }
+
   return <div className="app-shell">
     <header className="topbar"><a className="brand" href="#">Barkoul<span>.ma</span></a>
       <nav><a href="#search">الشحنات</a><a href="#publish">نشر شحنة</a>
+      {user && profileRole === "admin" && <a href="#admin">غرفة المدير</a>}
       {user ? <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button> : <a href="#account">دخول / حساب جديد</a>}</nav>
     </header>
     <main>
