@@ -120,5 +120,7 @@ describe("database mutation boundaries", () => {
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR ALL TO anon"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR UPDATE TO authenticated"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR DELETE TO authenticated"));
+    assert.ok(atomicWorkflowMigration.includes("Only pending documents can be reviewed"));
+    assert.ok(atomicWorkflowMigration.includes("v_current_status IS DISTINCT FROM 'pending'"));
   });
 });
