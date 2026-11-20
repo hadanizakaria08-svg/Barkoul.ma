@@ -325,6 +325,7 @@ export default function App() {
         <a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://instagram.com/" aria-label="إنستغرام">◎</a><a href="https://x.com/" aria-label="X">𝕏</a>
       </div>
       <strong>Barkoul.ma <span>—</span> معاً نحو نقل أسهل وأسرع</strong>
+      <small className="visual-credits">الصور والخريطة: <a href="https://www.pexels.com/photo/a-truck-on-a-road-16180770/" target="_blank" rel="noreferrer">Hamid Ouan / Pexels</a> · <a href="https://commons.wikimedia.org/wiki/File:Goods_transport_Inezgane.jpg" target="_blank" rel="noreferrer">Abdeaitali</a> · <a href="https://commons.wikimedia.org/wiki/File:A_truck-full.jpg" target="_blank" rel="noreferrer">Rohan Shah</a> · <a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">Vegeta228</a> (CC BY-SA)</small>
     </footer>
   </div>;
 }
