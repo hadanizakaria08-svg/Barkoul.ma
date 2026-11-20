@@ -34,14 +34,14 @@
 - **Ethical hacker techniques:** authorized asset inventory, passive observation, controlled staging probes, honeypots, vulnerability validation, incident evidence and remediation. No third-party targeting.
 
 ## Chain System — rapid self-healing contract
-+- Each module has an independent health check and a trusted, versioned clean replacement artifact.
-+- A fault triggers containment of that module only; unrelated modules remain available.
-+- Replacement is automatic only from an approved known-good artifact. Never clone the damaged module's runtime, files, secrets, or state into the replacement.
-+- Verify artifact identity/integrity and run health checks before reconnecting the replacement.
-+- If verification fails, keep the module isolated, retry only from another approved clean artifact, and raise an operator alert; do not reconnect a failed replacement.
-+- Store a redacted evidence record outside the module for detection, isolation, replacement, verification, and recovery outcome.
-+- Measure recovery time (MTTR). “In the blink of an eye” is the target, not a guarantee; production timing depends on the actual supervisor, hosting, artifact availability, and dependency graph.
-+- Test that a failed Phantom Room or Chameleon module cannot take down identity, authorization, or core cargo workflows.
+- Each module has an independent health check and a trusted, versioned clean replacement artifact.
+- A fault triggers containment of that module only; unrelated modules remain available.
+- Replacement is automatic only from an approved known-good artifact. Never clone the damaged module's runtime, files, secrets, or state into the replacement.
+- Verify artifact identity/integrity and run health checks before reconnecting the replacement.
+- If verification fails, keep the module isolated, retry only from another approved clean artifact, and raise an operator alert; do not reconnect a failed replacement.
+- Store a redacted evidence record outside the module for detection, isolation, replacement, verification, and recovery outcome.
+- Measure recovery time (MTTR). “In the blink of an eye” is the target, not a guarantee; production timing depends on the actual supervisor, hosting, artifact availability, and dependency graph.
+- Test that a failed Phantom Room or Chameleon module cannot take down identity, authorization, or core cargo workflows.
 +
 +## Lab implementation in this branch
 `scripts/shield-x-lab.mjs` is a Node-only, offline simulation:
