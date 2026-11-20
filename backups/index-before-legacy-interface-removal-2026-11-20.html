@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173f78">
+  <meta name="description" content="Barkoul.ma منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات">
+  <title>Barkoul.ma | نقل البضائع في المغرب</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+:root{
+  --blue:#0b4a9b;--blue2:#1767c5;--gold:#f2b84b;
+  --bg:#f4f7fc;--white:#fff;--text:#142b49;--muted:#64748b;
+  --border:#dce5f0;--danger:#b42318;--success:#17633b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;line-height:1.7}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+img{max-width:100%}
+.hidden{display:none!important}
+.site-contact{background:#0b3978;color:#fff;padding:8px clamp(16px,4vw,56px);display:flex;justify-content:space-between;align-items:center;gap:8px 18px;flex-wrap:wrap;font-size:13px}
+.site-nav{background:#fff;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px clamp(16px,4vw,56px);box-shadow:0 3px 18px #12345a12;position:relative;z-index:5}
+.brand{font-size:29px;font-weight:900;color:var(--blue);white-space:nowrap;letter-spacing:-.8px;line-height:1.2}
+.brand small{font-size:11px;display:block;letter-spacing:0;color:var(--muted);text-align:center;margin-top:3px;font-weight:600}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2vw,26px);font-weight:700}
+.nav-links a{color:#263d5c;text-decoration:none;font-size:14px;transition:color .2s}
+.nav-links a:hover{color:var(--blue2)}
+.nav-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.user-info{color:var(--blue);font-size:13px;max-width:200px;overflow-wrap:anywhere}
+.btn{border:0;border-radius:11px;padding:11px 17px;font-weight:800;transition:filter .2s,transform .2s}
+.btn:hover:not(:disabled){filter:brightness(.96);transform:translateY(-1px)}
+.btn-primary,.btn-green{background:#0b58b2;color:#fff}
+.btn-light{background:#eaf2fc;color:#174a86;border:1px solid #d4e3f6}
+.btn-danger{background:var(--danger);color:#fff}
+.site-nav .btn{border-radius:12px;padding:10px 16px;min-height:42px}
+.site-hero{position:relative;overflow:hidden;isolation:isolate;min-height:430px;padding:clamp(34px,5vw,66px) clamp(18px,5vw,72px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:center;gap:clamp(24px,4vw,54px);color:#092c67;background:linear-gradient(115deg,#f4f8ff 0%,#e6f0ff 55%,#d8e8ff 100%)}
+.site-hero:before{content:"";position:absolute;z-index:-1;width:420px;height:420px;border-radius:50%;background:#fff8;top:-230px;left:-100px}
+.hero-copy{text-align:right;max-width:610px}
+.hero-copy h1{font-size:clamp(38px,5.2vw,64px);line-height:1.12;margin:0 0 12px;color:#073b80;font-weight:900;letter-spacing:-1.5px}
+.hero-copy p{font-size:clamp(18px,2vw,25px);font-weight:800;line-height:1.6;margin:0 0 24px;color:#234b7f}
+.hero-kicker{display:inline-flex;align-items:center;background:#d9e9ff;color:var(--blue);border:1px solid #c4dcfb;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:800;margin-bottom:20px}
+.hero-actions{display:flex;justify-content:flex-start;gap:12px;flex-wrap:wrap}
+.site-hero .btn{border-radius:12px;padding:14px 22px;font-size:16px;min-width:174px;min-height:52px;box-shadow:0 7px 18px #0b4a9b1c}
+.site-hero .btn-light{background:#fff;color:var(--blue);border:1px solid #c9dcf5}
+.hero-visual{display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,.32fr);align-items:center;gap:14px;width:100%;min-width:0;min-height:260px}
+.truck-photo{display:block;width:100%;height:clamp(210px,25vw,330px);min-width:0;aspect-ratio:16/10;object-fit:cover;object-position:center;border-radius:22px;box-shadow:0 18px 42px #092d6628;border:5px solid #fff;background:#fff}
+.morocco-map-image{display:block;width:100%;max-width:150px;height:clamp(180px,22vw,270px);justify-self:center;object-fit:contain;object-position:center;background:#fff;border:1px solid #e0e9f5;border-radius:18px;padding:10px;box-shadow:0 12px 30px #092d6618}
+.categories{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;padding:24px clamp(16px,3.5vw,52px);background:#fff}
+.category{background:#f8fbff;border:1px solid #e0eaf7;border-radius:16px;box-shadow:0 5px 16px #164d990c;padding:17px 9px;text-align:center;font-weight:800;color:#183b68;transition:transform .2s,box-shadow .2s}
+.category:hover{transform:translateY(-3px);box-shadow:0 10px 22px #164d9918}
+.category .emoji{font-size:34px;display:block;margin-bottom:7px}
+.benefits{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:22px clamp(16px,3.5vw,52px);background:#eaf2fc;border:1px solid #dce9f8;border-radius:18px;padding:18px 8px}
+.benefit{text-align:center;padding:8px 10px;color:#173f72;font-weight:800;border-left:1px solid #cbdcf1}
+.benefit:last-child{border:0}
+.benefit b{display:block;font-size:27px;margin-bottom:4px}
+.container{width:min(1120px,94%);margin:28px auto 48px}
+.panel{background:#fff;border:1px solid #e2eaf4;box-shadow:0 8px 28px #143e760c;border-radius:18px;padding:clamp(17px,2.5vw,28px);margin-bottom:20px}
+h2{color:var(--blue);margin:0 0 15px;font-size:21px}
+h3{color:var(--blue);margin:14px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:13px}
+.field{margin-bottom:13px;min-width:0}
+label{display:block;font-weight:800;font-size:14px;margin-bottom:5px}
+input,select,textarea{width:100%;min-width:0;padding:11px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px #1767c51a}
+textarea{min-height:90px;resize:vertical}
+.notice{padding:11px 13px;border-radius:9px;background:#edf3fb;color:var(--blue);margin:12px 0;font-size:14px}
+.status{display:none;padding:11px 13px;border-radius:9px;margin:12px 0;overflow-wrap:anywhere;font-size:14px}
+.status.success{display:block;background:#e6f5eb;color:var(--success)}
+.status.error{display:block;background:#fff0ee;color:var(--danger)}
+.status.info{display:block;background:#edf3ff;color:var(--blue)}
+.cargo-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin:15px 0}
+.cargo-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 2px 8px #173c3210;overflow-wrap:anywhere}
+.cargo-card h3{margin:0 0 10px;color:var(--blue);font-size:19px}
+.route{font-size:17px;font-weight:800;margin:10px 0;color:var(--blue2)}
+.cargo-detail{color:var(--muted);font-size:14px;margin:5px 0}
+.price{color:var(--blue2);font-weight:800;margin-top:10px}
+.empty{text-align:center;color:var(--muted);padding:25px;background:#fff;border-radius:10px;border:1px dashed var(--border);grid-column:1/-1}
+.small,.required-note{font-size:12px;color:var(--muted)}
+.required-note{margin-bottom:12px}
+.section-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.footer{background:#082f69;color:#fff;text-align:center;padding:24px 10px;margin-top:35px}
+.footer a{color:#fff;text-decoration:none;margin:0 8px}
+.footer a:hover{text-decoration:underline}
+@media(max-width:900px){
+  .site-nav{flex-wrap:wrap}
+  .nav-links{order:3;width:100%;justify-content:center;flex-wrap:wrap}
+  .site-hero{grid-template-columns:1fr;gap:24px;text-align:center;min-height:0}
+  .hero-copy{text-align:center;margin:auto}
+  .hero-actions{justify-content:center}
+  .hero-visual{width:min(100%,650px);margin:0 auto;min-height:0;grid-template-columns:minmax(0,1fr) minmax(100px,.3fr)}
+  .truck-photo{height:clamp(190px,42vw,290px)}
+  .morocco-map-image{height:clamp(170px,38vw,250px)}
+  .categories{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .benefits{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .benefit:nth-child(3){border-left:0}
+}
+@media(max-width:600px){
+  .site-contact{justify-content:center;text-align:center;font-size:11px;padding:8px 12px}
+  .site-nav{padding:12px 14px;justify-content:center}
+  .brand{font-size:25px}
+  .nav-actions{width:100%;justify-content:center}
+  .nav-actions .btn{flex:1;min-width:0}
+  .nav-links{gap:10px 16px}
+  .nav-links a{font-size:13px}
+  .site-hero{padding:30px 16px 26px}
+  .hero-copy h1{font-size:38px}
+  .hero-copy p{font-size:18px}
+  .hero-kicker{font-size:12px;margin-bottom:14px}
+  .hero-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:9px}
+  .site-hero .btn{min-width:0;width:100%;padding:12px 8px;font-size:14px;min-height:48px}
+  .hero-visual{grid-template-columns:minmax(0,1fr) 88px;gap:9px}
+  .truck-photo{height:190px;aspect-ratio:4/3;object-fit:cover;border-width:3px;border-radius:15px}
+  .morocco-map-image{height:170px;width:100%;padding:6px;border-radius:14px}
+  .categories{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:16px 12px}
+  .category{padding:13px 7px;font-size:13px}
+  .category .emoji{font-size:29px}
+  .benefits{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 12px;padding:12px 5px}
+  .benefit{font-size:12px;padding:9px 5px;border-left:0;border-bottom:1px solid #cbdcf1}
+  .benefit:last-child{border-bottom:0}
+  .container{width:calc(100% - 24px);margin:18px auto 34px}
+  .panel{padding:16px;border-radius:15px}
+  .section-actions .btn{flex:1}
+}
+@media(max-width:360px){
+  .hero-visual{grid-template-columns:minmax(0,1fr) 76px}
+  .truck-photo{height:165px}
+  .morocco-map-image{height:150px}
+  .hero-actions{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="site-contact"><span>منصة مغربية للنقل واللوجستيك</span><span>المغرب 🇲🇦　 |　 ربط أصحاب البضائع بسائقي الشاحنات</span></div>
+<header class="site-nav">
+  <div class="brand">Barkoul.ma <small>معاً .. نحو نقل أسهل وأسرع</small></div>
+  <nav class="nav-links" aria-label="القائمة الرئيسية"><a href="#home">الرئيسية</a><a href="#services">الخدمات</a><a href="#cargoSection">الشحنات</a><a href="#footer">اتصل بنا</a></nav>
+  <div class="nav-actions"><button class="btn btn-primary" id="loginTopBtn" type="button">تسجيل الدخول</button><button class="btn btn-light" id="publishTopBtn" type="button">أنشر شحنة</button><button class="btn btn-light hidden" id="logoutBtn" type="button">تسجيل الخروج</button><span id="userInfo" class="user-info hidden"></span></div>
+</header>
+
+<section class="site-hero" id="home">
+  <div class="hero-copy">
+    <div class="hero-kicker">منصة النقل واللوجستيك في المغرب</div>
+    <h1>Barkoul.ma</h1>
+    <p>ربط أصحاب البضائع بسائقي الشاحنات</p>
+    <div class="hero-actions"><button class="btn btn-primary" id="searchHeroBtn" type="button">⌕　أبحث عن شحنة</button><button class="btn btn-light" id="publishHeroBtn" type="button">＋　أنشر شحنة</button></div>
+  </div>
+  <div class="hero-visual"><img class="truck-photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=85" alt="شاحنة نقل بضائع" loading="lazy"><img class="morocco-map-image" src="https://commons.wikimedia.org/wiki/Special:FilePath/Morocco_full_map.svg" alt="خريطة المغرب كاملة" loading="lazy"></div>
+</section>
+<section class="categories" id="services" aria-label="تصنيفات الشحنات">
+  <div class="category"><span class="emoji">🚛</span>بضائع متنوعة</div><div class="category"><span class="emoji">🍎</span>خضر وفواكه</div><div class="category"><span class="emoji">🧱</span>مواد البناء</div><div class="category"><span class="emoji">🍽️</span>مواد غذائية</div><div class="category"><span class="emoji">🛋️</span>أثاث وأجهزة</div><div class="category"><span class="emoji">❄️</span>شاحنة تبريد</div>
+</section>
+<section class="benefits"><div class="benefit"><b>🤝</b>سهولة في الاستخدام</div><div class="benefit"><b>⌕</b>سرعة في البحث والتواصل</div><div class="benefit"><b>📍</b>تغطية شاملة للمغرب</div><div class="benefit"><b>🛡️</b>أمان وموثوقية في التعامل</div><div class="benefit"><b>🎧</b>دعم ومساعدة</div></section>
+
+<main class="container">
+
+  <div id="globalStatus" class="status" role="status" aria-live="polite"></div>
+
+  <!-- الحسابات -->
+
+  <section class="panel hidden" id="authPanel">
+    <h2 id="authTitle">تسجيل الدخول</h2>
+
+    <div class="notice">
+      يمكنك تصفح الشحنات دون حساب. يلزم إنشاء حساب أو تسجيل الدخول لنشر شحنة.
+    </div>
+
+    <form id="authForm">
+
+      <div class="field hidden" id="nameField">
+        <label for="fullName">الاسم الكامل</label>
+        <input
+          id="fullName"
+          type="text"
+          maxlength="100"
+          autocomplete="name"
+          placeholder="أدخل اسمك الكامل"
+        >
+      </div>
+
+      <div class="field">
+        <label for="authEmail">البريد الإلكتروني</label>
+        <input
+          id="authEmail"
+          type="email"
+          required
+          maxlength="254"
+          autocomplete="email"
+          placeholder="example@email.com"
+        >
+      </div>
+
+      <div class="field">
+        <label for="authPassword">كلمة المرور</label>
+        <input
+          id="authPassword"
+          type="password"
+          required
+          minlength="6"
+          autocomplete="current-password"
+          placeholder="ستة أحرف على الأقل"
+        >
+      </div>
+
+      <div class="section-actions">
+        <button class="btn btn-green" id="authSubmitBtn" type="submit">
+          تسجيل الدخول
+        </button>
+
+        <button class="btn btn-light" id="switchAuthBtn" type="button">
+          إنشاء حساب جديد
+        </button>
+
+        <button class="btn btn-light" id="closeAuthBtn" type="button">
+          إغلاق
+        </button>
+      </div>
+
+    </form>
+
+    <div id="authStatus" class="status" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- البحث -->
+
+  <section class="panel" id="searchPanel">
+    <h2>البحث عن الشحنات</h2>
+
+    <div class="grid">
+
+      <div class="field">
+        <label for="filterOrigin">مدينة الانطلاق</label>
+        <input id="filterOrigin" type="text" placeholder="مثلاً الدار البيضاء">
+      </div>
+
+      <div class="field">
+        <label for="filterDestination">مدينة الوصول</label>
+        <input id="filterDestination" type="text" placeholder="مثلاً مراكش">
+      </div>
+
+      <div class="field">
+        <label for="filterTruck">نوع الشاحنة</label>
+        <select id="filterTruck">
+          <option value="">جميع الشاحنات</option>
+          <option value="شاحنة كبيرة">شاحنة كبيرة</option>
+          <option value="شاحنة صغيرة">شاحنة صغيرة</option>
+          <option value="جرار ومقطورة">جرار ومقطورة</option>
+          <option value="شاحنة متوسطة">شاحنة متوسطة</option>
+          <option value="حافلة سياحية">حافلة سياحية</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="section-actions">
+      <button class="btn btn-green" id="filterBtn" type="button">
+        بحث
+      </button>
+
+      <button class="btn btn-light" id="resetFilterBtn" type="button">
+        إظهار جميع الشحنات
+      </button>
+    </div>
+  </section>
+
+  <!-- الشحنات -->
+
+  <section class="panel" id="cargoSection">
+    <h2>الشحنات المتاحة</h2>
+
+    <p class="small" id="cargoCount">جاري تحميل الشحنات...</p>
+
+    <div id="cargoList" class="cargo-list" aria-live="polite">
+      <div class="empty">جاري تحميل البيانات...</div>
+    </div>
+
+    <button class="btn btn-light" id="refreshBtn" type="button">
+      تحديث الشحنات
+    </button>
+  </section>
+
+  <!-- مساحة السائق والمالك والرحلات -->
+  <section class="panel hidden" id="workspacePanel">
+    <h2>حسابي والعمليات</h2>
+    <div class="notice" id="workspaceNotice">تظهر هنا عروضك ووثائقك ورحلاتك.</div>
+    <section id="driverDocsPanel" class="hidden">
+      <h3>وثائق السائق</h3>
+      <p class="small">ارفع رخصة السياقة أو وثيقة مهنية بصيغة PDF أو JPG أو PNG أو WEBP. الحد الأقصى 10MB. الملفات خاصة ولا يراها إلا صاحبها والإدارة.</p>
+      <div class="grid">
+        <div class="field"><label for="documentType">نوع الوثيقة</label><select id="documentType"><option value="driving_license">رخصة السياقة</option><option value="identity">بطاقة التعريف</option><option value="professional_card">بطاقة مهنية</option><option value="vehicle_document">وثيقة المركبة</option><option value="other">وثيقة أخرى</option></select></div>
+        <div class="field"><label for="driverDocumentFile">اختر الملف</label><input id="driverDocumentFile" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"></div>
+      </div>
+      <button class="btn btn-green" id="uploadDocumentBtn" type="button">رفع الوثيقة</button>
+      <div id="documentStatus" class="status" role="status" aria-live="polite"></div>
+      <div id="myDocuments"></div>
+    </section>
+    <section id="myNegotiationsPanel" class="hidden">
+      <h3>العروض والتفاوض</h3>
+      <div id="myNegotiations"></div>
+    </section>
+    <section id="myTripsPanel" class="hidden">
+      <h3>رحلاتي وتتبع الحالة</h3>
+      <p class="small">تظهر بيانات الاتصال للطرف الآخر بعد قبول العرض وإنشاء الرحلة.</p>
+      <div id="myTrips"></div>
+    </section>
+  </section>
+
+  <!-- نشر شحنة -->
+
+  <section class="panel hidden" id="publishPanel">
+    <h2>نشر شحنة جديدة</h2>
+
+    <div class="notice" id="publishNotice">
+      سجل الدخول أولاً حتى تتمكن من نشر شحنتك.
+    </div>
+
+    <div id="roleRequestPanel" class="notice hidden">
+      <strong>تفعيل حسابك للنشر أو القيادة</strong>
+      <p id="roleRequestMessage">اختر نوع الحساب الذي تحتاجه، وسيصل طلبك إلى الإدارة للمراجعة.</p>
+      <div class="field">
+        <label for="requestedRole">نوع الحساب المطلوب</label>
+        <select id="requestedRole">
+          <option value="owner">صاحب بضائع (نشر الشحنات)</option>
+          <option value="driver">سائق شاحنة</option>
+        </select>
+      </div>
+      <button class="btn btn-green" id="requestRoleBtn" type="button">إرسال طلب التفعيل</button>
+      <div id="roleRequestStatus" class="status" role="status" aria-live="polite"></div>
+    </div>
+
+    <form id="cargoForm" class="hidden">
+
+      <p class="required-note">
+        الحقول التي تحمل علامة * إجبارية.
+      </p>
+
+      <div class="field">
+        <label for="cargoTitle">عنوان الشحنة *</label>
+        <input
+          id="cargoTitle"
+          type="text"
+          required
+          maxlength="120"
+          placeholder="مثلاً نقل خضار"
+        >
+      </div>
+
+      <div class="grid">
+
+        <div class="field">
+          <label for="originCity">مدينة الانطلاق *</label>
+          <input
+            id="originCity"
+            type="text"
+            required
+            maxlength="100"
+            placeholder="مدينة الانطلاق"
+          >
+        </div>
+
+        <div class="field">
+          <label for="destinationCity">مدينة الوصول *</label>
+          <input
+            id="destinationCity"
+            type="text"
+            required
+            maxlength="100"
+            placeholder="مدينة الوصول"
+          >
+        </div>
+
+        <div class="field">
+          <label for="goodsType">نوع البضاعة *</label>
+          <input
+            id="goodsType"
+            type="text"
+            required
+            maxlength="100"
+            placeholder="خضار، فواكه، مواد بناء..."
+          >
+        </div>
+
+        <div class="field">
+          <label for="weightText">الوزن</label>
+          <input
+            id="weightText"
+            type="text"
+            maxlength="50"
+            placeholder="مثلاً 1000 كيلوغرام"
+          >
+        </div>
+
+        <div class="field">
+          <label for="truckType">نوع الشاحنة المطلوبة *</label>
+          <select id="truckType" required>
+            <option value="">اختر نوع الشاحنة</option>
+            <option value="شاحنة كبيرة">شاحنة كبيرة</option>
+            <option value="شاحنة صغيرة">شاحنة صغيرة</option>
+            <option value="جرار ومقطورة">جرار ومقطورة</option>
+            <option value="شاحنة متوسطة">شاحنة متوسطة</option>
+            <option value="حافلة سياحية">حافلة سياحية</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="loadingDate">تاريخ النقل *</label>
+          <input id="loadingDate" type="date" required>
+        </div>
+
+        <div class="field">
+          <label for="offeredPrice">السعر المقترح بالدرهم</label>
+          <input
+            id="offeredPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="مثلاً 1500"
+          >
+        </div>
+
+      </div>
+
+      <div class="field">
+        <label for="cargoNotes">ملاحظات إضافية</label>
+        <textarea
+          id="cargoNotes"
+          maxlength="1000"
+          placeholder="تفاصيل إضافية عن الشحنة..."
+        ></textarea>
+      </div>
+
+      <div class="section-actions">
+        <button class="btn btn-primary" id="submitCargoBtn" type="submit">
+          نشر الشحنة
+        </button>
+
+        <button class="btn btn-light" id="closePublishBtn" type="button">
+          إغلاق
+        </button>
+      </div>
+
+    </form>
+
+    <div id="publishStatus" class="status" role="status" aria-live="polite"></div>
+  </section>
+
+</main>
+
+<footer class="footer" id="footer">
+  <div><strong>Barkoul.ma</strong> - نقل البضائع في المغرب</div>
+
+  <p class="small" style="color:#dce9e2">
+    منصة تجريبية قيد التطوير
+  </p>
+
+  <div>
+    <a href="https://wa.me/" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+    <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook</a>
+    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+/* =========================================
+   1. إعداد Supabase
+========================================= */
+
+const SUPABASE_URL =
+  "https://ajvpinnumhazuyziphwn.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
+
+if (!window.supabase || !window.supabase.createClient) {
+  const connectionStatus = document.getElementById("globalStatus");
+
+  if (connectionStatus) {
+    connectionStatus.textContent =
+      "تعذر تحميل نظام الاتصال. تحقق من الإنترنت ثم أعد تحميل الصفحة.";
+    connectionStatus.className = "status error";
+  } else {
+    const message = document.createElement("p");
+    message.textContent =
+      "تعذر تحميل نظام الاتصال. تحقق من الإنترنت ثم أعد تحميل الصفحة.";
+    document.body.appendChild(message);
+  }
+
+  throw new Error("Supabase library unavailable");
+}
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
+
+/* =========================================
+   2. الحالة العامة
+========================================= */
+
+let currentUser = null;
+let currentProfileRole = "user";
+let pendingRoleRequest = null;
+let myDriverDocuments = [];
+let driverVerified = false;
+let workspaceLoading = false;
+let authMode = "login";
+let allCargos = [];
+let loadingCargos = false;
+let publishingCargo = false;
+let authSubmitting = false;
+let authSubscription = null;
+
+const $ = (id) => document.getElementById(id);
+
+/* =========================================
+   3. وظائف مساعدة
+========================================= */
+
+function showStatus(id, message, type = "info") {
+  const element = $(id);
+
+  element.textContent = message;
+  element.className = "status " + type;
+}
+
+function clearStatus(id) {
+  const element = $(id);
+
+  element.textContent = "";
+  element.className = "status";
+}
+
+function showGlobalMessage(message, type = "info") {
+  showStatus("globalStatus", message, type);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function openPanel(id) {
+  $(id).classList.remove("hidden");
+
+  $(id).scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+function closePanel(id) {
+  $(id).classList.add("hidden");
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("ar");
+}
+
+function setButtonLoading(button, loading, normalText, loadingText) {
+  button.disabled = loading;
+  button.textContent = loading ? loadingText : normalText;
+}
+
+function getLocalDate() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+/* =========================================
+   4. إدارة الحساب
+========================================= */
+
+function setAuthMode(mode) {
+  authMode = mode;
+
+  clearStatus("authStatus");
+
+  if (mode === "signup") {
+    $("authTitle").textContent = "إنشاء حساب جديد";
+    $("authSubmitBtn").textContent = "إنشاء الحساب";
+    $("switchAuthBtn").textContent = "لدي حساب بالفعل";
+
+    $("nameField").classList.remove("hidden");
+    $("fullName").required = true;
+
+    $("authPassword").autocomplete = "new-password";
+  } else {
+    $("authTitle").textContent = "تسجيل الدخول";
+    $("authSubmitBtn").textContent = "تسجيل الدخول";
+    $("switchAuthBtn").textContent = "إنشاء حساب جديد";
+
+    $("nameField").classList.add("hidden");
+    $("fullName").required = false;
+
+    $("authPassword").autocomplete = "current-password";
+  }
+}
+
+async function refreshAccountState() {
+  if (!currentUser) {
+    currentProfileRole = "user";
+    pendingRoleRequest = null;
+    updateAuthUI();
+    return;
+  }
+
+  const { data: profile, error: profileError } = await db
+    .from("profiles")
+    .select("role")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+  currentProfileRole = profile?.role || "user";
+
+  const { data: request, error: requestError } = await db
+    .from("profile_role_requests")
+    .select("id,requested_role,status")
+    .eq("user_id", currentUser.id)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (requestError) throw requestError;
+  pendingRoleRequest = request || null;
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const loggedIn = Boolean(currentUser);
+
+  $("loginTopBtn").classList.toggle("hidden", loggedIn);
+  $("logoutBtn").classList.toggle("hidden", !loggedIn);
+  $("userInfo").classList.toggle("hidden", !loggedIn);
+
+  const canPublish = loggedIn && ["owner", "admin"].includes(currentProfileRole);
+  $("cargoForm").classList.toggle("hidden", !canPublish);
+  $("roleRequestPanel").classList.toggle("hidden", !loggedIn || canPublish);
+
+  if (loggedIn) {
+    const displayName =
+      currentUser.user_metadata?.full_name ||
+      currentUser.email ||
+      "مستخدم";
+
+    $("userInfo").textContent = "مرحباً، " + displayName;
+
+    $("publishNotice").textContent = canPublish
+      ? "حسابك مفعل كصاحب بضائع. يمكنك نشر شحنتك."
+      : "حسابك مسجل. يلزم تفعيل صفة صاحب بضائع قبل نشر الشحنات.";
+
+    if (currentProfileRole === "driver") {
+      $("roleRequestMessage").textContent =
+        "حسابك مفعل كسائق. لا تحتاج إلى إرسال طلب تفعيل آخر.";
+      $("requestedRole").disabled = true;
+      $("requestRoleBtn").disabled = true;
+      $("requestRoleBtn").textContent = "حساب سائق مفعل";
+    } else if (pendingRoleRequest) {
+      $("roleRequestMessage").textContent =
+        "طلبك لتفعيل صفة " +
+        (pendingRoleRequest.requested_role === "driver" ? "سائق" : "صاحب بضائع") +
+        " قيد المراجعة لدى الإدارة.";
+      $("requestedRole").disabled = true;
+      $("requestRoleBtn").disabled = true;
+      $("requestRoleBtn").textContent = "الطلب قيد المراجعة";
+    } else {
+      $("roleRequestMessage").textContent =
+        "اختر نوع الحساب الذي تحتاجه. لا يمكنك نشر الشحنات قبل الموافقة على طلب صاحب البضائع.";
+      $("requestedRole").disabled = false;
+      $("requestRoleBtn").disabled = currentProfileRole !== "user";
+      $("requestRoleBtn").textContent = "إرسال طلب التفعيل";
+    }
+  } else {
+    $("userInfo").textContent = "";
+    $("publishNotice").textContent =
+      "سجل الدخول أولاً حتى تتمكن من نشر شحنتك.";
+  }
+}
+
+async function checkSession() {
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    console.error("Session error:", error.message);
+    showGlobalMessage(
+      "تعذر التحقق من جلسة الحساب. حاول تحديث الصفحة.",
+      "error"
+    );
+    return;
+  }
+
+  currentUser = data.session ? data.session.user : null;
+
+  await refreshAccountState();
+}
+
+async function requestRoleChange() {
+  if (!currentUser) {
+    setAuthMode("login");
+    openPanel("authPanel");
+    return;
+  }
+
+  if (currentProfileRole !== "user" || pendingRoleRequest) return;
+
+  const role = $("requestedRole").value;
+  if (!["owner", "driver"].includes(role)) return;
+
+  $("requestRoleBtn").disabled = true;
+  clearStatus("roleRequestStatus");
+
+  try {
+    const { error } = await db.from("profile_role_requests").insert({
+      user_id: currentUser.id,
+      requested_role: role,
+      status: "pending"
+    });
+
+    if (error) throw error;
+
+    showStatus(
+      "roleRequestStatus",
+      "تم إرسال طلبك إلى الإدارة بنجاح. ستظهر حالة الطلب هنا بعد التحديث.",
+      "success"
+    );
+    await refreshAccountState();
+  } catch (error) {
+    console.error("Role request error:", error);
+    const message = error.code === "23505"
+      ? "لديك طلب تفعيل قيد المراجعة بالفعل."
+      : (error.message || "تعذر إرسال الطلب حالياً.");
+    showStatus("roleRequestStatus", message, "error");
+    $("requestRoleBtn").disabled = false;
+  }
+}
+
+async function handleAuth(event) {
+  event.preventDefault();
+
+  if (authSubmitting) return;
+
+  clearStatus("authStatus");
+
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  const fullName = $("fullName").value.trim();
+
+  if (!email || !password) {
+    showStatus(
+      "authStatus",
+      "يرجى إدخال البريد الإلكتروني وكلمة المرور.",
+      "error"
+    );
+    return;
+  }
+
+  if (authMode === "signup" && !fullName) {
+    showStatus(
+      "authStatus",
+      "يرجى إدخال الاسم الكامل.",
+      "error"
+    );
+    return;
+  }
+
+  authSubmitting = true;
+
+  setButtonLoading(
+    $("authSubmitBtn"),
+    true,
+    authMode === "signup" ? "إنشاء الحساب" : "تسجيل الدخول",
+    "جاري المعالجة..."
+  );
+
+  try {
+    if (authMode === "signup") {
+
+      const { data, error } = await db.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        currentUser = data.user;
+        updateAuthUI();
+
+        showStatus(
+          "authStatus",
+          "تم إنشاء الحساب وتسجيل الدخول بنجاح.",
+          "success"
+        );
+
+        setTimeout(() => {
+          closePanel("authPanel");
+        }, 1200);
+
+      } else {
+        showStatus(
+          "authStatus",
+          "تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيد التسجيل، ثم سجل الدخول.",
+          "success"
+        );
+      }
+
+    } else {
+
+      const { data, error } = await db.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      currentUser = data.user;
+
+      updateAuthUI();
+
+      showStatus(
+        "authStatus",
+        "تم تسجيل الدخول بنجاح.",
+        "success"
+      );
+
+      setTimeout(() => {
+        closePanel("authPanel");
+      }, 1000);
+    }
+
+  } catch (error) {
+    console.error("Authentication error:", error);
+
+    let message = "حدث خطأ أثناء عملية الحساب.";
+
+    if (error.message?.includes("Invalid login credentials")) {
+      message = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+    } else if (error.message?.includes("User already registered")) {
+      message = "هذا البريد مسجل مسبقاً. حاول تسجيل الدخول.";
+    } else if (error.message?.includes("Password should be")) {
+      message = "كلمة المرور غير مطابقة للشروط.";
+    } else if (error.message) {
+      message = error.message;
+    }
+
+    showStatus("authStatus", message, "error");
+
+  } finally {
+    authSubmitting = false;
+
+    $("authSubmitBtn").disabled = false;
+
+    $("authSubmitBtn").textContent =
+      authMode === "signup" ? "إنشاء الحساب" : "تسجيل الدخول";
+  }
+}
+
+/* =========================================
+   5. تحميل الشحنات
+========================================= */
+
+async function loadCargos() {
+  if (loadingCargos) return;
+
+  loadingCargos = true;
+
+  $("refreshBtn").disabled = true;
+  $("refreshBtn").textContent = "جاري التحديث...";
+
+  $("cargoList").replaceChildren();
+
+  const loadingMessage = document.createElement("div");
+  loadingMessage.className = "empty";
+  loadingMessage.textContent = "جاري تحميل الشحنات...";
+
+  $("cargoList").appendChild(loadingMessage);
+
+  $("cargoCount").textContent = "جاري تحميل البيانات...";
+
+  try {
+    const { data, error } = await db
+      .from("cargos")
+      .select(`
+        id,
+        title,
+        origin_city,
+        destination_city,
+        goods_type,
+        weight_text,
+        truck_type,
+        loading_date,
+        offered_price_mad,
+        notes,
+        status,
+        created_at
+      `)
+      .eq("status", "open")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    allCargos = Array.isArray(data) ? data : [];
+
+    applyFilters();
+
+  } catch (error) {
+    console.error("Cargo loading error:", error);
+
+    allCargos = [];
+
+    $("cargoList").replaceChildren();
+
+    const errorMessage = document.createElement("div");
+    errorMessage.className = "empty";
+    errorMessage.textContent =
+      "تعذر تحميل الشحنات حالياً. تحقق من الاتصال أو صلاحيات قاعدة البيانات.";
+
+    $("cargoList").appendChild(errorMessage);
+
+    $("cargoCount").textContent = "تعذر تحميل البيانات";
+
+  } finally {
+    loadingCargos = false;
+
+    $("refreshBtn").disabled = false;
+    $("refreshBtn").textContent = "تحديث الشحنات";
+  }
+}
+
+/* =========================================
+   6. إنشاء بطاقة الشحنة
+========================================= */
+
+function addDetail(card, label, value) {
+  const element = document.createElement("p");
+
+  element.className = "cargo-detail";
+  element.textContent = label + ": " + (value || "غير محدد");
+
+  card.appendChild(element);
+}
+
+function createCargoCard(cargo) {
+  const card = document.createElement("article");
+
+  card.className = "cargo-card";
+
+  const title = document.createElement("h3");
+  title.textContent = cargo.title || "شحنة بدون عنوان";
+
+  const route = document.createElement("div");
+  route.className = "route";
+
+  route.textContent =
+    (cargo.origin_city || "غير محدد") +
+    " ← " +
+    (cargo.destination_city || "غير محدد");
+
+  card.appendChild(title);
+  card.appendChild(route);
+
+  addDetail(card, "البضاعة", cargo.goods_type);
+  addDetail(card, "الوزن", cargo.weight_text);
+  addDetail(card, "الشاحنة", cargo.truck_type);
+  addDetail(card, "تاريخ النقل", cargo.loading_date);
+
+  if (
+    cargo.offered_price_mad !== null &&
+    cargo.offered_price_mad !== undefined &&
+    cargo.offered_price_mad !== ""
+  ) {
+    const price = document.createElement("p");
+
+    price.className = "price";
+
+    price.textContent =
+      "السعر المقترح: " +
+      cargo.offered_price_mad +
+      " درهم";
+
+    card.appendChild(price);
+  }
+
+  if (cargo.notes) {
+    addDetail(card, "ملاحظات", cargo.notes);
+  }
+
+  if (currentUser && currentProfileRole === "owner" && cargo.status === "open") {
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "btn btn-danger";
+    cancel.textContent = "إلغاء الشحنة";
+    cancel.addEventListener("click", async () => {
+      if (!window.confirm("هل تريد إلغاء هذه الشحنة؟")) return;
+      cancel.disabled = true;
+      try {
+        const { error } = await db.rpc("cancel_open_cargo", { p_cargo_id: cargo.id });
+        if (error) throw error;
+        showGlobalMessage("تم إلغاء الشحنة.", "success");
+        await loadCargos();
+        await loadWorkspace();
+      } catch (e) {
+        showGlobalMessage("تعذر إلغاء الشحنة: " + (e.message || ""), "error");
+        cancel.disabled = false;
+      }
+    });
+    card.appendChild(cancel);
+  }
+
+  if (currentUser && currentProfileRole === "driver" && cargo.status === "open" && driverVerified) {
+    const offerBox = document.createElement("div");
+    offerBox.className = "field";
+    const priceLabel = document.createElement("label");
+    priceLabel.textContent = "عرض السعر بالدرهم";
+    const priceInput = document.createElement("input");
+    priceInput.type = "number";
+    priceInput.min = "1";
+    priceInput.step = "0.01";
+    priceInput.placeholder = "السعر الذي تقترحه";
+    const messageInput = document.createElement("textarea");
+    messageInput.maxLength = 500;
+    messageInput.placeholder = "رسالة قصيرة لصاحب الشحنة (اختياري)";
+    const offerButton = document.createElement("button");
+    offerButton.type = "button";
+    offerButton.className = "btn btn-green";
+    offerButton.textContent = "إرسال عرض";
+    offerButton.addEventListener("click", async () => {
+      const price = Number(priceInput.value);
+      if (!Number.isFinite(price) || price <= 0) {
+        showStatus("globalStatus", "أدخل سعراً صحيحاً أكبر من صفر.", "error");
+        return;
+      }
+      offerButton.disabled = true;
+      try {
+        const { error } = await db.from("negotiations").insert({
+          cargo_id: cargo.id,
+          proposer_id: currentUser.id,
+          proposed_price_mad: price,
+          message: messageInput.value.trim() || null,
+          status: "pending"
+        });
+        if (error) throw error;
+        showGlobalMessage("تم إرسال عرضك إلى صاحب الشحنة.", "success");
+        priceInput.value = "";
+        messageInput.value = "";
+        await loadWorkspace();
+      } catch (e) {
+        const msg = e.code === "23505" ? "يبدو أن لديك عرضاً مسجلاً بالفعل." : (e.message || "تعذر إرسال العرض.");
+        showGlobalMessage(msg, "error");
+      } finally {
+        offerButton.disabled = false;
+      }
+    });
+    offerBox.append(priceLabel, priceInput, messageInput, offerButton);
+    card.appendChild(offerBox);
+  }
+  return card;
+}
+
+/* =========================================
+   7. البحث والتصفية
+========================================= */
+
+function applyFilters() {
+  const origin = normalizeText($("filterOrigin").value);
+  const destination = normalizeText($("filterDestination").value);
+  const truck = $("filterTruck").value;
+
+  const filtered = allCargos.filter((cargo) => {
+
+    const cargoOrigin = normalizeText(cargo.origin_city);
+    const cargoDestination = normalizeText(cargo.destination_city);
+
+    const originMatch =
+      !origin || cargoOrigin.includes(origin);
+
+    const destinationMatch =
+      !destination || cargoDestination.includes(destination);
+
+    const truckMatch =
+      !truck || cargo.truck_type === truck;
+
+    return originMatch && destinationMatch && truckMatch;
+  });
+
+  $("cargoList").replaceChildren();
+
+  if (filtered.length === 0) {
+    const empty = document.createElement("div");
+
+    empty.className = "empty";
+    empty.textContent =
+      allCargos.length === 0
+        ? "لا توجد شحنات متاحة حالياً."
+        : "لا توجد شحنات مطابقة للبحث حالياً.";
+
+    $("cargoList").appendChild(empty);
+
+  } else {
+
+    const fragment = document.createDocumentFragment();
+
+    filtered.forEach((cargo) => {
+      fragment.appendChild(createCargoCard(cargo));
+    });
+
+    $("cargoList").appendChild(fragment);
+  }
+
+  $("cargoCount").textContent =
+    "عدد الشحنات المطابقة: " + filtered.length;
+}
+
+function resetFilters() {
+  $("filterOrigin").value = "";
+  $("filterDestination").value = "";
+  $("filterTruck").value = "";
+
+  applyFilters();
+}
+
+/* =========================================
+   8. مساحة السائق والمالك والرحلات
+========================================= */
+function makeWorkspaceCard(target, title, lines, buttons = []) {
+  const card = document.createElement("article");
+  card.className = "cargo-card";
+  const h = document.createElement("h3");
+  h.textContent = title;
+  card.appendChild(h);
+  for (const line of lines) {
+    const p = document.createElement("p");
+    p.className = "cargo-detail";
+    p.textContent = line;
+    card.appendChild(p);
+  }
+  for (const button of buttons) card.appendChild(button);
+  $(target).appendChild(card);
+  return card;
+}
+function workspaceButton(label, handler, className = "btn btn-light") {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = className;
+  b.textContent = label;
+  b.addEventListener("click", handler);
+  return b;
+}
+async function loadWorkspace() {
+  if (!currentUser || workspaceLoading) return;
+  workspaceLoading = true;
+  $("workspacePanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
+  if (!["driver","owner","admin"].includes(currentProfileRole)) return;
+  $("driverDocsPanel").classList.toggle("hidden", currentProfileRole !== "driver");
+  $("myNegotiationsPanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
+  $("myTripsPanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
+  try {
+    if (currentProfileRole === "driver") {
+      const { data: docs, error: docsError } = await db.from("driver_documents")
+        .select("id,document_type,review_status,uploaded_at")
+        .eq("driver_id", currentUser.id).order("uploaded_at", { ascending: false });
+      if (docsError) throw docsError;
+      myDriverDocuments = docs || [];
+      driverVerified = myDriverDocuments.some(d => d.review_status === "verified");
+      $("workspaceNotice").textContent = driverVerified
+        ? "تم التحقق من وثائقك. يمكنك إرسال عروض على الشحنات المفتوحة."
+        : "أكمل رفع وثائقك وانتظر مراجعة الإدارة قبل تقديم عروض الأسعار.";
+      renderMyDocuments();
+      applyFilters();
+    } else {
+      driverVerified = false;
+    }
+
+    const { data: offers, error: offersError } = await db.from("negotiations")
+      .select("id,cargo_id,proposer_id,proposed_price_mad,message,status,created_at,cargos(title,owner_id,origin_city,destination_city)")
+      .order("created_at", { ascending: false }).limit(100);
+    if (offersError) throw offersError;
+    renderNegotiations(offers || []);
+
+    const { data: trips, error: tripsError } = await db.from("trips")
+      .select("id,cargo_id,owner_id,driver_id,agreed_price_mad,status,last_latitude,last_longitude,location_updated_at,created_at")
+      .order("created_at", { ascending: false }).limit(100);
+    if (tripsError) throw tripsError;
+    await renderTrips(trips || []);
+  } catch (e) {
+    console.error("Workspace load error:", e);
+    $("workspaceNotice").textContent = "تعذر تحميل مساحة الحساب: " + (e.message || "خطأ غير معروف");
+  } finally {
+    workspaceLoading = false;
+  }
+}
+function renderMyDocuments() {
+  $("myDocuments").replaceChildren();
+  if (!myDriverDocuments.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "لم ترفع أي وثيقة بعد."; $("myDocuments").appendChild(p); return;
+  }
+  for (const d of myDriverDocuments) {
+    const state = d.review_status === "verified" ? "معتمدة" : d.review_status === "rejected" ? "مرفوضة — يمكنك رفع نسخة صحيحة جديدة" : "قيد المراجعة";
+    makeWorkspaceCard("myDocuments", "وثيقة " + d.id, ["النوع: " + d.document_type, "الحالة: " + state, "تاريخ الرفع: " + new Date(d.uploaded_at).toLocaleString("ar-MA")]);
+  }
+}
+async function uploadDriverDocument() {
+  if (!currentUser || currentProfileRole !== "driver") return;
+  const file = $("driverDocumentFile").files[0];
+  if (!file) { showStatus("documentStatus", "اختر ملفاً أولاً.", "error"); return; }
+  const allowed = ["application/pdf","image/jpeg","image/png","image/webp"];
+  if (!allowed.includes(file.type) || file.size > 10 * 1024 * 1024) {
+    showStatus("documentStatus", "الملف غير مقبول. استخدم PDF أو JPG أو PNG أو WEBP بحجم لا يتجاوز 10MB.", "error"); return;
+  }
+  const ext = file.name.split(".").pop().toLowerCase();
+  const path = currentUser.id + "/" + crypto.randomUUID() + "." + ext;
+  const btn = $("uploadDocumentBtn"); btn.disabled = true; btn.textContent = "جارٍ رفع الوثيقة...";
+  try {
+    const { error: uploadError } = await db.storage.from("driver-documents").upload(path, file, { contentType: file.type, upsert: false });
+    if (uploadError) throw uploadError;
+    const { error: rowError } = await db.from("driver_documents").insert({
+      driver_id: currentUser.id,
+      document_type: $("documentType").value,
+      storage_path: path,
+      review_status: "pending"
+    });
+    if (rowError) throw rowError;
+    $("driverDocumentFile").value = "";
+    showStatus("documentStatus", "تم رفع الوثيقة وإرسالها للمراجعة.", "success");
+    await loadWorkspace();
+  } catch (e) {
+    console.error("Document upload error:", e);
+    showStatus("documentStatus", "تعذر رفع الوثيقة: " + (e.message || ""), "error");
+  } finally {
+    btn.disabled = false; btn.textContent = "رفع الوثيقة";
+  }
+}
+function renderNegotiations(offers) {
+  $("myNegotiations").replaceChildren();
+  const mine = offers.filter(o => o.proposer_id === currentUser.id || o.cargos?.owner_id === currentUser.id);
+  if (!mine.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "لا توجد عروض تفاوض حالياً."; $("myNegotiations").appendChild(p); return;
+  }
+  for (const o of mine) {
+    const isOwner = o.cargos?.owner_id === currentUser.id;
+    const lines = [
+      "الشحنة: " + (o.cargos?.title || ("رقم " + o.cargo_id)),
+      "المسار: " + (o.cargos?.origin_city || "—") + " ← " + (o.cargos?.destination_city || "—"),
+      "السعر المقترح: " + o.proposed_price_mad + " درهم",
+      "الرسالة: " + (o.message || "—"),
+      "الحالة: " + ({pending:"قيد الانتظار",accepted:"مقبول",rejected:"مرفوض",countered:"عرض مقابل"}[o.status] || o.status)
+    ];
+    const buttons = [];
+    if (isOwner && o.status === "pending") {
+      buttons.push(workspaceButton("قبول العرض وإنشاء الرحلة", async () => {
+        if (!confirm("قبول هذا العرض؟ سيتم إنشاء رحلة وإغلاق عروض الشحنة الأخرى.")) return;
+        try {
+          const { data, error } = await db.rpc("respond_to_negotiation", { p_negotiation_id: o.id, p_accept: true });
+          if (error) throw error;
+          showGlobalMessage("تم قبول العرض وإنشاء الرحلة رقم " + data + ".", "success");
+          await loadCargos(); await loadWorkspace();
+        } catch (e) { showGlobalMessage("تعذر قبول العرض: " + (e.message || ""), "error"); }
+      }, "btn btn-green"));
+      buttons.push(workspaceButton("رفض العرض", async () => {
+        try {
+          const { error } = await db.rpc("respond_to_negotiation", { p_negotiation_id: o.id, p_accept: false });
+          if (error) throw error;
+          await loadWorkspace();
+        } catch (e) { showGlobalMessage("تعذر رفض العرض: " + (e.message || ""), "error"); }
+      }, "btn btn-danger"));
+    }
+    makeWorkspaceCard("myNegotiations", "عرض رقم " + o.id, lines, buttons);
+  }
+}
+async function renderTrips(trips) {
+  $("myTrips").replaceChildren();
+  if (!trips.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "لا توجد رحلات مرتبطة بحسابك بعد."; $("myTrips").appendChild(p); return;
+  }
+  for (const t of trips) {
+    let contactText = "بيانات الطرف الآخر غير متاحة.";
+    try {
+      const { data, error } = await db.rpc("get_trip_contact", { p_trip_id: t.id });
+      if (!error && data?.length) contactText = "جهة الاتصال: " + (data[0].full_name || "—") + " — " + (data[0].phone || "لم يضف رقماً");
+    } catch (_) {}
+    const lines = [
+      "رقم الشحنة: " + t.cargo_id,
+      "السعر المتفق عليه: " + t.agreed_price_mad + " درهم",
+      "الحالة: " + ({agreed:"تم الاتفاق",loading:"جاري التحميل",in_transit:"في الطريق",delivered:"تم التسليم",cancelled:"ملغاة"}[t.status] || t.status),
+      contactText,
+      t.last_latitude != null ? "آخر موقع مسجل: " + t.last_latitude + ", " + t.last_longitude : "لم يتم تسجيل موقع GPS بعد"
+    ];
+    const buttons = [];
+    const move = async (status) => {
+      try {
+        let latitude = null, longitude = null;
+        if (status === "in_transit" || status === "delivered") {
+          if (navigator.geolocation) {
+            const pos = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }));
+            latitude = pos.coords.latitude; longitude = pos.coords.longitude;
+          }
+        }
+        const { error } = await db.rpc("update_trip_progress", { p_trip_id: t.id, p_status: status, p_latitude: latitude, p_longitude: longitude });
+        if (error) throw error;
+        showGlobalMessage("تم تحديث حالة الرحلة.", "success");
+        await loadWorkspace();
+      } catch (e) { showGlobalMessage("تعذر تحديث الرحلة: " + (e.message || ""), "error"); }
+    };
+    if (t.status === "agreed") {
+      buttons.push(workspaceButton("بدء التحميل", () => move("loading"), "btn btn-green"));
+      buttons.push(workspaceButton("إلغاء الرحلة", () => { if (confirm("هل تريد إلغاء الرحلة؟")) move("cancelled"); }, "btn btn-danger"));
+    }
+    if (t.status === "loading") {
+      buttons.push(workspaceButton("إلغاء الرحلة", () => { if (confirm("هل تريد إلغاء الرحلة؟")) move("cancelled"); }, "btn btn-danger"));
+    }
+    if (t.status === "loading" && currentUser.id === t.driver_id) buttons.push(workspaceButton("انطلاق الشحنة", () => move("in_transit"), "btn btn-green"));
+    if (t.status === "in_transit" && currentUser.id === t.driver_id) buttons.push(workspaceButton("تأكيد التسليم", () => move("delivered"), "btn btn-green"));
+    makeWorkspaceCard("myTrips", "رحلة رقم " + t.id, lines, buttons);
+  }
+}
+
+/* =========================================
+   9. نشر شحنة
+========================================= */
+
+async function publishCargo(event) {
+  event.preventDefault();
+
+  if (publishingCargo) return;
+
+  clearStatus("publishStatus");
+
+  if (!currentUser) {
+    showStatus(
+      "publishStatus",
+      "يجب تسجيل الدخول أولاً لنشر شحنة.",
+      "error"
+    );
+
+    setAuthMode("login");
+    openPanel("authPanel");
+
+    return;
+  }
+
+  if (!["owner", "admin"].includes(currentProfileRole)) {
+    showStatus(
+      "publishStatus",
+      "يلزم تفعيل حساب صاحب البضائع أولاً. أرسل طلب التفعيل أعلاه.",
+      "error"
+    );
+    $("roleRequestPanel").classList.remove("hidden");
+    return;
+  }
+
+  const title = $("cargoTitle").value.trim();
+  const origin = $("originCity").value.trim();
+  const destination = $("destinationCity").value.trim();
+  const goods = $("goodsType").value.trim();
+  const weight = $("weightText").value.trim();
+  const truck = $("truckType").value;
+  const date = $("loadingDate").value;
+  const priceValue = $("offeredPrice").value.trim();
+  const notes = $("cargoNotes").value.trim();
+
+  if (!title || !origin || !destination || !goods || !truck || !date) {
+    showStatus(
+      "publishStatus",
+      "يرجى ملء جميع الحقول الإجبارية.",
+      "error"
+    );
+    return;
+  }
+
+  if (origin.length > 100 || destination.length > 100) {
+    showStatus(
+      "publishStatus",
+      "اسم المدينة أطول من الحد المسموح.",
+      "error"
+    );
+    return;
+  }
+
+  if (normalizeText(origin) === normalizeText(destination)) {
+    showStatus(
+      "publishStatus",
+      "مدينة الانطلاق والوصول يجب ألا تكونا متطابقتين.",
+      "error"
+    );
+    return;
+  }
+
+  if (date < getLocalDate()) {
+    showStatus(
+      "publishStatus",
+      "تاريخ النقل يجب ألا يكون في الماضي.",
+      "error"
+    );
+    return;
+  }
+
+  const price =
+    priceValue === "" ? null : Number(priceValue);
+
+  if (
+    price !== null &&
+    (!Number.isFinite(price) || price < 0)
+  ) {
+    showStatus(
+      "publishStatus",
+      "يرجى إدخال سعر صحيح.",
+      "error"
+    );
+    return;
+  }
+
+  const cargoData = {
+    owner_id: currentUser.id,
+    title: title,
+    origin_city: origin,
+    destination_city: destination,
+    goods_type: goods,
+    weight_text: weight || null,
+    truck_type: truck,
+    loading_date: date,
+    offered_price_mad: price,
+    notes: notes || null,
+    status: "open"
+  };
+
+  publishingCargo = true;
+
+  setButtonLoading(
+    $("submitCargoBtn"),
+    true,
+    "نشر الشحنة",
+    "جاري النشر..."
+  );
+
+  try {
+    const { error } = await db
+      .from("cargos")
+      .insert(cargoData);
+
+    if (error) throw error;
+
+    showStatus(
+      "publishStatus",
+      "تم إرسال الشحنة بنجاح. سنقوم بتحديث قائمة الشحنات.",
+      "success"
+    );
+
+    $("cargoForm").reset();
+
+    await loadCargos();
+
+    setTimeout(() => {
+      closePanel("publishPanel");
+
+      $("cargoSection").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 1500);
+
+  } catch (error) {
+    console.error("Publish cargo error:", error);
+
+    let message = "تعذر نشر الشحنة. تحقق من الاتصال والصلاحيات.";
+
+    if (error.code === "42501") {
+      message = "ليس لديك الإذن لنشر الشحنة. تحقق من سياسات RLS.";
+    } else if (error.code === "23503") {
+      message = "تعذر ربط الشحنة بحساب المستخدم.";
+    } else if (error.code === "23505") {
+      message = "توجد بيانات مكررة وفق قيود قاعدة البيانات.";
+    } else if (error.message) {
+      message = error.message;
+    }
+
+    showStatus("publishStatus", message, "error");
+
+  } finally {
+    publishingCargo = false;
+
+    $("submitCargoBtn").disabled = false;
+    $("submitCargoBtn").textContent = "نشر الشحنة";
+  }
+}
+
+/* =========================================
+   9. تسجيل الخروج
+========================================= */
+
+async function logout() {
+  $("logoutBtn").disabled = true;
+
+  try {
+    const { error } = await db.auth.signOut();
+
+    if (error) throw error;
+
+    currentUser = null;
+    currentProfileRole = "user";
+    pendingRoleRequest = null;
+
+    updateAuthUI();
+
+    closePanel("publishPanel");
+    closePanel("authPanel");
+
+    showGlobalMessage(
+      "تم تسجيل الخروج بنجاح.",
+      "success"
+    );
+
+  } catch (error) {
+    console.error("Logout error:", error);
+
+    showGlobalMessage(
+      "تعذر تسجيل الخروج: " + (error.message || ""),
+      "error"
+    );
+
+  } finally {
+    $("logoutBtn").disabled = false;
+  }
+}
+
+/* =========================================
+   10. فتح النماذج
+========================================= */
+
+function openPublish() {
+  openPanel("publishPanel");
+
+  if (!currentUser) {
+    setAuthMode("login");
+    openPanel("authPanel");
+  } else {
+    refreshAccountState().catch((error) => {
+      console.error("Account refresh error:", error);
+      showGlobalMessage("تعذر تحميل صلاحيات الحساب. أعد المحاولة.", "error");
+    });
+  }
+}
+
+function openLogin() {
+  setAuthMode("login");
+  openPanel("authPanel");
+}
+
+/* =========================================
+   11. ربط الأحداث
+========================================= */
+
+$("loginTopBtn").addEventListener("click", openLogin);
+
+$("publishTopBtn").addEventListener("click", openPublish);
+
+$("publishHeroBtn").addEventListener("click", openPublish);
+
+$("searchHeroBtn").addEventListener("click", () => {
+  $("searchPanel").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+});
+
+$("closeAuthBtn").addEventListener("click", () => {
+  closePanel("authPanel");
+});
+
+$("closePublishBtn").addEventListener("click", () => {
+  closePanel("publishPanel");
+});
+
+$("switchAuthBtn").addEventListener("click", () => {
+  setAuthMode(
+    authMode === "login" ? "signup" : "login"
+  );
+});
+
+$("authForm").addEventListener("submit", handleAuth);
+
+$("cargoForm").addEventListener("submit", publishCargo);
+
+$("filterBtn").addEventListener("click", applyFilters);
+
+$("resetFilterBtn").addEventListener("click", resetFilters);
+
+$("refreshBtn").addEventListener("click", loadCargos);
+
+$("logoutBtn").addEventListener("click", logout);
+$("requestRoleBtn").addEventListener("click", requestRoleChange);
+$("uploadDocumentBtn").addEventListener("click", uploadDriverDocument);
+
+/* =========================================
+   12. متابعة حالة الحساب
+========================================= */
+
+const authListener = db.auth.onAuthStateChange(
+  (_event, session) => {
+    currentUser = session ? session.user : null;
+    if (!currentUser) {
+      currentProfileRole = "user";
+      pendingRoleRequest = null;
+      updateAuthUI();
+    } else {
+      updateAuthUI();
+      setTimeout(() => {
+        refreshAccountState().then(() => loadWorkspace()).catch((error) => {
+          console.error("Account refresh error:", error);
+        });
+      }, 0);
+    }
+  }
+);
+
+authSubscription =
+  authListener.data?.subscription || null;
+
+/* =========================================
+   13. تشغيل الموقع
+========================================= */
+
+async function initializeApp() {
+  $("loadingDate").min = getLocalDate();
+
+  setAuthMode("login");
+
+  updateAuthUI();
+
+  await checkSession();
+
+  await loadCargos();
+  if (currentUser) await loadWorkspace();
+}
+
+initializeApp().catch((error) => {
+  console.error("Initialization error:", error);
+
+  showGlobalMessage(
+    "حدث خطأ أثناء تشغيل الموقع. حاول إعادة تحميل الصفحة.",
+    "error"
+  );
+});
+
+/* =========================================
+   14. تنظيف الاشتراك عند مغادرة الصفحة
+========================================= */
+
+window.addEventListener("pagehide", () => {
+  if (authSubscription) {
+    authSubscription.unsubscribe();
+  }
+});
+
+</script>
+
+</body>
+</html>
