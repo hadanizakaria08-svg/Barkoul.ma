@@ -1,2 +1,0 @@
-CREATE INDEX IF NOT EXISTS profile_role_requests_reviewed_by_idx
-ON public.profile_role_requests(reviewed_by);
