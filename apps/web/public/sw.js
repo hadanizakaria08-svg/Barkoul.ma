@@ -44,8 +44,12 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request).then(async (response) => {
         if (response.ok && response.type === "basic") {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, response.clone());
+          try {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, response.clone());
+          } catch {
+            // Storage failures must not discard a successful network response.
+          }
         }
         return response;
       }).catch(async () => {
