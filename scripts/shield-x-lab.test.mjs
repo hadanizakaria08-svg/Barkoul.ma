@@ -97,3 +97,30 @@ test("Chain System keeps an unhealthy replacement isolated", () => {
   assert.equal(chain.get("chameleon"), undefined);
   assert.equal(chain.evidence().at(-1).event, "replacement-health-check-failed");
 });
+
+
+test("Chain System keeps a module isolated when its trusted replacement factory throws, while core modules remain available", () => {
+  const chain = new SelfHealingModuleChain();
+  chain.register("identity-core", () => ({ healthy: true, available: true }));
+  chain.register("phantom-room", () => ({ healthy: true }));
+  // Simulate the trusted artifact source becoming unavailable during recovery.
+  const brokenFactory = () => { throw new Error("trusted artifact unavailable"); };
+  const isolated = new SelfHealingModuleChain();
+  isolated.register("identity-core", () => ({ healthy: true, available: true }));
+  isolated.register("phantom-room", () => ({ healthy: true }));
+  // The lab API keeps the factory private; this independent chain models a failed clean build.
+  const failing = new SelfHealingModuleChain();
+  failing.register("identity-core", () => ({ healthy: true, available: true }));
+  let calls = 0;
+  failing.register("phantom-room", () => {
+    calls += 1;
+    if (calls > 1) return brokenFactory();
+    return { healthy: true };
+  });
+  const result = failing.recover("phantom-room");
+  assert.deepEqual(result, { recovered: false, status: "isolated", version: 1 });
+  assert.equal(failing.get("phantom-room"), undefined);
+  assert.equal(failing.get("identity-core").available, true);
+  assert.equal(failing.status()["identity-core"].status, "healthy");
+  assert.equal(failing.evidence().at(-1).event, "replacement-error");
+});
