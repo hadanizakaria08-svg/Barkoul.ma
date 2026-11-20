@@ -35,7 +35,7 @@ export default function AdminRoom({
         <p className="eyebrow">منطقة محمية</p>
         <h1>غرفة المدير</h1>
         <p>هذه المنطقة خاصة بحسابات الإدارة المصرّح لها فقط. سجّل الدخول أولاً، ثم ستُفحص صلاحية حسابك من قاعدة البيانات.</p>
-        <div className="admin-gate-actions">{homeLink}<a className="button button-primary" href="#account">تسجيل الدخول</a></div>
+        <div className="admin-gate-actions">{homeLink}<a className="button button-primary" href="./#account">تسجيل الدخول</a></div>
       </section>
     </main>;
   }
