@@ -132,11 +132,15 @@ CREATE POLICY cargos_secure_insert ON public.cargos
     )
   );
 
--- Backfill any active Auth accounts created before the profile trigger existed.
--- Every recovered account receives the least-privilege role; no admin/driver/owner
--- role is inferred from user metadata.
+-- Backfill active Auth accounts created before the profile trigger existed.
+-- Preserve the owner role only where an existing cargo row already proves ownership;
+-- all other recovered accounts receive the least-privilege user role.
 INSERT INTO public.profiles (id, full_name, role)
-SELECT u.id, NULLIF(u.raw_user_meta_data ->> 'full_name', ''), 'user'
+SELECT u.id,
+       NULLIF(u.raw_user_meta_data ->> 'full_name', ''),
+       CASE WHEN EXISTS (
+         SELECT 1 FROM public.cargos c WHERE c.owner_id = u.id
+       ) THEN 'owner' ELSE 'user' END
 FROM auth.users u
 LEFT JOIN public.profiles p ON p.id = u.id
 WHERE p.id IS NULL AND u.deleted_at IS NULL
