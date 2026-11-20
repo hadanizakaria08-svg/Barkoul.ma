@@ -20,8 +20,8 @@ This is an engineering test baseline, not a certification or penetration-test re
 7. RTL metadata, primary navigation, anonymous publishing restrictions, labelled controls, and 360px horizontal-overflow smoke tests.
 8. Full `npm audit` across production and development dependencies; any advisory fails CI.
 9. A dependency-boundary check ensures picomatch, Vite, Vitest and Workbox are absent from the resolved dependency tree.
-10. CI installs from the generated lockfile using `npm ci`.
-11. PWA manifest and a small same-origin service worker are maintained directly. The service worker caches only the app shell and same-origin static assets; Supabase API traffic is never cached.
+10. CI installs directly from the committed lockfile using `npm ci`; it does not regenerate the lockfile during verification.
+11. PWA manifest and a small same-origin service worker are maintained directly. The service worker uses network-first refresh for same-origin static assets with a cache fallback when offline, and a cached app-shell fallback for navigation. Supabase API traffic and navigation URLs are never cached.
 
 ## Dependency-remediation decision
 
@@ -34,6 +34,7 @@ CI must confirm these package names are absent and that a full dependency audit 
 - No live Supabase integration test or role-by-role RLS negative test has been run.
 - No authenticated end-to-end workflow, cargo negotiation, trip lifecycle, payment, commission, document upload, or admin journey is implemented and covered end to end.
 - No manual WCAG keyboard/screen-reader audit, mobile-device matrix, iOS/macOS build, Android APK device test, or Windows desktop build test has been completed.
+- Service-worker installation, release-update behavior, and offline fallback have not yet been covered by automated browser tests or verified on physical devices.
 - No external penetration test, DAST against a deployed environment, load test, backup-restore drill, or independent ISO/OWASP certification has been performed.
 
 A green CI run means only that the configured automated checks passed for that commit. It is not a claim of production readiness or standards certification.
