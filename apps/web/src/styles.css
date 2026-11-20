@@ -180,3 +180,5 @@ input::placeholder,textarea::placeholder{color:#8b9aab}
 .category-grid a strong{font-size:13px;font-weight:900}
 @media(max-width:800px){.cargo-categories{margin:0 12px 24px;padding:17px}.category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:380px){.category-grid{gap:7px}.category-grid a{min-height:95px}.category-grid a strong{font-size:11px}}
+
+.visual-credits{display:block;max-width:1000px;padding:0 16px;color:#d7e9fb;font-size:11px;line-height:1.8;text-align:center}.visual-credits a{text-decoration:underline;text-underline-offset:2px}
