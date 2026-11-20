@@ -14,6 +14,31 @@ const todayLocal = () => {
   return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
 };
 
+function BrandTruck() {
+  return <svg className="brand-truck" viewBox="0 0 150 82" role="img" aria-label="شاحنة Barkoul">
+    <path d="M8 29 95 8 95 60 8 60Z M95 24 122 24 143 43 143 60 95 60Z" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="round"/>
+    <path d="M108 31h14l12 13h-26Z" fill="none" stroke="currentColor" strokeWidth="4"/>
+    <path d="M8 39 78 22 M8 50 78 34 M8 60 78 46" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
+    <circle cx="38" cy="65" r="10" fill="#073d91" stroke="currentColor" strokeWidth="5"/><circle cx="112" cy="65" r="10" fill="#073d91" stroke="currentColor" strokeWidth="5"/>
+  </svg>;
+}
+
+function MoroccoMark() {
+  return <svg className="morocco-mark" viewBox="0 0 220 330" role="img" aria-label="خريطة المغرب">
+    <path d="M86 8 128 18 146 49 174 54 165 85 191 104 174 133 184 157 157 180 151 214 124 228 117 265 91 280 75 316 48 302 43 268 24 250 40 221 32 193 51 172 43 143 63 116 58 86 78 62Z" fill="#ef1d2d" stroke="white" strokeWidth="7" strokeLinejoin="round"/>
+    <path d="m100 104 15 35 37-1-30 22 12 36-34-23-31 23 11-37-30-21 38 1Z" fill="none" stroke="#087c42" strokeWidth="9" strokeLinejoin="round"/>
+  </svg>;
+}
+
+function FeatureCard({kind,title,subtitle,href}:{kind:"boxes"|"fleet"|"driver";title:string;subtitle:string;href:string}) {
+  return <a className="reference-feature" href={href}>
+    <div className={`reference-feature-art art-${kind}`} aria-hidden="true">
+      {kind==="boxes" ? <span>📦</span> : kind==="fleet" ? <span>🚛 🚚 🚌</span> : <span>👨🏻‍✈️</span>}
+    </div>
+    <div className="reference-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">›</b></div>
+  </a>;
+}
+
 export default function App() {
   useEffect(() => { window.dispatchEvent(new Event("barkoul:app-ready")); }, []);
   const db = getSupabase();
@@ -209,22 +234,33 @@ export default function App() {
   }
 
   return <div className="app-shell">
-    <header className="topbar"><a className="brand" href="#">Barkoul<span>.ma</span></a>
-      <nav><a href="#search">الشحنات</a><a href="#publish">نشر شحنة</a>
+    <header className="topbar reference-topbar">
+      <a className="brand reference-brand" href="#"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
+      <nav><a className="account-entry" href="#account">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
+      <a href="#search">الشحنات</a><a href="#publish">نشر شحنة</a>
       {user && profileRole === "admin" && <a href="#admin">غرفة المدير</a>}
-      {user ? <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button> : <a href="#account">دخول / حساب جديد</a>}</nav>
+      {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}</nav>
     </header>
     <main>
-      <section className="hero">
-        <div className="hero-copy"><p className="eyebrow">منصة النقل المغربية</p>
-          <h1>شحناتك تجد طريقها.<br/><span>وشاحنتك تجد عملها.</span></h1>
-          <p>منصة تربط أصحاب البضائع بسائقي الشاحنات في مختلف مدن المغرب.</p>
-          <div className="hero-actions"><a className="button button-primary" href="#search">أبحث عن شحنة</a><a className="button button-light" href="#publish">أنشر شحنة</a></div>
+      <section className="reference-hero">
+        <div className="reference-sky" aria-hidden="true"></div>
+        <div className="reference-headline"><h1>ربط الشحنات<br/><span>بسائقي الشاحنات في المغرب</span></h1><i></i></div>
+        <div className="reference-landscape" aria-hidden="true">
+          <div className="reference-road"></div>
+          <div className="reference-fleet"><span>🚛</span><span>🚛</span><span>🚚</span><span>🚌</span></div>
+          <MoroccoMark/>
+          <div className="reference-city">🕌 🌴</div>
         </div>
-        <div className="hero-art" aria-hidden="true"><div className="route-line"></div><div className="map-pin pin-a">●</div><div className="truck-emoji">🚚</div><div className="map-pin pin-b">●</div><span className="art-label">من الانطلاق إلى الوصول</span></div>
+        <div className="reference-actions">
+          <a className="reference-action publish-action" href="#publish"><span>▣</span> أنشر شحنة</a>
+          <a className="reference-action search-action" href="#search"><span>⌕</span> أبحث عن شحنة</a>
+        </div>
       </section>
-
-      <section className="trust-strip"><div><strong>تصفح بسهولة</strong><span>شاهد الشحنات المتاحة</span></div><div><strong>تواصل بوضوح</strong><span>خطوات نقل منظمة</span></div><div><strong>منصة مغربية</strong><span>مصممة للسوق المحلي</span></div></section>
+      <section className="reference-features" aria-label="خدمات Barkoul">
+        <FeatureCard kind="boxes" title="نشر شحنة" subtitle="بخطوات سهلة" href="#publish"/>
+        <FeatureCard kind="fleet" title="الشحنات المتاحة" subtitle="في جميع المدن" href="#search"/>
+        <FeatureCard kind="driver" title="البحث عن شاحنات" subtitle="بسرعة وأمان" href="#search"/>
+      </section>
 
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
 
@@ -254,6 +290,11 @@ export default function App() {
       </section>
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace userId={user.id} role={profileRole} openCargos={cargos}/>}
     </main>
-    <footer><strong>Barkoul.ma</strong><span>منصة مغربية قيد التطوير والاختبار.</span></footer>
+    <footer className="reference-footer">
+      <div className="social-links" aria-label="روابط التواصل">
+        <a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://instagram.com/" aria-label="إنستغرام">◎</a><a href="https://x.com/" aria-label="X">𝕏</a>
+      </div>
+      <strong>Barkoul.ma <span>—</span> معاً نحو نقل أسهل وأسرع</strong>
+    </footer>
   </div>;
 }
