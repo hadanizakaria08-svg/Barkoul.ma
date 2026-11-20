@@ -243,18 +243,83 @@ WITH CHECK (
   )
 );
 
--- A verified document cannot be deleted by its owner while it authorizes driver offers.
-DROP POLICY IF EXISTS driver_documents_private_delete_own ON storage.objects;
-CREATE POLICY driver_documents_private_delete_own ON storage.objects
-FOR DELETE TO authenticated
+-- Restrictive policies prevent older permissive policies from widening document access.
+DROP POLICY IF EXISTS driver_documents_select_guard ON public.driver_documents;
+CREATE POLICY driver_documents_select_guard ON public.driver_documents
+AS RESTRICTIVE FOR SELECT TO authenticated
+USING (driver_id=(SELECT auth.uid()) OR (SELECT private.is_admin()));
+
+DROP POLICY IF EXISTS driver_documents_insert_guard ON public.driver_documents;
+CREATE POLICY driver_documents_insert_guard ON public.driver_documents
+AS RESTRICTIVE FOR INSERT TO authenticated
+WITH CHECK (
+  driver_id=(SELECT auth.uid())
+  AND review_status='pending'
+  AND char_length(btrim(document_type)) BETWEEN 1 AND 60
+  AND storage_path LIKE ((SELECT auth.uid())::text || '/%')
+  AND EXISTS (
+    SELECT 1 FROM storage.objects o
+    WHERE o.bucket_id='driver-documents' AND o.name=driver_documents.storage_path
+  )
+  AND EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id=(SELECT auth.uid()) AND p.role='driver'
+  )
+);
+
+DROP POLICY IF EXISTS driver_documents_update_guard ON public.driver_documents;
+CREATE POLICY driver_documents_update_guard ON public.driver_documents
+AS RESTRICTIVE FOR UPDATE TO authenticated
+USING (false)
+WITH CHECK (false);
+
+DROP POLICY IF EXISTS driver_documents_delete_guard ON public.driver_documents;
+CREATE POLICY driver_documents_delete_guard ON public.driver_documents
+AS RESTRICTIVE FOR DELETE TO authenticated
+USING (false);
+
+-- Restrict the private bucket even if a broad legacy storage policy exists.
+DROP POLICY IF EXISTS driver_documents_bucket_anon_guard ON storage.objects;
+CREATE POLICY driver_documents_bucket_anon_guard ON storage.objects
+AS RESTRICTIVE FOR ALL TO anon
+USING (bucket_id <> 'driver-documents')
+WITH CHECK (bucket_id <> 'driver-documents');
+
+DROP POLICY IF EXISTS driver_documents_bucket_select_guard ON storage.objects;
+CREATE POLICY driver_documents_bucket_select_guard ON storage.objects
+AS RESTRICTIVE FOR SELECT TO authenticated
 USING (
-  bucket_id='driver-documents'
-  AND (storage.foldername(name))[1]=(SELECT auth.uid())::text
-  AND NOT EXISTS (
-    SELECT 1
-    FROM public.driver_documents d
-    WHERE d.storage_path=storage.objects.name
-      AND d.review_status='verified'
+  bucket_id <> 'driver-documents'
+  OR (storage.foldername(name))[1]=(SELECT auth.uid())::text
+  OR (SELECT private.is_admin())
+);
+
+DROP POLICY IF EXISTS driver_documents_bucket_insert_guard ON storage.objects;
+CREATE POLICY driver_documents_bucket_insert_guard ON storage.objects
+AS RESTRICTIVE FOR INSERT TO authenticated
+WITH CHECK (
+  bucket_id <> 'driver-documents'
+  OR (storage.foldername(name))[1]=(SELECT auth.uid())::text
+);
+
+DROP POLICY IF EXISTS driver_documents_bucket_update_guard ON storage.objects;
+CREATE POLICY driver_documents_bucket_update_guard ON storage.objects
+AS RESTRICTIVE FOR UPDATE TO authenticated
+USING (bucket_id <> 'driver-documents')
+WITH CHECK (bucket_id <> 'driver-documents');
+
+DROP POLICY IF EXISTS driver_documents_bucket_delete_guard ON storage.objects;
+CREATE POLICY driver_documents_bucket_delete_guard ON storage.objects
+AS RESTRICTIVE FOR DELETE TO authenticated
+USING (
+  bucket_id <> 'driver-documents'
+  OR (
+    (storage.foldername(name))[1]=(SELECT auth.uid())::text
+    AND NOT EXISTS (
+      SELECT 1 FROM public.driver_documents d
+      WHERE d.storage_path=storage.objects.name
+        AND d.review_status='verified'
+    )
   )
 );
 
