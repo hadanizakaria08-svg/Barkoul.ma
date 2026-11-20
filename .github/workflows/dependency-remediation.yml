@@ -31,9 +31,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Generate lockfile from reviewed manifests
-        run: npm install --package-lock-only --ignore-scripts --no-audit
-      - name: Install exact lockfile
+      - name: Install exact dependency tree from committed lockfile
         run: npm ci --ignore-scripts
       - name: Verify removed vulnerable packages are absent
         run: npm run security:runtime-deps
