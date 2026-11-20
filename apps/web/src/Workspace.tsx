@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { getSupabase } from "@barkoul/data";
-import type { Cargo, ProfileRole } from "@barkoul/domain";
+import { validateDriverDocumentFile, type Cargo, type ProfileRole } from "@barkoul/domain";
 
 type Row = Record<string, any>;
 interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; }
@@ -92,7 +92,10 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
   }
 
   async function sendDocument(){
-    if(!db||!file)return; setBusy(true); setMessage("");
+    if(!db||!file)return;
+    const fileError=validateDriverDocumentFile(file);
+    if(fileError){setMessage(fileError);return;}
+    setBusy(true); setMessage("");
     const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100);
     const path=userId+"/"+crypto.randomUUID()+"-"+safeName;
     try{
