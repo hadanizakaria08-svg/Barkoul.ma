@@ -82,3 +82,52 @@ CREATE POLICY driver_documents_private_delete_own ON storage.objects
         AND d.review_status = 'verified'
     )
   );
+-- Reduce client writes to the exact columns used by the application.
+-- IDs, timestamps, reviewer fields, and lifecycle-controlled records remain database-owned.
+REVOKE INSERT ON TABLE public.cargos FROM PUBLIC, authenticated;
+REVOKE INSERT (id, title, origin_city, destination_city, goods_type, weight_text,
+  truck_type, loading_date, offered_price_mad, notes, status, created_at, owner_id)
+  ON TABLE public.cargos FROM PUBLIC, authenticated;
+GRANT INSERT (title, origin_city, destination_city, goods_type, weight_text,
+  truck_type, loading_date, offered_price_mad, notes, status, owner_id)
+  ON TABLE public.cargos TO authenticated;
+REVOKE DELETE ON TABLE public.cargos FROM PUBLIC, authenticated;
+DROP POLICY IF EXISTS cargos_secure_delete ON public.cargos;
+
+REVOKE INSERT ON TABLE public.driver_documents FROM PUBLIC, authenticated;
+REVOKE INSERT (id, driver_id, document_type, storage_path, review_status, uploaded_at)
+  ON TABLE public.driver_documents FROM PUBLIC, authenticated;
+GRANT INSERT (driver_id, document_type, storage_path, review_status)
+  ON TABLE public.driver_documents TO authenticated;
+
+REVOKE INSERT ON TABLE public.negotiations FROM PUBLIC, authenticated;
+REVOKE INSERT (id, cargo_id, proposer_id, proposed_price_mad, message, status, created_at)
+  ON TABLE public.negotiations FROM PUBLIC, authenticated;
+GRANT INSERT (cargo_id, proposer_id, proposed_price_mad, message, status)
+  ON TABLE public.negotiations TO authenticated;
+
+REVOKE INSERT ON TABLE public.profile_role_requests FROM PUBLIC, authenticated;
+REVOKE INSERT (id, user_id, requested_role, status, created_at, reviewed_at, reviewed_by)
+  ON TABLE public.profile_role_requests FROM PUBLIC, authenticated;
+GRANT INSERT (user_id, requested_role, status)
+  ON TABLE public.profile_role_requests TO authenticated;
+
+-- Profile rows are created only by the Auth user-created trigger.
+REVOKE INSERT ON TABLE public.profiles FROM PUBLIC, authenticated;
+REVOKE INSERT (id, full_name, phone, role, created_at)
+  ON TABLE public.profiles FROM PUBLIC, authenticated;
+
+-- New cargo records always begin open, including those inserted by admins.
+DROP POLICY IF EXISTS cargos_secure_insert ON public.cargos;
+CREATE POLICY cargos_secure_insert ON public.cargos
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    status = 'open'
+    AND (
+      (owner_id = (SELECT auth.uid()) AND EXISTS (
+        SELECT 1 FROM public.profiles p
+        WHERE p.id = (SELECT auth.uid()) AND p.role = 'owner'
+      ))
+      OR (SELECT private.is_admin())
+    )
+  );
