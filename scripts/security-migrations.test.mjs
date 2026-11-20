@@ -114,7 +114,7 @@ describe("database mutation boundaries", () => {
     assert.ok(atomicWorkflowMigration.includes("o.bucket_id='driver-documents'"));
     assert.ok(atomicWorkflowMigration.includes("o.name=driver_documents.storage_path"));
     assert.ok(atomicWorkflowMigration.includes("d.review_status='verified'"));
-    assert.ok(atomicWorkflowMigration.includes("DROP POLICY IF EXISTS driver_documents_private_delete_own"));
+    assert.ok(atomicWorkflowMigration.includes("CREATE POLICY driver_documents_bucket_delete_guard"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR SELECT TO authenticated"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR INSERT TO authenticated"));
     assert.ok(atomicWorkflowMigration.includes("AS RESTRICTIVE FOR ALL TO anon"));
