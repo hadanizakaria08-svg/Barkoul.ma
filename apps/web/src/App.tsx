@@ -15,6 +15,7 @@ const todayLocal = () => {
 };
 
 export default function App() {
+  useEffect(() => { window.dispatchEvent(new Event("barkoul:app-ready")); }, []);
   const db = getSupabase();
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
