@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildCargoInsertPayload,
+  canProposeNegotiation,
   canPublishCargo,
   filterCargos,
   normalizeCargoDraft,
@@ -33,6 +34,23 @@ describe("cargo domain rules", () => {
 
   it("accepts a valid future cargo", () => {
     assert.deepEqual(validateCargoDraft(draft,"2026-11-18"), []);
+  });
+
+  it("allows a different authenticated user to propose on an open cargo", () => {
+    assert.equal(canProposeNegotiation("open", "owner-1", "driver-1"), true);
+  });
+
+  it("blocks negotiation on closed cargo or by its own owner", () => {
+    assert.equal(canProposeNegotiation("reserved", "owner-1", "driver-1"), false);
+    assert.equal(canProposeNegotiation("completed", "owner-1", "driver-1"), false);
+    assert.equal(canProposeNegotiation("open", "owner-1", "owner-1"), false);
+  });
+
+  it("fails closed when cargo ownership or actor identity is missing", () => {
+    assert.equal(canProposeNegotiation("open", null, "driver-1"), false);
+    assert.equal(canProposeNegotiation("open", "owner-1", null), false);
+    assert.equal(canProposeNegotiation("open", "", "driver-1"), false);
+    assert.equal(canProposeNegotiation("open", "owner-1", ""), false);
   });
 
   it("creates a strict cargo insert payload and ignores unexpected caller fields", () => {
