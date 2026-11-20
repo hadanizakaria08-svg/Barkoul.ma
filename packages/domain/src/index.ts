@@ -44,6 +44,7 @@ export interface Cargo {
   notes: string | null;
   status: CargoStatus;
   created_at: string;
+  owner_id?: string;
 }
 
 export interface CargoDraft {
