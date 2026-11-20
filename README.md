@@ -2,25 +2,31 @@
 
 منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات.
 
-## الحالة الحالية
-- تطبيق React/TypeScript الموحد في `apps/web` منشور الآن على GitHub Pages بعد نجاح فحوصات main CI.
-- واجهة الويب تشمل الشحنات والحسابات وطلبات الأدوار والعروض والرحلات ووثائق السائقين ولوحة الإدارة والعمولات.
-- ملفات الواجهة القديمة `index.html` و`admin.html` محفوظة في المستودع، والنسخ السابقة داخل `backups/`؛ لا تُحذف قبل قرار صريح.
-- بناء Android debug APK وبناء Windows portable executable نجحا في GitHub Actions. بناء iOS Simulator ما زال ينتظر runner.
-- قاعدة Supabase الإنتاجية خضعت لتدقيق RLS والصلاحيات، واختبارات تكاملية محاكاة مع rollback.
+## الواجهة المعتمدة
 
-## الروابط
+- مصدر الواجهة الرئيسية: `apps/web/src/App.tsx`.
+- التنسيقات: `apps/web/src/styles.css`.
+- مدخل البناء: `apps/web/index.html`.
+- الواجهة عربية RTL بألوان أزرق/أبيض، شاحنات على طريق مغربي، خريطة المغرب، وزرا «أنشر شحنة» و«أبحث عن شحنة»، وبطاقات الخدمات وروابط التواصل.
+- لوحة الإدارة مدمجة داخل التطبيق عبر المسار المحمي `#admin` في `apps/web/src/AdminRoom.tsx`.
+- لم تعد صفحات HTML القديمة أو صفحات المعاينة تُنشر كواجهات مستقلة. النسخ الاحتياطية التاريخية محفوظة داخل `backups/` للرجوع عند الحاجة.
+
+## النشر والوظائف
+
 - الموقع: https://hadanizakaria08-svg.github.io/Barkoul.ma/
-- [تشغيل نشر React إلى GitHub Pages](https://github.com/hadanizakaria08-svg/Barkoul.ma/actions/runs/44755560624)
-- [تشغيل بناء Android وWindows وiOS](https://github.com/hadanizakaria08-svg/Barkoul.ma/actions/runs/44754709956)
+- GitHub Actions يبني التطبيق من `apps/web` ثم ينشر محتويات `apps/web/dist` إلى GitHub Pages.
+- الواجهة تتضمن تصفح الشحنات، الحسابات، طلبات تفعيل الأدوار، نشر الشحنات، التفاوض، الرحلات، وثائق السائقين، العمولات، وغرفة الإدارة.
+- لا تغييرات على بيانات Supabase أو سياسات RLS ضمن عملية تنظيف الواجهات.
 
 ## تشغيل الواجهة محلياً
+
 1. انسخ `.env.example` إلى `.env`.
 2. ضع Supabase URL ومفتاح Publishable/anon العام فقط في متغيرات البيئة.
-3. شغّل `npm install`.
+3. شغّل `npm ci`.
 4. شغّل `npm run dev`.
 
 ## الفحوصات
+
 - `npm run typecheck`
 - `npm test`
 - `npm run build`
@@ -28,7 +34,9 @@
 - `npm run check:legacy-html`
 
 ## الأمان
+
 لا تضع مفتاح `service_role` أو أي سر في الواجهة أو المستودع. يعتمد الوصول على RLS والتحقق عبر RPCs. تغييرات قاعدة البيانات يجب أن تكون عبر migrations مراجعة ومختبرة.
 
 ## المنصات
+
 Android APK وWindows portable الحاليان حزم تحقق غير موقعة للإصدار النهائي. لا يوجد IPA أو MSI/NSIS موقّع حتى الآن. لا تعلن جاهزية المتاجر قبل التوقيع واختبار الأجهزة الفعلية.
