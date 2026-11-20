@@ -1,4 +1,4 @@
-const CACHE_NAME = "barkoul-static-v3";
+const CACHE_NAME = "barkoul-static-v4";
 
 const STATIC_ASSET_PATHS = new Set(
   ["assets/app.js", "assets/app.css", "icon.svg", "manifest.webmanifest"]
