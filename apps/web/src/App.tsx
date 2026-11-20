@@ -237,7 +237,7 @@ export default function App() {
     <header className="topbar home-topbar">
       <a className="brand home-brand" href="#" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
       <nav aria-label="القائمة الرئيسية">
-        <a className="home-nav-link" href="#search">الشحنات المتاحة</a>
+        <a className="home-nav-link" href="#search">الشحنات</a>
         <a className="home-nav-link" href="#publish">نشر شحنة</a>
         {user && profileRole === "admin" && <a className="home-nav-link" href="#admin">غرفة المدير</a>}
         <a className="account-entry" href="#account" aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
