@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { canPublishCargo, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
+import { buildCargoInsertPayload, canPublishCargo, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
 
 let client: SupabaseClient | null = null;
 
@@ -65,10 +65,8 @@ export async function publishCargo(draft: CargoDraft): Promise<void> {
     throw new Error("حسابك مسجل، لكن دورك الحالي لا يسمح بنشر الشحنات. يلزم تفعيل دور صاحب البضاعة من الإدارة.");
   }
 
-  const { error } = await db.from("cargos").insert({
-    ...draft,
-    owner_id: data.user.id,
-    status: "open"
-  });
+  const { error } = await db.from("cargos").insert(
+    buildCargoInsertPayload(draft, data.user.id)
+  );
   if (error) throw error;
 }
