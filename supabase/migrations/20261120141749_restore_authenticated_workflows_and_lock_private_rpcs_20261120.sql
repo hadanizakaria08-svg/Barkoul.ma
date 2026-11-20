@@ -23,9 +23,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS profile_role_requests_one_pending_per_user
 REVOKE ALL ON SCHEMA private FROM PUBLIC, anon;
 GRANT USAGE ON SCHEMA private TO authenticated;
 
-REVOKE ALL ON FUNCTION private.close_pending_negotiations_on_cargo_cancel()
-  FROM PUBLIC, anon, authenticated;
-REVOKE ALL ON FUNCTION private.create_commission_charges_after_delivery()
+REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA private
   FROM PUBLIC, anon, authenticated;
 
 GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated;
