@@ -1,16 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@barkoul/data";
-import type { ProfileRole } from "@barkoul/domain";
+import type { Cargo, ProfileRole } from "@barkoul/domain";
 
 type Row = Record<string, any>;
-interface WorkspaceProps { userId: string; role: ProfileRole; }
+interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; }
 
 const tripLabels: Record<string,string> = {
   agreed:"تم الاتفاق", loading:"جاري التحميل", in_transit:"في الطريق",
   delivered:"تم التسليم", cancelled:"ملغاة"
 };
 
-export default function Workspace({userId,role}:WorkspaceProps) {
+function OfferCard({cargo,userId,onSent}:{cargo:Cargo;userId:string;onSent:()=>void}) {
+  const [price,setPrice]=useState(""); const [note,setNote]=useState("");
+  const [busy,setBusy]=useState(false); const [message,setMessage]=useState("");
+  async function submit(e:React.FormEvent){
+    e.preventDefault(); const db=getSupabase(); const amount=Number(price);
+    if(!db||!Number.isFinite(amount)||amount<=0){setMessage("أدخل عرضاً مالياً صحيحاً.");return;}
+    setBusy(true);setMessage("");
+    try { const {error}=await db.from("negotiations").insert({cargo_id:cargo.id,proposer_id:userId,proposed_price_mad:amount,message:note.trim()||null,status:"pending"});
+      if(error)throw error;setMessage("تم إرسال عرضك لصاحب الشحنة.");setPrice("");setNote("");onSent();
+    } catch { setMessage("تعذر إرسال العرض. تحقق من حالة الشحنة أو وجود عرض سابق."); } finally { setBusy(false); }
+  }
+  if(cargo.owner_id===userId)return null;
+  return <form className="form-card" onSubmit={submit}><h3>{cargo.title}</h3>
+    <p>{cargo.origin_city} ← {cargo.destination_city}</p>
+    <label>عرضك بالدرهم<input type="number" min="0.01" step="0.01" required value={price} onChange={e=>setPrice(e.target.value)}/></label>
+    <label>رسالة لصاحب الشحنة<textarea maxLength={500} value={note} onChange={e=>setNote(e.target.value)}/></label>
+    <button className="button button-primary" disabled={busy}>{busy?"جارٍ الإرسال…":"إرسال عرض"}</button>
+    {message&&<p className="form-message" role="status">{message}</p>}</form>;
+}
+
+export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
   const [cargos,setCargos]=useState<Row[]>([]);
   const [offers,setOffers]=useState<Row[]>([]);
   const [incoming,setIncoming]=useState<Row[]>([]);
@@ -97,6 +117,8 @@ export default function Workspace({userId,role}:WorkspaceProps) {
       </article>)}
     </div>}
     {(role==="driver"||role==="admin")&&<div className="workspace-block">
+      <h3>الشحنات المتاحة لتقديم العروض</h3>
+      {openCargos.length===0?<p className="empty">لا توجد شحنات مفتوحة حالياً.</p>:openCargos.map(c=><OfferCard key={c.id} cargo={c} userId={userId} onSent={()=>void load()}/>)}
       <h3>عروضي</h3>
       {offers.length===0?<p className="empty">لم ترسل عروضاً بعد.</p>:offers.map(o=><article className="cargo-card" key={o.id}>
         <strong>{Number(o.proposed_price_mad).toLocaleString("ar-MA")} درهم</strong>
