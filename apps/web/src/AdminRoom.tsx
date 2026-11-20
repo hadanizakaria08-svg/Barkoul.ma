@@ -80,7 +80,7 @@ export default function AdminRoom({
   async function reviewDocument(id:number,status:"verified"|"rejected"){
     const db=getSupabase();if(!db||profileRole!=="admin")return;
     setBusyId(id);setActionMessage("");
-    try{const {error}=await db.from("driver_documents").update({review_status:status}).eq("id",id);
+    try{const {error}=await db.rpc("admin_review_driver_document",{p_document_id:id,p_status:status});
       if(error)throw error;setActionMessage(status==="verified"?"تم اعتماد الوثيقة.":"تم رفض الوثيقة.");await loadAdminData();
     }catch{setActionMessage("تعذر تحديث حالة الوثيقة.");}finally{setBusyId(null);}
   }
