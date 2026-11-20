@@ -106,6 +106,7 @@ export default function AdminRoom({
       if (error) throw error;
       setActionMessage(approve ? "تم اعتماد الطلب وتفعيل الدور." : "تم رفض الطلب.");
       await loadRequests();
+      await loadAdminData();
     } catch {
       setActionMessage("تعذر تنفيذ القرار. ربما تمت مراجعة الطلب مسبقاً؛ حدّث القائمة.");
     } finally { setBusyId(null); }
