@@ -208,7 +208,7 @@ body{background:#f3f7fb;color:var(--ink)}
 .reference-headline h1{max-width:900px;margin:0 0 12px;font-size:clamp(30px,4.6vw,56px);line-height:1.35;text-shadow:none}
 .reference-headline h1 span{color:var(--blue)}
 .reference-headline i{width:84px;height:5px;margin:0;border-radius:8px;background:var(--gold);transform:none}
-.reference-landscape{height:clamp(220px,34vw,410px);min-height:220px;border-radius:22px;background:#d7e9f7 url("https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1800&q=85") center 53%/cover no-repeat;box-shadow:0 16px 38px #0b37601c}
+.reference-landscape{height:clamp(220px,34vw,410px);min-height:220px;border-radius:22px;background:radial-gradient(ellipse at 76% 22%,#ffffffa8 0 8%,transparent 30%),linear-gradient(125deg,#0b4f91 0%,#1679c7 48%,#b8def8 100%);box-shadow:0 16px 38px #0b37601c}
 .reference-landscape:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#062c5540,transparent 65%);pointer-events:none}
 .reference-hero-scene{display:none}
 .morocco-mark{right:3%;top:7%;width:clamp(86px,12vw,145px);height:86%;filter:drop-shadow(0 4px 12px #092f5740)}
