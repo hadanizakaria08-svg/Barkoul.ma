@@ -11,6 +11,10 @@ const rpcValidationMigration = await readFile(
   new URL("../supabase/migrations/20261120149500_validate_rpc_arguments.sql", import.meta.url),
   "utf8"
 );
+const atomicWorkflowMigration = await readFile(
+  new URL("../supabase/migrations/20261120149700_atomic_negotiation_and_document_binding.sql", import.meta.url),
+  "utf8"
+);
 
 describe("database mutation boundaries", () => {
   it("removes direct table grants before restoring least-privilege access", () => {
@@ -63,8 +67,8 @@ describe("database mutation boundaries", () => {
   it("keeps trips and administrative ledgers read-only to direct client mutations", () => {
     assert.ok(migration.includes("GRANT SELECT ON public.trips TO authenticated"));
     assert.ok(migration.includes("GRANT SELECT ON public.admin_users, public.admin_audit_log, public.commission_charges"));
-    assert.ok(migration.includes("cargo_id, proposer_id, proposed_price_mad, message, status"));
-    assert.ok(migration.includes("ON public.negotiations TO authenticated"));
+    assert.ok(migration.includes("GRANT SELECT ON public.negotiations TO authenticated"));
+    assert.ok(atomicWorkflowMigration.includes("REVOKE INSERT ON public.negotiations FROM PUBLIC, anon, authenticated"));
   });
 
   it("rejects null and unsupported arguments at sensitive RPC boundaries", () => {
@@ -82,5 +86,33 @@ describe("database mutation boundaries", () => {
     assert.ok(rpcValidationMigration.includes("p_status NOT IN ('loading','in_transit','delivered','cancelled')"));
     assert.ok(rpcValidationMigration.includes("p_method NOT IN ('cash','electronic')"));
     assert.ok(rpcValidationMigration.includes("p_approve IS NULL"));
+  });
+
+  it("creates offers through a server-verified RPC with a cargo row lock", () => {
+    assert.ok(atomicWorkflowMigration.includes("CREATE OR REPLACE FUNCTION private.create_negotiation_impl"));
+    assert.ok(atomicWorkflowMigration.includes("FROM public.cargos c"));
+    assert.ok(atomicWorkflowMigration.includes("FOR UPDATE"));
+    assert.ok(atomicWorkflowMigration.includes("p_proposed_price_mad <= 0"));
+    assert.ok(atomicWorkflowMigration.includes("p.role='driver'"));
+    assert.ok(atomicWorkflowMigration.includes("d.review_status='verified'"));
+    assert.ok(atomicWorkflowMigration.includes("CREATE OR REPLACE FUNCTION public.create_negotiation"));
+    assert.ok(workspace.includes('db.rpc("create_negotiation"'));
+    assert.equal(workspace.includes('from("negotiations").insert('), false);
+  });
+
+  it("uses a consistent cargo-first lock order when accepting offers", () => {
+    assert.ok(atomicWorkflowMigration.includes("FOR UPDATE OF c"));
+    assert.ok(atomicWorkflowMigration.includes("FROM public.negotiations n"));
+    assert.ok(atomicWorkflowMigration.includes("FOR UPDATE;"));
+    assert.ok(atomicWorkflowMigration.includes("SET status='rejected'"));
+    assert.ok(atomicWorkflowMigration.includes("SET status='matched'"));
+  });
+
+  it("binds driver-document rows to their own uploaded object and protects verified files", () => {
+    assert.ok(atomicWorkflowMigration.includes("storage_path LIKE ((SELECT auth.uid())::text || '/%')"));
+    assert.ok(atomicWorkflowMigration.includes("o.bucket_id='driver-documents'"));
+    assert.ok(atomicWorkflowMigration.includes("o.name=driver_documents.storage_path"));
+    assert.ok(atomicWorkflowMigration.includes("d.review_status='verified'"));
+    assert.ok(atomicWorkflowMigration.includes("DROP POLICY IF EXISTS driver_documents_private_delete_own"));
   });
 });
