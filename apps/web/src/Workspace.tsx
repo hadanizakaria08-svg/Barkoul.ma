@@ -57,6 +57,14 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
 
   useEffect(()=>{void load().catch(()=>setMessage("تعذر تحميل مساحة حسابك. حاول تحديث الصفحة."));},[load]);
 
+  async function cancelCargo(id:number){
+    if(!db)return;setBusy(true);setMessage("");
+    try{const {data,error}=await db.from("cargos").update({status:"cancelled"}).eq("id",id).eq("owner_id",userId).eq("status","open").select("id");
+      if(error)throw error;if(!data?.length)throw new Error("Cargo is no longer open");
+      setMessage("تم إلغاء الشحنة المفتوحة.");await load();
+    }catch{setMessage("تعذر إلغاء الشحنة؛ ربما تم قبول عرض أو تغيرت حالتها.");}finally{setBusy(false);}
+  }
+
   async function saveProfile(e:FormEvent){
     e.preventDefault(); if(!db)return;
     const phone=profile.phone.trim();
@@ -110,6 +118,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
     {role==="owner"&&<div className="workspace-block"><h3>شحناتي وعروض السائقين</h3>
       {cargos.length===0?<p className="empty">لم تنشر شحنات بعد.</p>:cargos.map(c=><article className="cargo-card" key={c.id}>
         <h3>{c.title}</h3><p>{c.origin_city} ← {c.destination_city} · الحالة: {c.status}</p>
+        {c.status==="open"&&<button className="button button-outline" disabled={busy} onClick={()=>void cancelCargo(c.id)}>إلغاء الشحنة</button>}
         {incoming.filter(o=>o.cargo_id===c.id).map(o=><div className="offer-row" key={o.id}>
           <span>عرض السائق: {Number(o.proposed_price_mad).toLocaleString("ar-MA")} درهم</span><span>{o.message||"دون رسالة"} · {o.status}</span>
           {o.status==="pending"&&c.status==="open"&&<div className="hero-actions"><button className="button button-primary" disabled={busy} onClick={()=>void decideOffer(o.id,true)}>قبول العرض</button><button className="button button-outline" disabled={busy} onClick={()=>void decideOffer(o.id,false)}>رفض العرض</button></div>}
