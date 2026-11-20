@@ -58,3 +58,12 @@ test("ships a restrictive browser security policy and referrer policy", async ({
   expect(csp).not.toContain("'unsafe-eval'");
   await expect(page.locator('meta[name="referrer"]')).toHaveAttribute("content", "strict-origin-when-cross-origin");
 });
+
+
+test("blocks direct access to the private admin room for signed-out visitors", async ({ page }) => {
+  await page.goto("/#admin");
+  await expect(page.getByRole("heading", { name: "غرفة المدير" })).toBeVisible();
+  await expect(page.getByText("سجّل الدخول أولاً", { exact: false })).toBeVisible();
+  await expect(page.getByText("مركز التحكم")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "تسجيل الخروج" })).toHaveCount(0);
+});
