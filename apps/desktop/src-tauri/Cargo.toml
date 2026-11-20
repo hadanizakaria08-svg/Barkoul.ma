@@ -1,0 +1,16 @@
+[package]
+name = "barkoul-desktop"
+version = "0.1.0"
+description = "Barkoul.ma desktop application"
+authors = ["Barkoul.ma"]
+edition = "2021"
+
+[lib]
+name = "barkoul_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }

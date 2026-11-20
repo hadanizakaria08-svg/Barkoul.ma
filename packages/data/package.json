@@ -1,0 +1,11 @@
+{
+  "name": "@barkoul/data",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@barkoul/domain": "file:../domain",
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}
