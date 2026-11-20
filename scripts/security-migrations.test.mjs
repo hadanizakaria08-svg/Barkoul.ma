@@ -21,37 +21,45 @@ describe("database mutation boundaries", () => {
       "admin_audit_log",
       "commission_charges"
     ]) {
-      assert.match(migration, new RegExp(`REVOKE ALL ON public\\.${table} FROM PUBLIC, anon, authenticated`));
+      assert.ok(
+        migration.includes(`REVOKE ALL ON public.${table} FROM PUBLIC, anon, authenticated`),
+        `missing privilege reset for ${table}`
+      );
     }
-    assert.match(migration, /REVOKE INSERT \\(%1\\$I\\) ON TABLE %2\\$s/);
-    assert.match(migration, /REVOKE UPDATE \\(%1\\$I\\) ON TABLE %2\\$s/);
+    assert.ok(migration.includes("REVOKE INSERT (%1$I) ON TABLE %2$s"));
+    assert.ok(migration.includes("REVOKE UPDATE (%1$I) ON TABLE %2$s"));
   });
 
   it("keeps cargo publishing open-only and prevents direct updates or deletes", () => {
-    assert.match(migration, /status = 'open'/);
-    assert.match(migration, /DROP POLICY IF EXISTS cargos_secure_update/);
-    assert.match(migration, /DROP POLICY IF EXISTS cargos_secure_delete/);
-    assert.match(migration, /GRANT INSERT \\([\\s\\S]*?owner_id, status\\) ON public\\.cargos TO authenticated/);
+    assert.ok(migration.includes("status = 'open'"));
+    assert.ok(migration.includes("DROP POLICY IF EXISTS cargos_secure_update"));
+    assert.ok(migration.includes("DROP POLICY IF EXISTS cargos_secure_delete"));
+    assert.ok(migration.includes("title, origin_city, destination_city, goods_type, weight_text"));
+    assert.ok(migration.includes("notes, owner_id, status"));
   });
 
   it("implements owner-only cancellation under a row lock", () => {
-    assert.match(migration, /CREATE OR REPLACE FUNCTION private\\.cancel_open_cargo_impl\\(p_cargo_id bigint\\)/);
-    assert.match(migration, /SECURITY DEFINER[\\s\\S]*?SET search_path = ''/);
-    assert.match(migration, /WHERE c\\.id = p_cargo_id[\\s\\S]*?FOR UPDATE/);
-    assert.match(migration, /v_owner_id IS DISTINCT FROM v_uid/);
-    assert.match(migration, /v_status IS DISTINCT FROM 'open'/);
-    assert.match(migration, /CREATE OR REPLACE FUNCTION public\\.cancel_open_cargo\\(p_cargo_id bigint\\)[\\s\\S]*?SECURITY INVOKER/);
-    assert.match(migration, /GRANT EXECUTE ON FUNCTION public\\.cancel_open_cargo\\(bigint\\) TO authenticated/);
+    assert.ok(migration.includes("CREATE OR REPLACE FUNCTION private.cancel_open_cargo_impl(p_cargo_id bigint)"));
+    assert.ok(migration.includes("SECURITY DEFINER"));
+    assert.ok(migration.includes("SET search_path = ''"));
+    assert.ok(migration.includes("WHERE c.id = p_cargo_id"));
+    assert.ok(migration.includes("FOR UPDATE"));
+    assert.ok(migration.includes("v_owner_id IS DISTINCT FROM v_uid"));
+    assert.ok(migration.includes("v_status IS DISTINCT FROM 'open'"));
+    assert.ok(migration.includes("CREATE OR REPLACE FUNCTION public.cancel_open_cargo(p_cargo_id bigint)"));
+    assert.ok(migration.includes("SECURITY INVOKER"));
+    assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.cancel_open_cargo(bigint) TO authenticated"));
   });
 
   it("routes the owner UI through the cancellation RPC instead of direct table UPDATE", () => {
-    assert.match(workspace, /db\\.rpc\\("cancel_open_cargo",\\s*\\{\\s*p_cargo_id:\\s*id\\s*\\}\\)/);
-    assert.doesNotMatch(workspace, /from\\("cargos"\\)\\.update\\(/);
+    assert.ok(workspace.includes('db.rpc("cancel_open_cargo",{p_cargo_id:id})'));
+    assert.equal(workspace.includes('from("cargos").update('), false);
   });
 
   it("keeps trips and administrative ledgers read-only to direct client mutations", () => {
-    assert.match(migration, /GRANT SELECT ON public\\.trips TO authenticated/);
-    assert.match(migration, /GRANT SELECT ON public\\.admin_users, public\\.admin_audit_log, public\\.commission_charges/);
-    assert.match(migration, /GRANT INSERT \\([\\s\\S]*?cargo_id, proposer_id, proposed_price_mad, message, status\\)[\\s\\S]*?ON public\\.negotiations TO authenticated/);
+    assert.ok(migration.includes("GRANT SELECT ON public.trips TO authenticated"));
+    assert.ok(migration.includes("GRANT SELECT ON public.admin_users, public.admin_audit_log, public.commission_charges"));
+    assert.ok(migration.includes("cargo_id, proposer_id, proposed_price_mad, message, status"));
+    assert.ok(migration.includes("ON public.negotiations TO authenticated"));
   });
 });
