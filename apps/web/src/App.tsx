@@ -54,7 +54,7 @@ export default function App() {
     setProfileLoading(true);
     setProfileError("");
     try {
-      setProfileRole(await getCurrentProfileRole());
+      setProfileRole(await getCurrentProfileRole(user.id));
     } catch {
       setProfileRole(null);
       setProfileError("تعذر التحقق من صلاحيات الحساب. حدّث الصفحة وحاول مجدداً.");
@@ -77,6 +77,10 @@ export default function App() {
       if (alive) setAuthMessage("تعذر الاتصال بخدمة تسجيل الدخول. تحقق من الاتصال ثم أعد المحاولة.");
     });
     const {data:{subscription}} = db.auth.onAuthStateChange((_event, session) => {
+      // Clear any previous account's role before rendering the next auth state.
+      setProfileRole(null);
+      setProfileError("");
+      setProfileLoading(Boolean(session?.user));
       setUser(session?.user ? {id:session.user.id,email:session.user.email} : null);
     });
     refresh();
@@ -94,7 +98,7 @@ export default function App() {
 
     setProfileLoading(true);
     setProfileError("");
-    getCurrentProfileRole()
+    getCurrentProfileRole(user.id)
       .then((role) => { if (active) setProfileRole(role); })
       .catch(() => {
         if (active) {
