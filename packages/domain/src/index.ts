@@ -42,6 +42,32 @@ export interface CargoDraft {
   notes: string | null;
 }
 
+export interface CargoInsertPayload extends CargoDraft {
+  owner_id: string;
+  status: "open";
+}
+
+/**
+ * Build an allow-listed insert payload. Never spread caller-controlled objects
+ * into a database write: extra runtime properties must not override ownership,
+ * status, IDs, or database-managed fields.
+ */
+export function buildCargoInsertPayload(draft: CargoDraft, ownerId: string): CargoInsertPayload {
+  return {
+    title: draft.title,
+    origin_city: draft.origin_city,
+    destination_city: draft.destination_city,
+    goods_type: draft.goods_type,
+    weight_text: draft.weight_text,
+    truck_type: draft.truck_type,
+    loading_date: draft.loading_date,
+    offered_price_mad: draft.offered_price_mad,
+    notes: draft.notes,
+    owner_id: ownerId,
+    status: "open"
+  };
+}
+
 export function normalizeSearch(value: string): string {
   return value.trim().toLocaleLowerCase("ar");
 }
