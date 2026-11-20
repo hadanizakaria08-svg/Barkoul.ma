@@ -1,0 +1,110 @@
+name: Native platform build checks
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-builds-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-debug:
+    name: Android debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Build web assets
+        run: npm run build --workspace @barkoul/web
+        env:
+          VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - name: Generate Android project and sync Capacitor
+        run: |
+          npx cap add android
+          npx cap sync android
+      - name: Build debug APK
+        run: |
+          cd android
+          ./gradlew --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: barkoul-android-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  ios-simulator:
+    name: iOS simulator build (unsigned)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Build web assets
+        run: npm run build --workspace @barkoul/web
+        env:
+          VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - name: Generate iOS project and sync Capacitor
+        run: |
+          npx cap add ios
+          npx cap sync ios
+      - name: Build unsigned iOS Simulator app
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+      - name: Package simulator app
+        run: |
+          cd ios/App/build/Build/Products/Debug-iphonesimulator
+          zip -r "$GITHUB_WORKSPACE/barkoul-ios-simulator.zip" App.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: barkoul-ios-simulator-unsigned
+          path: barkoul-ios-simulator.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  windows-portable:
+    name: Windows portable executable (unsigned)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Build web assets
+        run: npm run build --workspace @barkoul/web
+        env:
+          VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - name: Build Tauri executable without installer bundling
+        run: npm run build --workspace @barkoul/desktop -- --no-bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: barkoul-windows-portable-unsigned
+          path: apps/desktop/src-tauri/target/release/*.exe
+          if-no-files-found: error
+          retention-days: 14
