@@ -123,3 +123,34 @@
 /* WCAG: override the legacy brand accent on the large wordmark; keep .ma gold. */
 .reference-brand .brand-word{color:#fff}
 .reference-brand .brand-word>span{color:#ffd34d}
+
+
+/* Photo-led homepage matching the user's approved Moroccan reference */
+.reference-hero{padding:0 0 28px;background:linear-gradient(180deg,#70c8ff,#eaf8ff)}
+.reference-headline{padding:28px 14px 0}
+.reference-headline h1{color:#073e99;text-shadow:0 1px 0 #fff}
+.reference-landscape{height:clamp(250px,43vw,510px);margin:0 0 0;overflow:hidden;background:#9bd8ff}
+.reference-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 58%}
+.reference-photo-shade{position:absolute;inset:0;background:linear-gradient(180deg,#d8f3ff18 0%,transparent 55%,#063d7a35 100%)}
+.reference-landscape .morocco-mark{z-index:3;position:absolute;right:3%;top:4%;width:clamp(105px,17vw,210px);height:88%;filter:drop-shadow(0 5px 8px #173d6855)}
+.reference-actions{position:relative;z-index:4;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 clamp(14px,3vw,30px)}
+.reference-action{min-height:82px;display:flex;align-items:center;justify-content:center;gap:15px;border:3px solid #fff;border-radius:24px;color:#fff;font-size:clamp(22px,3vw,36px);font-weight:950;box-shadow:0 6px 12px #123b7040}
+.publish-action{background:linear-gradient(135deg,#19bd4a,#079b37)}
+.search-action{background:linear-gradient(135deg,#1686ef,#0649bd)}
+.reference-action span{font-size:1.4em}
+.reference-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px clamp(14px,3vw,30px) 34px}
+.reference-feature{overflow:hidden;border:2px solid #76bde9;border-radius:23px;background:#f5fbff;box-shadow:0 5px 12px #16518a20}
+.reference-feature-art{height:clamp(120px,19vw,205px);overflow:hidden;background:#dcefff}
+.reference-feature-art img{width:100%;height:100%;object-fit:cover;display:block}
+.reference-feature-copy{position:relative;display:flex;flex-direction:column;gap:5px;text-align:center;padding:13px 7px 18px;color:#073e86}
+.reference-feature-copy strong{font-size:clamp(16px,2.2vw,26px);font-weight:950}
+.reference-feature-copy span{font-size:clamp(13px,1.7vw,20px);font-weight:800}
+.reference-feature-copy b{display:none}
+.reference-footer{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;min-height:180px;padding:28px 16px 34px;background:linear-gradient(165deg,#0872d5 0%,#063b91 58%,#062a70 100%);color:white;text-align:center;border-radius:55% 55% 0 0 / 13% 13% 0 0}
+.reference-footer:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#4db6ff70,transparent 55%);pointer-events:none}
+.reference-footer strong{font-size:clamp(16px,2vw,23px);z-index:1}
+.social-links{display:flex;align-items:center;gap:17px;z-index:1}
+.social-links a{width:54px;height:54px;display:grid;place-items:center;border-radius:14px;background:#fff;color:#1265b7;font-size:32px;font-weight:950;box-shadow:0 3px 8px #001c4c55}
+.social-links a:first-child{background:#13bd63;color:white}
+.social-links a:last-child{background:#050505;color:white}
+@media(max-width:650px){.reference-topbar{min-height:80px}.brand-truck{width:75px;height:48px}.reference-brand{gap:7px}.brand-word{font-size:29px}.reference-topbar nav{gap:9px}.reference-topbar nav>a:not(.account-entry){font-size:12px}.reference-topbar .account-entry{padding:8px 10px;font-size:14px}.reference-headline{padding-top:20px}.reference-headline h1{font-size:clamp(25px,7vw,38px)}.reference-landscape{height:clamp(245px,72vw,360px)}.reference-actions{gap:9px;margin-top:0}.reference-action{min-height:66px;border-radius:17px;font-size:clamp(16px,4.4vw,23px);gap:7px}.reference-features{gap:8px;margin-top:18px}.reference-feature{border-radius:16px}.reference-feature-art{height:clamp(100px,28vw,145px)}.reference-feature-copy{padding:10px 4px 13px}.reference-feature-copy strong{font-size:clamp(13px,3.5vw,18px)}.reference-feature-copy span{font-size:clamp(11px,2.8vw,15px)}.reference-footer{min-height:155px;gap:17px}.social-links{gap:11px}.social-links a{width:46px;height:46px;font-size:27px}}
