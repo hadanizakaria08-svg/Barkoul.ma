@@ -341,3 +341,10 @@ body{background:#F4F7FB;color:#26364A}
 .form-message{background:#EAF3FC;color:#123B68}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline-color:#F5A623}
 @media(forced-colors:active){.home-cta,.button{border:1px solid ButtonText}}
+
+
+/* Real photography only in homepage cargo categories. */
+.category-grid a{overflow:hidden;padding:8px 7px;}
+.category-grid a img{display:block;width:100%;height:76px;object-fit:cover;border-radius:9px;}
+.category-grid a strong{font-size:13px;}
+@media(max-width:560px){.category-grid a img{height:clamp(54px,18vw,76px)}.category-grid a strong{font-size:11px}}

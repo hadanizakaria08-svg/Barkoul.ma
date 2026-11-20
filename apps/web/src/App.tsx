@@ -15,12 +15,7 @@ const todayLocal = () => {
 };
 
 function BrandTruck() {
-  return <svg className="brand-truck" viewBox="0 0 150 82" role="img" aria-label="شاحنة Barkoul">
-    <path d="M8 29 95 8 95 60 8 60Z M95 24 122 24 143 43 143 60 95 60Z" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="round"/>
-    <path d="M108 31h14l12 13h-26Z" fill="none" stroke="currentColor" strokeWidth="4"/>
-    <path d="M8 39 78 22 M8 50 78 34 M8 60 78 46" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
-    <circle cx="38" cy="65" r="10" fill="#073d91" stroke="currentColor" strokeWidth="5"/><circle cx="112" cy="65" r="10" fill="#073d91" stroke="currentColor" strokeWidth="5"/>
-  </svg>;
+  return null;
 }
 
 function MoroccoMark() {
@@ -260,26 +255,26 @@ export default function App() {
           </div>
         </div>
         <div className="home-hero-visual">
-          <img className="home-hero-photo" src="https://images.unsplash.com/photo-1778341665926-521de6227e0b?auto=format&fit=crop&w=1600&q=85" alt="شاحنة نقل بضائع تسير على الطريق السريع" fetchPriority="high" decoding="async"/>
+          <img className="home-hero-photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1600&q=85" alt="شاحنة نقل بضائع تسير على الطريق السريع" fetchPriority="high" decoding="async"/>
           <div className="home-photo-shade" aria-hidden="true"></div>
           <div className="home-photo-caption"><span>نقل البضائع عبر المغرب</span><strong>طريق أوضح. فرص أكثر.</strong></div>
           <div className="home-map-card"><MoroccoMark/><div><strong>من الشمال إلى الجنوب</strong><span>اربط شحنتك بالناقل المناسب</span></div></div>
         </div>
       </section>
       <section className="home-features" aria-label="خدمات Barkoul">
-        <FeatureCard image="https://images.unsplash.com/photo-1778341665926-521de6227e0b?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href="#publish"/>
-        <FeatureCard image="https://images.unsplash.com/photo-1762232621678-3d1755f78685?auto=format&fit=crop&w=720&q=80" alt="حافلة تسير على طريق في المغرب" title="للسائقين والناقلين" subtitle="اكتشف فرص النقل والرحلات" href="#search"/>
+        <FeatureCard image="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href="#publish"/>
+        <FeatureCard image="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=720&q=80" alt="حافلة تسير على طريق في المغرب" title="للسائقين والناقلين" subtitle="اكتشف فرص النقل والرحلات" href="#search"/>
         <FeatureCard title="تغطية وطنية" subtitle="من طنجة إلى مدن الجنوب" href="#search" map/>
       </section>
       <section className="cargo-categories" aria-label="أنواع الشحنات">
         <div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>ماذا تريد أن تنقل؟</h2></div>
         <div className="category-grid">
-          <a href="#publish"><span aria-hidden="true">🥬</span><strong>خضر وفواكه</strong></a>
-          <a href="#publish"><span aria-hidden="true">🧱</span><strong>مواد البناء</strong></a>
-          <a href="#publish"><span aria-hidden="true">📦</span><strong>بضائع عامة</strong></a>
-          <a href="#publish"><span aria-hidden="true">🛋️</span><strong>أثاث وأجهزة</strong></a>
-          <a href="#publish"><span aria-hidden="true">🍎</span><strong>مواد غذائية</strong></a>
-          <a href="#publish"><span aria-hidden="true">❄️</span><strong>شاحنة تبريد</strong></a>
+          <a href="#publish"><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="خضر وفواكه طازجة" loading="lazy"/><strong>خضر وفواكه</strong></a>
+          <a href="#publish"><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80" alt="مواد البناء" loading="lazy"/><strong>مواد البناء</strong></a>
+          <a href="#publish"><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80" alt="طرود وبضائع" loading="lazy"/><strong>بضائع عامة</strong></a>
+          <a href="#publish"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" alt="أثاث وأجهزة منزلية" loading="lazy"/><strong>أثاث وأجهزة</strong></a>
+          <a href="#publish"><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="مواد غذائية" loading="lazy"/><strong>مواد غذائية</strong></a>
+          <a href="#publish"><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="شاحنة نقل مبرد" loading="lazy"/><strong>شاحنة تبريد</strong></a>
         </div>
       </section>
 
