@@ -26,13 +26,17 @@ export async function listOpenCargos(): Promise<Cargo[]> {
   return (data ?? []) as Cargo[];
 }
 
-export async function getCurrentProfileRole(): Promise<ProfileRole | null> {
+export async function getCurrentProfileRole(expectedUserId?: string): Promise<ProfileRole | null> {
   const db = getSupabase();
   if (!db) throw new Error("لم يتم إعداد اتصال قاعدة البيانات بعد.");
 
+  // Resolve identity from Supabase Auth; never trust a caller-supplied role or user ID.
   const { data: authData, error: authError } = await db.auth.getUser();
   if (authError) throw authError;
   if (!authData.user) return null;
+  if (expectedUserId && authData.user.id !== expectedUserId) {
+    throw new Error("The authenticated session changed during profile authorization.");
+  }
 
   const { data, error } = await db.from("profiles")
     .select("role")
@@ -40,7 +44,8 @@ export async function getCurrentProfileRole(): Promise<ProfileRole | null> {
     .maybeSingle();
   if (error) throw error;
 
-  const role = data?.role;
+  // Fail closed for missing, malformed, or unknown role values.
+  const role: unknown = data?.role;
   return role === "user" || role === "driver" || role === "owner" || role === "admin"
     ? role
     : null;
