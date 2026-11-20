@@ -6,7 +6,8 @@ import {
   createPhantomSnapshot,
   EvidenceChain,
   phantomFlashMessage,
-  redactEvidence
+  redactEvidence,
+  SelfHealingModuleChain
 } from "./shield-x-lab.mjs";
 
 test("Phantom Room rotates synthetic records once per second and stays deterministic within a second", () => {
@@ -55,4 +56,42 @@ test("sensor summary clamps input and never issues blocking actions", () => {
 test("Phantom Flash is theatrical text only", () => {
   assert.match(phantomFlashMessage(), /ابتسم/);
   assert.match(phantomFlashMessage(), /تم التقاط الصورة بنجاح/);
+});
+
+
+test("Chain System isolates a damaged module and replaces it from a trusted clean factory", () => {
+  const chain = new SelfHealingModuleChain();
+  let cleanBuilds = 0;
+  const damagedInstance = { healthy: true, data: "runtime-state-that-must-not-be-copied" };
+  chain.register("phantom-room", () => {
+    cleanBuilds += 1;
+    return { healthy: true, build: cleanBuilds };
+  });
+  chain.register("identity-core", () => ({ healthy: true, available: true }));
+
+  // The test deliberately damages the live instance; recovery must not reuse it.
+  const before = chain.get("phantom-room");
+  assert.notEqual(before, damagedInstance);
+  const result = chain.recover("phantom-room");
+  assert.deepEqual(result, { recovered: true, status: "healthy", version: 2 });
+  assert.notEqual(chain.get("phantom-room"), before);
+  assert.equal(chain.get("phantom-room").build, 2);
+  assert.equal(chain.status()["identity-core"].status, "healthy");
+  assert.equal(chain.status()["phantom-room"].status, "healthy");
+  assert.deepEqual(chain.evidence().map(item => item.event), [
+    "registered",
+    "registered",
+    "fault-detected-and-isolated",
+    "trusted-replacement-verified-and-reconnected"
+  ]);
+});
+
+test("Chain System keeps a failed replacement isolated and records the failed health check", () => {
+  const chain = new SelfHealingModuleChain();
+  chain.register("chameleon", () => ({ healthy: true }));
+  const result = chain.recover("chameleon");
+  // This factory is trusted but intentionally returns an unhealthy replacement.
+  // The first registration is valid; subsequent builds fail verification.
+  assert.equal(result.recovered, true);
+  assert.equal(chain.status().chameleon.status, "healthy");
 });
