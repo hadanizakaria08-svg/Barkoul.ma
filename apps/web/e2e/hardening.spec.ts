@@ -91,3 +91,12 @@ test("meets automated WCAG 2.2 AA checks across the public page", async ({ page 
     .analyze();
   expect(results.violations).toEqual([]);
 });
+
+
+test("admin gate login link returns to the real account form", async ({ page }) => {
+  await page.goto("/#admin");
+  await page.getByRole("link", { name: "تسجيل الدخول" }).click();
+  await expect(page).toHaveURL(/#account$/);
+  await expect(page.locator("#account")).toBeVisible();
+  await expect(page.locator("#account").getByLabel("البريد الإلكتروني")).toBeVisible();
+});
