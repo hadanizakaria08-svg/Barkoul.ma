@@ -235,7 +235,7 @@ export default function App() {
         <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
         <nav aria-label="التنقل">
           <a className="home-nav-link" href="./">الصفحة الرئيسية</a>
-          <a className="account-entry" href="#publish-account">{user ? "حسابي" : "دخول الحساب"}</a>
+          <a className="account-entry" href={user ? "#publish" : "#publish-account"}>{user ? "حسابي" : "دخول الحساب"}</a>
         </nav>
       </header>
       <main className="publish-page">
@@ -304,7 +304,7 @@ export default function App() {
         <a className="home-nav-link" href="#search">الشحنات</a>
         <a className="home-nav-link" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>نشر شحنة</a>
         {user && profileRole === "admin" && <a className="home-nav-link" href="#admin">غرفة المدير</a>}
-        <a className="account-entry" href="?page=publish#publish-account" aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
+        <a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"} aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
         {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}
       </nav>
     </header>
