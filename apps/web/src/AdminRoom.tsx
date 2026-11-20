@@ -14,6 +14,7 @@ interface AdminRoomProps {
 interface DriverDocument { id:number; driver_id:string; document_type:string; storage_path:string; review_status:"pending"|"verified"|"rejected"; uploaded_at:string; signed_url?:string; }
 interface AuditEntry { id:number; admin_id:string|null; action:string; target_table:string|null; target_id:string|null; created_at:string; }
 interface AdminCargo { id:number; title:string; origin_city:string; destination_city:string; status:string; created_at:string; }
+interface CommissionCharge {id:number;trip_id:number;payer_id:string;payer_role:"owner"|"driver";amount_mad:number;status:"due"|"paid"|"waived";payment_method:string|null;payment_reference:string|null;created_at:string;}
 interface RoleRequest {
   id: number;
   user_id: string;
@@ -42,6 +43,8 @@ export default function AdminRoom({
   const [documents,setDocuments]=useState<DriverDocument[]>([]);
   const [audit,setAudit]=useState<AuditEntry[]>([]);
   const [adminCargos,setAdminCargos]=useState<AdminCargo[]>([]);
+  const [charges,setCharges]=useState<CommissionCharge[]>([]);
+  const [paymentReference,setPaymentReference]=useState("");
   const [adminDataError,setAdminDataError]=useState("");
   const homeLink = <a className="button button-light" href="#">العودة إلى المنصة</a>;
   const loadRequests = useCallback(async () => {
@@ -63,19 +66,29 @@ export default function AdminRoom({
     const db=getSupabase(); if(!db||profileRole!=="admin")return;
     setAdminDataError("");
     try {
-      const [docsRes,auditRes,cargoRes]=await Promise.all([
+      const [docsRes,auditRes,cargoRes,chargesRes]=await Promise.all([
         db.from("driver_documents").select("id,driver_id,document_type,storage_path,review_status,uploaded_at").order("uploaded_at",{ascending:false}).limit(100),
         db.from("admin_audit_log").select("id,admin_id,action,target_table,target_id,created_at").order("created_at",{ascending:false}).limit(50),
-        db.from("cargos").select("id,title,origin_city,destination_city,status,created_at").order("created_at",{ascending:false}).limit(100)
+        db.from("cargos").select("id,title,origin_city,destination_city,status,created_at").order("created_at",{ascending:false}).limit(100),
+        db.from("commission_charges").select("id,trip_id,payer_id,payer_role,amount_mad,status,payment_method,payment_reference,created_at").order("created_at",{ascending:false}).limit(100)
       ]);
-      if(docsRes.error||auditRes.error||cargoRes.error)throw new Error("Admin data read failed");
+      if(docsRes.error||auditRes.error||cargoRes.error||chargesRes.error)throw new Error("Admin data read failed");
       const signed=await Promise.all((docsRes.data??[]).map(async(d:any)=>{
         const {data}=await db.storage.from("driver-documents").createSignedUrl(d.storage_path,300);
         return {...d,signed_url:data?.signedUrl};
       }));
-      setDocuments(signed as DriverDocument[]);setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);
+      setDocuments(signed as DriverDocument[]);setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);setCharges((chargesRes.data??[]) as CommissionCharge[]);
     } catch {setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");}
   },[profileRole]);
+
+  async function recordCommission(id:number,method:"cash"|"electronic"){
+    const db=getSupabase();if(!db||profileRole!=="admin")return;
+    if(method==="electronic"&&!paymentReference.trim()){setActionMessage("أدخل مرجع العملية الإلكترونية بعد التحقق منها.");return;}
+    setBusyId(id);setActionMessage("");
+    try{const {error}=await db.rpc("admin_record_commission_payment",{p_charge_id:id,p_method:method,p_reference:method==="electronic"?paymentReference.trim():null});
+      if(error)throw error;setPaymentReference("");setActionMessage("تم تسجيل التحصيل بعد التحقق.");await loadAdminData();
+    }catch{setActionMessage("تعذر تسجيل التحصيل. تحقق من حالة العمولة والمرجع.");}finally{setBusyId(null);}
+  }
 
   async function reviewDocument(id:number,status:"verified"|"rejected"){
     const db=getSupabase();if(!db||profileRole!=="admin")return;
@@ -179,6 +192,18 @@ export default function AdminRoom({
         {adminCargos.length===0?<p className="empty">لا توجد شحنات.</p>:<div className="admin-grid">{adminCargos.map(c=><article className="admin-card" key={c.id}>
           <h2>{c.title}</h2><p>{c.origin_city} ← {c.destination_city}</p><p>الحالة: {c.status} · #{c.id}</p>
         </article>)}</div>}
+      </section>
+      <section className="admin-section">
+      <section className="admin-section">
+        <div className="section-heading"><div><p className="eyebrow">العمولات والتحصيل</p><h2>مستحقات النقل</h2></div></div>
+        <p className="muted">تُنشأ عمولة 10 دراهم على صاحب البضاعة و20 درهماً على السائق بعد تأكيد التسليم. سجّل التحصيل فقط بعد استلام النقد أو التحقق من الدفع الإلكتروني خارج المنصة.</p>
+        {charges.length===0?<p className="empty">لا توجد عمولات مسجلة حالياً.</p>:<div className="admin-grid">{charges.map(ch=><article className="admin-card" key={ch.id}>
+          <h2>{Number(ch.amount_mad).toLocaleString("ar-MA")} درهم</h2><p>الرحلة #{ch.trip_id} · {ch.payer_role==="owner"?"صاحب البضاعة":"السائق"}</p>
+          <p>الحالة: {ch.status==="due"?"مستحقة":ch.status==="paid"?"تم التحصيل":"معفاة"}</p><p className="muted">الحساب: <bdi>{ch.payer_id}</bdi></p>
+          {ch.status==="due"&&<div className="hero-actions"><button className="button button-primary" disabled={busyId!==null} onClick={()=>void recordCommission(ch.id,"cash")}>تسجيل نقدي</button>
+            <button className="button button-outline" disabled={busyId!==null} onClick={()=>void recordCommission(ch.id,"electronic")}>تسجيل إلكتروني</button></div>}
+        </article>)}</div>}
+        <label>مرجع الدفع الإلكتروني<input value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} maxLength={120} placeholder="أدخل المرجع بعد التحقق من التحويل"/></label>
       </section>
       <section className="admin-section">
         <div className="section-heading"><div><p className="eyebrow">الأمان والمساءلة</p><h2>سجل التدقيق</h2></div></div>
