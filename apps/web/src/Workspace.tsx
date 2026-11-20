@@ -58,8 +58,11 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
   useEffect(()=>{void load().catch(()=>setMessage("تعذر تحميل مساحة حسابك. حاول تحديث الصفحة."));},[load]);
 
   async function saveProfile(e:FormEvent){
-    e.preventDefault(); if(!db)return; setBusy(true); setMessage("");
-    try{const {error}=await db.from("profiles").update({full_name:profile.full_name.trim(),phone:profile.phone.trim()||null}).eq("id",userId);
+    e.preventDefault(); if(!db)return;
+    const phone=profile.phone.trim();
+    if(phone && !/^\\+?[0-9\\s()-]{8,24}$/.test(phone)){setMessage("أدخل رقم هاتف صالحاً مع رمز الدولة عند الحاجة.");return;}
+    setBusy(true); setMessage("");
+    try{const {error}=await db.from("profiles").update({full_name:profile.full_name.trim(),phone:phone||null}).eq("id",userId);
       if(error)throw error; setMessage("تم حفظ بيانات الاتصال. لن تظهر للطرف الآخر إلا بعد الاتفاق على رحلة.");
     }catch{setMessage("تعذر حفظ البيانات. تحقق من رقم الهاتف ثم أعد المحاولة.");}finally{setBusy(false);}
   }
