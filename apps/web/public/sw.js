@@ -1,4 +1,31 @@
-const CACHE_NAME = "barkoul-static-v2";
+const CACHE_NAME = "barkoul-static-v3";
+
+const STATIC_ASSET_PATHS = new Set(
+  ["assets/app.js", "assets/app.css", "icon.svg", "manifest.webmanifest"]
+    .map((path) => new URL(path, self.registration.scope).pathname)
+);
+
+function isPublicStaticAsset(url) {
+  return url.origin === self.location.origin && STATIC_ASSET_PATHS.has(url.pathname);
+}
+
+function isCacheablePublicResponse(response, url) {
+  if (!response.ok || response.type !== "basic") return false;
+  const cacheControl = response.headers?.get("Cache-Control")?.toLowerCase() || "";
+  const vary = response.headers?.get("Vary")?.trim() || "";
+  if (/\b(?:private|no-store|no-cache)\b/.test(cacheControl)) return false;
+  if (vary === "*") return false;
+  if (response.headers?.get("Set-Cookie")) return false;
+
+  const contentType = response.headers?.get("Content-Type")?.toLowerCase() || "";
+  if (url.pathname.endsWith(".js")) return /(?:java|ecma)script/.test(contentType);
+  if (url.pathname.endsWith(".css")) return contentType.includes("text/css");
+  if (url.pathname.endsWith(".svg")) return contentType.includes("image/svg+xml");
+  if (url.pathname.endsWith(".webmanifest")) {
+    return contentType.includes("json") || contentType.includes("manifest");
+  }
+  return false;
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -38,23 +65,23 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (/\.(?:js|css|svg|png|ico|woff2)$/.test(url.pathname)) {
-    // Bundle filenames are stable (app.js/app.css), so network-first prevents stale releases.
-    // The last known good asset remains available when the network is unavailable.
-    event.respondWith(
-      fetch(request).then(async (response) => {
-        if (response.ok && response.type === "basic") {
-          try {
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put(request, response.clone());
-          } catch {
-            // Storage failures must not discard a successful network response.
-          }
+  // Only the app's known public build assets are eligible for offline caching.
+  // Arbitrary same-origin .js/.css endpoints may contain personalized responses.
+  if (!isPublicStaticAsset(url)) return;
+
+  event.respondWith(
+    fetch(request).then(async (response) => {
+      if (isCacheablePublicResponse(response, url)) {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, response.clone());
+        } catch {
+          // Storage failures must not discard a successful network response.
         }
-        return response;
-      }).catch(async () => {
-        return (await caches.match(request)) || Response.error();
-      })
-    );
-  }
+      }
+      return response;
+    }).catch(async () => {
+      return (await caches.match(request)) || Response.error();
+    })
+  );
 });
