@@ -290,6 +290,17 @@ export default function App() {
         <FeatureCard kind="fleet" title="الشحنات المتاحة" subtitle="في جميع المدن" href="#search"/>
         <FeatureCard kind="driver" title="البحث عن شاحنات" subtitle="بسرعة وأمان" href="#search"/>
       </section>
+      <section className="cargo-categories" aria-label="أنواع الشحنات">
+        <div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>ماذا تريد أن تنقل؟</h2></div>
+        <div className="category-grid">
+          <a href="#publish"><span aria-hidden="true">🥬</span><strong>خضر وفواكه</strong></a>
+          <a href="#publish"><span aria-hidden="true">🧱</span><strong>مواد البناء</strong></a>
+          <a href="#publish"><span aria-hidden="true">📦</span><strong>بضائع عامة</strong></a>
+          <a href="#publish"><span aria-hidden="true">🛋️</span><strong>أثاث وأجهزة</strong></a>
+          <a href="#publish"><span aria-hidden="true">🍎</span><strong>مواد غذائية</strong></a>
+          <a href="#publish"><span aria-hidden="true">❄️</span><strong>شاحنة تبريد</strong></a>
+        </div>
+      </section>
 
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
 
