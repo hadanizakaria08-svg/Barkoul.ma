@@ -62,16 +62,14 @@ test("Phantom Flash is theatrical text only", () => {
 test("Chain System isolates a damaged module and replaces it from a trusted clean factory", () => {
   const chain = new SelfHealingModuleChain();
   let cleanBuilds = 0;
-  const damagedInstance = { healthy: true, data: "runtime-state-that-must-not-be-copied" };
   chain.register("phantom-room", () => {
     cleanBuilds += 1;
     return { healthy: true, build: cleanBuilds };
   });
   chain.register("identity-core", () => ({ healthy: true, available: true }));
 
-  // The test deliberately damages the live instance; recovery must not reuse it.
+  // Recovery must construct a new instance rather than reuse the prior runtime.
   const before = chain.get("phantom-room");
-  assert.notEqual(before, damagedInstance);
   const result = chain.recover("phantom-room");
   assert.deepEqual(result, { recovered: true, status: "healthy", version: 2 });
   assert.notEqual(chain.get("phantom-room"), before);
