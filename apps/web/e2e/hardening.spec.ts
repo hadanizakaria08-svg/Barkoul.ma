@@ -29,7 +29,7 @@ test("keeps the signed-out administrator gate usable on narrow screens", async (
 });
 
 test("allows switching between login, signup, and password recovery views", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?page=publish#publish-account");
   await page.getByRole("button", { name: "ليس لديك حساب؟ أنشئ حساباً" }).click();
   await expect(page.getByRole("heading", { name: "أنشئ حسابك" })).toBeVisible();
   await expect(page.getByLabel("الاسم الكامل")).toBeVisible();
@@ -49,8 +49,10 @@ test("allows switching between login, signup, and password recovery views", asyn
 test("keeps cargo publication fields private until a user signs in", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#publish")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "#account");
-  await expect(page.locator("#account").getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "?page=publish#publish-account");
+  await page.getByRole("link", { name: "أنشر شحنة" }).click();
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.locator("#publish")).toHaveCount(0);
 });
 
 test("accepts Arabic search input and truck category selection without navigation errors", async ({ page }) => {
@@ -67,17 +69,19 @@ test("accepts Arabic search input and truck category selection without navigatio
   await expect(page.getByRole("heading", { name: "الشحنات المتاحة" })).toBeVisible();
 });
 
-test("keeps navigation links connected to their intended page sections", async ({ page }) => {
+test("keeps navigation links connected to their intended pages", async ({ page }) => {
   await page.goto("/");
-  for (const [label, target] of [
-    ["الشحنات", "#search"],
-    ["نشر شحنة", "#account"],
-    ["دخول / حساب جديد", "#account"]
-  ]) {
-    await page.getByRole("link", { name: label, exact: true }).first().click();
-    await expect(page.locator(target)).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(`\\${target}$`));
-  }
+  await page.getByRole("link", { name: "الشحنات", exact: true }).first().click();
+  await expect(page.locator("#search")).toBeVisible();
+  await expect(page).toHaveURL(/#search$/);
+  await page.goto("/");
+  await page.getByRole("link", { name: "نشر شحنة", exact: true }).first().click();
+  await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
+  await page.goto("/");
+  await page.getByRole("link", { name: "دخول / حساب جديد", exact: true }).click();
+  await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
 });
 
 test("meets automated WCAG 2.2 AA checks across the public page", async ({ page }) => {
@@ -92,7 +96,6 @@ test("meets automated WCAG 2.2 AA checks across the public page", async ({ page 
 test("admin gate login link returns to the real account form", async ({ page }) => {
   await page.goto("/#admin");
   await page.getByRole("link", { name: "تسجيل الدخول" }).click();
-  await expect(page).toHaveURL(/#account$/);
-  await expect(page.locator("#account")).toBeVisible();
-  await expect(page.locator("#account").getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
 });
