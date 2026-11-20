@@ -5,12 +5,16 @@ import { describe, it } from "node:test";
 
 const source = await readFile(new URL("../apps/web/public/sw.js", import.meta.url), "utf8");
 
-function basicResponse(body) {
+function basicResponse(body, headers = {
+  "Content-Type": "text/javascript",
+  "Cache-Control": "public, max-age=60"
+}) {
   return {
     ok: true,
     type: "basic",
+    headers: { get(name) { return headers[name] ?? headers[name.toLowerCase()] ?? null; } },
     async text() { return body; },
-    clone() { return basicResponse(body); }
+    clone() { return basicResponse(body, headers); }
   };
 }
 
@@ -57,7 +61,7 @@ async function dispatchFetch(worker, request) {
 }
 
 describe("Barkoul service worker cache behavior", () => {
-  it("refreshes stable asset URLs from the network instead of serving stale cache", async () => {
+  it("refreshes the known public app bundle from the network", async () => {
     const url = "https://barkoul.test/app/assets/app.js";
     const worker = bootWorker({
       fetchImpl: async () => basicResponse("fresh bundle"),
@@ -68,7 +72,7 @@ describe("Barkoul service worker cache behavior", () => {
     assert.equal(await (await worker.caches.match(url)).text(), "fresh bundle");
   });
 
-  it("falls back to the last cached asset when the network is offline", async () => {
+  it("falls back to the last cached public asset when the network is offline", async () => {
     const url = "https://barkoul.test/app/assets/app.js";
     const worker = bootWorker({
       fetchImpl: async () => { throw new TypeError("offline"); },
@@ -78,7 +82,7 @@ describe("Barkoul service worker cache behavior", () => {
     assert.equal(await response.text(), "last known bundle");
   });
 
-  it("returns a successful network asset even when browser cache storage fails", async () => {
+  it("returns a successful network asset when browser cache storage fails", async () => {
     const url = "https://barkoul.test/app/assets/app.js";
     const worker = bootWorker({
       fetchImpl: async () => basicResponse("network response"),
@@ -88,7 +92,34 @@ describe("Barkoul service worker cache behavior", () => {
     assert.equal(await response.text(), "network response");
   });
 
-  it("uses the cached app shell for offline navigation without caching auth callback URLs", async () => {
+  it("does not cache responses marked private or no-store", async () => {
+    for (const cacheControl of ["private, max-age=60", "no-store"]) {
+      const url = "https://barkoul.test/app/assets/app.js";
+      const worker = bootWorker({
+        fetchImpl: async () => basicResponse("personalized response", {
+          "Content-Type": "text/javascript",
+          "Cache-Control": cacheControl
+        })
+      });
+      const response = await dispatchFetch(worker, { method: "GET", url, mode: "cors" });
+      assert.equal(await response.text(), "personalized response");
+      assert.equal(worker.entries.has(url), false);
+    }
+  });
+
+  it("does not intercept arbitrary same-origin script endpoints", async () => {
+    let fetchCalls = 0;
+    const worker = bootWorker({ fetchImpl: async () => { fetchCalls += 1; return basicResponse("private"); } });
+    const response = await dispatchFetch(worker, {
+      method: "GET",
+      url: "https://barkoul.test/app/account/session.js",
+      mode: "cors"
+    });
+    assert.equal(response, undefined);
+    assert.equal(fetchCalls, 0);
+  });
+
+  it("uses the cached app shell offline without caching auth callback URLs", async () => {
     const shell = "https://barkoul.test/app/";
     const callback = "https://barkoul.test/app/auth/callback?code=one-time-code";
     const worker = bootWorker({
