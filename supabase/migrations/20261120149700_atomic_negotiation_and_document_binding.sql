@@ -327,3 +327,58 @@ USING (
 
 REVOKE ALL ON FUNCTION public.create_negotiation(bigint,numeric,text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.create_negotiation(bigint,numeric,text) TO authenticated;
+
+-- A driver document is reviewed once from pending; a fresh upload is required for re-review.
+CREATE OR REPLACE FUNCTION private.admin_review_driver_document_impl(
+  p_document_id bigint,
+  p_status text
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+DECLARE
+  v_current_status text;
+BEGIN
+  IF NOT (SELECT private.is_admin()) THEN
+    RAISE EXCEPTION 'Administrator access required';
+  END IF;
+  IF p_document_id IS NULL OR p_status IS NULL
+     OR p_status NOT IN ('verified','rejected') THEN
+    RAISE EXCEPTION 'Document ID and supported review status are required';
+  END IF;
+
+  SELECT d.review_status
+  INTO v_current_status
+  FROM public.driver_documents d
+  WHERE d.id=p_document_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Document not found';
+  END IF;
+  IF v_current_status IS DISTINCT FROM 'pending' THEN
+    RAISE EXCEPTION 'Only pending documents can be reviewed';
+  END IF;
+
+  UPDATE public.driver_documents
+  SET review_status=p_status
+  WHERE id=p_document_id AND review_status='pending';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Document state changed; refresh and retry';
+  END IF;
+
+  INSERT INTO public.admin_audit_log(admin_id,action,target_table,target_id)
+  VALUES(
+    (SELECT auth.uid()),
+    CASE WHEN p_status='verified' THEN 'driver_document_verified' ELSE 'driver_document_rejected' END,
+    'driver_documents',
+    p_document_id::text
+  );
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.admin_review_driver_document_impl(bigint,text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION private.admin_review_driver_document_impl(bigint,text) TO authenticated;
