@@ -28,3 +28,5 @@
 .admin-lock{font-size:42px;margin-bottom:16px}
 .admin-gate-actions{justify-content:center;margin-top:22px}
 @media(max-width:760px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-topbar-actions{width:100%}.admin-grid{grid-template-columns:1fr}.admin-main{padding:22px 16px}.admin-card p{min-height:0}}
+
+.workspace-block{margin-top:22px;padding:20px;background:#eef5fc;border:1px solid var(--line);border-radius:18px;display:grid;gap:14px}.workspace-block>h3{margin:8px 0;color:var(--navy);font-size:19px}.workspace-block .cargo-card{margin:0}.offer-row{display:grid;gap:9px;padding:13px;margin-top:12px;border:1px solid var(--line);border-radius:12px;background:#f9fbfe;color:var(--ink);font-size:13px}.workspace-block .form-card{margin:12px 0}.workspace-block input[type=file]{padding:10px}
