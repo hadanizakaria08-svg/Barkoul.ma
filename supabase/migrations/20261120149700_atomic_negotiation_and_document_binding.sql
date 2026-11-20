@@ -50,7 +50,8 @@ BEGIN
   IF v_uid IS NULL THEN
     RAISE EXCEPTION 'Authentication required';
   END IF;
-  IF p_cargo_id IS NULL OR p_proposed_price_mad IS NULL OR p_proposed_price_mad <= 0 THEN
+  IF p_cargo_id IS NULL OR p_proposed_price_mad IS NULL OR p_proposed_price_mad <= 0
+     OR p_proposed_price_mad::text IN ('NaN','Infinity','-Infinity') THEN
     RAISE EXCEPTION 'Cargo ID and a positive offer are required';
   END IF;
   IF v_message IS NOT NULL AND char_length(v_message) > 500 THEN
@@ -110,7 +111,8 @@ SECURITY INVOKER
 SET search_path = ''
 AS $function$
 BEGIN
-  IF p_cargo_id IS NULL OR p_proposed_price_mad IS NULL OR p_proposed_price_mad <= 0 THEN
+  IF p_cargo_id IS NULL OR p_proposed_price_mad IS NULL OR p_proposed_price_mad <= 0
+     OR p_proposed_price_mad::text IN ('NaN','Infinity','-Infinity') THEN
     RAISE EXCEPTION 'Cargo ID and a positive offer are required';
   END IF;
   IF p_message IS NOT NULL AND char_length(btrim(p_message)) > 500 THEN
