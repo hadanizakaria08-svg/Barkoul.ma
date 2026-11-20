@@ -57,7 +57,7 @@ Run:
 node --test scripts/shield-x-lab.test.mjs
 ```
 
-This local hash chain is **tamper-evident test evidence**, not immutable storage. Production-grade immutability requires separately controlled append-only storage and external key/retention management.
+This local hash chain is **tamper-evident test evidence**, not immutable storage. Production-grade immutability requires separately controlled append-only storage and external key/retention management. The current self-healing engine is also a deterministic offline model: its trusted factory is injected by the test harness. It does not yet verify cryptographic artifact signatures, supervise OS processes, preserve external production evidence, or perform a real deployment rollback; those controls must be implemented and exercised in the eventual host environment.
 
 ## Deployment truth table
 | Capability | State in this test branch |
