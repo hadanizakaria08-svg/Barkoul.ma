@@ -1,0 +1,5 @@
+-- Production migration history mirror for Barkoul.ma.
+-- This version is already recorded as applied in the live Supabase project.
+-- Original reviewed SQL source files are preserved under supabase/migrations_archive/20261120/.
+-- This marker intentionally contains no DDL: do not treat this folder as a fresh-project bootstrap.
+-- For a new Supabase project, first create and review a complete schema baseline from a verified backup.
