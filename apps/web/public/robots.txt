@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://hadanizakaria08-svg.github.io/Barkoul.ma/sitemap.xml

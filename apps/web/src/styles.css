@@ -30,3 +30,96 @@
 @media(max-width:760px){.admin-topbar{align-items:flex-start;flex-direction:column}.admin-topbar-actions{width:100%}.admin-grid{grid-template-columns:1fr}.admin-main{padding:22px 16px}.admin-card p{min-height:0}}
 
 .workspace-block{margin-top:22px;padding:20px;background:#eef5fc;border:1px solid var(--line);border-radius:18px;display:grid;gap:14px}.workspace-block>h3{margin:8px 0;color:var(--navy);font-size:19px}.workspace-block .cargo-card{margin:0}.offer-row{display:grid;gap:9px;padding:13px;margin-top:12px;border:1px solid var(--line);border-radius:12px;background:#f9fbfe;color:var(--ink);font-size:13px}.workspace-block .form-card{margin:12px 0}.workspace-block input[type=file]{padding:10px}
+
+
+/* Approved Barkoul.ma Moroccan freight homepage */
+.reference-topbar{min-height:112px;padding:14px clamp(18px,4vw,48px);background:#06449f;color:#fff;border:0;gap:16px}
+.reference-brand{display:flex;align-items:center;gap:14px;color:#fff;min-width:0}
+.brand-truck{width:118px;height:66px;flex:0 0 auto}
+.brand-word{font-size:clamp(27px,4vw,48px);font-weight:950;letter-spacing:-1.5px;color:#fff;white-space:nowrap}
+.brand-word>span{color:#ffc928}
+.reference-topbar nav{gap:18px;color:#fff}
+.reference-topbar nav>a:not(.account-entry){color:#fff}
+.reference-topbar .account-entry{display:inline-flex;align-items:center;gap:10px;border:2px solid #fff;border-radius:17px;padding:12px 18px;color:#fff;font-size:18px}
+.account-entry span{font-size:25px}
+.reference-hero{position:relative;isolation:isolate;overflow:hidden;margin:0;padding:24px clamp(14px,3vw,30px) 28px;background:linear-gradient(180deg,#39aaf7 0%,#d5f0ff 54%,#9ad6ff 100%);min-height:0}
+.reference-sky{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 14% 20%,#fff9 0 7%,transparent 19%),radial-gradient(ellipse at 63% 9%,#fff8 0 6%,transparent 18%),linear-gradient(180deg,#148be7,#b7e7ff 70%,#edfaff)}
+.reference-headline{text-align:center;position:relative;z-index:2;color:#073e99;padding:0 8px 4px}
+.reference-headline h1{font-size:clamp(29px,5.2vw,64px);line-height:1.25;font-weight:950;margin:8px 0 10px}
+.reference-headline h1 span{white-space:normal}
+.reference-headline i{display:block;width:48%;height:13px;margin:0 auto 4px;border-top:8px solid #ffca25;border-radius:50%;transform:rotate(-1deg)}
+.reference-landscape{height:clamp(210px,34vw,380px);position:relative;display:flex;align-items:flex-end;overflow:hidden}
+.reference-road{position:absolute;left:-3%;right:-3%;bottom:4%;height:32%;background:linear-gradient(174deg,#d9e4ef 0 12%,#263d57 13% 22%,#192d46 23% 100%);transform:skewY(-3deg);border-top:7px solid #fff}
+.reference-road:after{content:"";position:absolute;left:0;right:0;top:45%;border-top:5px dashed #f7f4db}
+.reference-fleet{position:absolute;z-index:2;left:1%;bottom:11%;display:flex;align-items:flex-end;gap:0;filter:drop-shadow(0 8px 5px #102d5266)}
+.reference-fleet span{font-size:clamp(64px,13vw,150px);line-height:1;margin-left:-14px}
+.reference-fleet span:first-child{font-size:clamp(83px,16vw,184px);margin-left:0}
+.morocco-mark{position:absolute;z-index:2;right:3%;top:1%;height:94%;width:23%;filter:drop-shadow(0 6px 3px #083b7666)}
+.reference-city{position:absolute;right:0;bottom:7%;font-size:clamp(28px,5vw,56px);z-index:1;opacity:.9}
+.reference-actions{display:grid;grid-template-columns:1fr 1fr;gap:18px;position:relative;z-index:3;margin:0 0 2px}
+.reference-action{min-height:clamp(72px,11vw,126px);border:4px solid #fff;border-radius:34px;display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,22px);font-size:clamp(22px,4vw,46px);font-weight:950;color:#fff;box-shadow:0 8px 14px #073d833b;text-align:center;padding:10px}
+.reference-action>span{font-size:1.5em;line-height:1}
+.publish-action{background:linear-gradient(135deg,#24d343,#009b2c)}
+.search-action{background:linear-gradient(135deg,#168fff,#0646c5)}
+.reference-features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:26px clamp(14px,3vw,30px) 34px}
+.reference-feature{display:flex;flex-direction:column;overflow:hidden;border:2px solid #1686dc;border-radius:28px;background:linear-gradient(180deg,#f9fdff,#d9efff);box-shadow:0 8px 16px #0c55932b;text-align:center;min-width:0}
+.reference-feature-art{height:clamp(135px,21vw,240px);display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#e6f5ff,#b8ddf9)}
+.reference-feature-art span{font-size:clamp(60px,11vw,120px);filter:drop-shadow(0 7px 4px #183b5c35)}
+.art-fleet span{font-size:clamp(37px,7vw,78px);white-space:nowrap}
+.art-driver{background:linear-gradient(140deg,#b8e2fa,#edfaff)}
+.reference-feature-copy{padding:13px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:6px;color:#073f98;min-height:140px}
+.reference-feature-copy strong{font-size:clamp(20px,2.8vw,34px);font-weight:950;line-height:1.35}
+.reference-feature-copy>span{font-size:clamp(16px,2.2vw,26px);font-weight:800}
+.reference-feature-copy b{width:44px;height:44px;border-radius:50%;background:#064bb5;color:#fff;font-size:36px;line-height:36px;margin-top:5px}
+.reference-footer{position:relative;overflow:hidden;min-height:200px;background:linear-gradient(165deg,#0877d6,#003d9c 68%);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:24px;text-align:center;padding:30px 18px}
+.reference-footer:before{content:"";position:absolute;left:-5%;right:-5%;top:-44px;height:95px;border-radius:50%;background:#2c9bf3;box-shadow:0 18px 0 #0751b9}
+.social-links{display:flex;align-items:center;justify-content:center;gap:clamp(16px,4vw,38px);position:relative;z-index:1}
+.social-links a{width:clamp(48px,7vw,76px);height:clamp(48px,7vw,76px);display:grid;place-items:center;border-radius:17px;background:#fff;color:#0646a8;font-size:clamp(28px,4vw,48px);font-weight:950}
+.social-links a:first-child{background:#14c95a;color:#fff}.social-links a:nth-child(2){background:#1877f2;color:#fff}.social-links a:nth-child(3){background:linear-gradient(45deg,#ffb52c,#f32b78,#8538ca);color:#fff}.social-links a:nth-child(4){background:#050505;color:#fff}
+.reference-footer>strong{position:relative;z-index:1;color:#fff;font-size:clamp(19px,3vw,30px)}
+.reference-footer>strong span{color:#ffd02b;padding:0 9px}
+@media(max-width:760px){
+ .reference-topbar{min-height:100px;padding:12px 15px;align-items:center;flex-direction:row;flex-wrap:wrap}
+ .brand-truck{width:75px;height:48px}
+ .brand-word{font-size:clamp(26px,7vw,37px)}
+ .reference-topbar nav{width:100%;justify-content:space-between;gap:8px;font-size:13px;flex-wrap:wrap}
+ .reference-topbar nav .account-entry{font-size:14px;padding:7px 11px;border-radius:12px}
+ .reference-topbar nav>a:not(.account-entry){font-size:13px}
+ .reference-hero{padding:17px 12px 20px}
+ .reference-headline h1{font-size:clamp(27px,7.2vw,43px)}
+ .reference-landscape{height:clamp(190px,55vw,280px)}
+ .reference-fleet{left:-2%;bottom:10%}
+ .reference-fleet span{font-size:clamp(58px,15vw,100px)}
+ .reference-fleet span:first-child{font-size:clamp(74px,19vw,126px)}
+ .morocco-mark{right:1%;width:24%;height:89%}
+ .reference-actions{gap:9px}
+ .reference-action{min-height:76px;border-width:3px;border-radius:22px;font-size:clamp(19px,5vw,28px);padding:8px 5px}
+ .reference-features{gap:8px;margin:18px 12px 24px}
+ .reference-feature{border-radius:18px}
+ .reference-feature-art{height:clamp(105px,30vw,150px)}
+ .reference-feature-art span{font-size:clamp(48px,13vw,78px)}
+ .art-fleet span{font-size:clamp(27px,7vw,42px)}
+ .reference-feature-copy{min-height:125px;padding:9px 4px 12px}
+ .reference-feature-copy strong{font-size:clamp(14px,3.8vw,20px)}
+ .reference-feature-copy>span{font-size:clamp(12px,3.3vw,17px)}
+ .reference-feature-copy b{width:34px;height:34px;font-size:29px;line-height:28px}
+ .reference-footer{min-height:170px;gap:20px}
+}
+@media(max-width:380px){
+ .reference-topbar nav{font-size:12px}
+ .reference-action{font-size:17px}
+ .reference-features{gap:6px;margin-left:8px;margin-right:8px}
+ .reference-feature-copy strong{font-size:13px}
+ .reference-feature-copy>span{font-size:11px}
+}
+
+/* Keep muted text readable against the light public-page surface. */
+.muted{color:#4b5d72}
+
+
+/* Keep the Barkoul wordmark legible on the dark reference header. */
+.reference-brand .brand-word > span{color:#ffd34d}
+
+/* WCAG: override the legacy brand accent on the large wordmark; keep .ma gold. */
+.reference-brand .brand-word{color:#fff}
+.reference-brand .brand-word>span{color:#ffd34d}
