@@ -480,11 +480,18 @@ const SUPABASE_ANON_KEY =
   "sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn";
 
 if (!window.supabase || !window.supabase.createClient) {
-  document.body.innerHTML =
-    '<div style="padding:30px;text-align:center;font-family:Arial">' +
-    '<h2>تعذر تحميل نظام الاتصال</h2>' +
-    '<p>تحقق من اتصال الإنترنت ثم أعد تحميل الصفحة.</p>' +
-    '</div>';
+  const connectionStatus = document.getElementById("globalStatus");
+
+  if (connectionStatus) {
+    connectionStatus.textContent =
+      "تعذر تحميل نظام الاتصال. تحقق من الإنترنت ثم أعد تحميل الصفحة.";
+    connectionStatus.className = "status error";
+  } else {
+    const message = document.createElement("p");
+    message.textContent =
+      "تعذر تحميل نظام الاتصال. تحقق من الإنترنت ثم أعد تحميل الصفحة.";
+    document.body.appendChild(message);
+  }
 
   throw new Error("Supabase library unavailable");
 }
