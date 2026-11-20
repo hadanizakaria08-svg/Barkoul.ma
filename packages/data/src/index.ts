@@ -44,6 +44,14 @@ export async function getCurrentProfileRole(expectedUserId?: string): Promise<Pr
     .maybeSingle();
   if (error) throw error;
 
+  // Re-check the session after the profile read so a mid-request account switch
+  // cannot leave a role result associated with a different authenticated user.
+  const { data: verifiedAuthData, error: verifiedAuthError } = await db.auth.getUser();
+  if (verifiedAuthError) throw verifiedAuthError;
+  if (!verifiedAuthData.user || verifiedAuthData.user.id !== authData.user.id) {
+    throw new Error("The authenticated session changed during profile authorization.");
+  }
+
   // Fail closed for missing, malformed, or unknown role values.
   const role: unknown = data?.role;
   return role === "user" || role === "driver" || role === "owner" || role === "admin"
