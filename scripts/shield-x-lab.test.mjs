@@ -100,14 +100,8 @@ test("Chain System keeps an unhealthy replacement isolated", () => {
 
 
 test("Chain System keeps a module isolated when its trusted replacement factory throws, while core modules remain available", () => {
-  const chain = new SelfHealingModuleChain();
-  chain.register("identity-core", () => ({ healthy: true, available: true }));
-  chain.register("phantom-room", () => ({ healthy: true }));
   // Simulate the trusted artifact source becoming unavailable during recovery.
   const brokenFactory = () => { throw new Error("trusted artifact unavailable"); };
-  const isolated = new SelfHealingModuleChain();
-  isolated.register("identity-core", () => ({ healthy: true, available: true }));
-  isolated.register("phantom-room", () => ({ healthy: true }));
   // The lab API keeps the factory private; this independent chain models a failed clean build.
   const failing = new SelfHealingModuleChain();
   failing.register("identity-core", () => ({ healthy: true, available: true }));
