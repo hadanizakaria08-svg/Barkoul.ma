@@ -57,16 +57,43 @@ function FeatureCard({kind,title,subtitle,href}:{kind:"boxes"|"fleet"|"driver";t
   </a>;
 }
 function HeroTruckScene() {
-  return <svg className="reference-hero-scene home-hero-photo" viewBox="0 0 1200 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="شاحنات تنقل البضائع على طريق مغربي">
-    <defs><linearGradient id="heroSky" x2="0" y2="1"><stop stopColor="#63c7ff"/><stop offset="1" stopColor="#e8f7ff"/></linearGradient><linearGradient id="heroRoad" x2="0" y2="1"><stop stopColor="#596b7c"/><stop offset="1" stopColor="#172d45"/></linearGradient></defs>
+  return <svg className="reference-hero-scene home-hero-photo" viewBox="0 0 1200 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="شاحنة نقل بضائع تظهر من الأمام على طريق مغربي">
+    <defs>
+      <linearGradient id="heroSky" x2="0" y2="1"><stop stopColor="#63c7ff"/><stop offset="1" stopColor="#e8f7ff"/></linearGradient>
+      <linearGradient id="heroRoad" x2="0" y2="1"><stop stopColor="#596b7c"/><stop offset="1" stopColor="#172d45"/></linearGradient>
+      <linearGradient id="truckCab" x2="0" y2="1"><stop stopColor="#2588d6"/><stop offset="1" stopColor="#073d82"/></linearGradient>
+    </defs>
     <rect width="1200" height="430" fill="url(#heroSky)"/>
     <g fill="#fff" opacity=".8"><ellipse cx="180" cy="82" rx="100" ry="27"/><ellipse cx="235" cy="70" rx="65" ry="34"/><ellipse cx="780" cy="72" rx="120" ry="28"/><ellipse cx="850" cy="58" rx="70" ry="35"/></g>
     <path d="M0 260 170 185 310 255 490 170 680 260 870 185 1040 250 1200 190v110H0z" fill="#9ac7b2"/>
     <path d="M0 288q260-60 480 0t720-5v147H0z" fill="#75a66b"/>
     <path d="M0 318 1200 278v152H0z" fill="url(#heroRoad)"/>
     <path d="M0 365 1200 325" stroke="#fff" strokeWidth="8" strokeDasharray="55 38" opacity=".9"/>
-    <g transform="translate(80 170)"><rect x="0" y="36" width="440" height="135" rx="8" fill="#1260ad"/><rect x="18" y="51" width="404" height="103" fill="#edf6ff"/><path d="M440 77h105l78 75v19H440z" fill="#1455a0"/><path d="M468 91h66l57 59H468z" fill="#a8e2ff"/><rect x="445" y="158" width="178" height="18" fill="#e8333d"/><circle cx="112" cy="178" r="35" fill="#1d2d3b"/><circle cx="112" cy="178" r="15" fill="#d7e2eb"/><circle cx="520" cy="178" r="35" fill="#1d2d3b"/><circle cx="520" cy="178" r="15" fill="#d7e2eb"/></g>
-    <g transform="translate(700 230) scale(.66)"><rect x="0" y="36" width="300" height="135" rx="8" fill="#e7edf2"/><rect x="18" y="51" width="265" height="103" fill="#f7fbff"/><path d="M300 77h105l78 75v19H300z" fill="#d72c35"/><path d="M328 91h66l57 59H328z" fill="#a8e2ff"/><circle cx="112" cy="178" r="35" fill="#1d2d3b"/><circle cx="112" cy="178" r="15" fill="#d7e2eb"/><circle cx="380" cy="178" r="35" fill="#1d2d3b"/><circle cx="380" cy="178" r="15" fill="#d7e2eb"/></g>
+    <g transform="translate(365 48)">
+      <path d="M72 12 390 12 426 88 426 270 36 270 36 88Z" fill="#e8f2fa" stroke="#123d69" strokeWidth="12" strokeLinejoin="round"/>
+      <path d="M83 26 379 26 401 91 61 91Z" fill="#bceaff" stroke="#fff" strokeWidth="9" strokeLinejoin="round"/>
+      <path d="M231 27v64" stroke="#80c7ef" strokeWidth="7"/>
+      <path d="M35 103 0 119 0 168 39 159M426 103 461 119 461 168 422 159" fill="#e6f2fb" stroke="#123d69" strokeWidth="10" strokeLinejoin="round"/>
+      <path d="M8 124 34 132 34 151 8 158ZM453 124 427 132 427 151 453 158Z" fill="#a8e2ff"/>
+      <path d="M45 166 417 166 405 247 57 247Z" fill="url(#truckCab)" stroke="#123d69" strokeWidth="8" strokeLinejoin="round"/>
+      <path d="M73 178h316v16H73z" fill="#4ba5e8" opacity=".8"/>
+      <path d="M88 207h280v49H88z" fill="#092e5c"/>
+      <path d="M118 213h220M118 230h220M118 247h220" stroke="#b9d6eb" strokeWidth="5"/>
+      <rect x="47" y="179" width="45" height="34" rx="8" fill="#fff2a8" stroke="#123d69" strokeWidth="6"/>
+      <rect x="370" y="179" width="45" height="34" rx="8" fill="#fff2a8" stroke="#123d69" strokeWidth="6"/>
+      <path d="M43 260h374l-15 28H58z" fill="#d7e4ef" stroke="#123d69" strokeWidth="8" strokeLinejoin="round"/>
+      <path d="M80 285v27M380 285v27" stroke="#182f43" strokeWidth="24" strokeLinecap="round"/>
+      <path d="M72 310h40M350 310h40" stroke="#b9c8d5" strokeWidth="8" strokeLinecap="round"/>
+      <rect x="181" y="263" width="150" height="19" rx="7" fill="#e7353c"/>
+      <text x="256" y="277" textAnchor="middle" fontSize="13" fontWeight="900" fill="#fff">BARKOUL.MA</text>
+    </g>
+    <g transform="translate(885 220) scale(.43)" opacity=".96">
+      <rect x="0" y="40" width="300" height="135" rx="8" fill="#f4f8fd"/>
+      <path d="M300 80h105l78 75v20H300z" fill="#d72c35"/>
+      <path d="M328 94h66l57 59H328z" fill="#a8e2ff"/>
+      <circle cx="112" cy="180" r="35" fill="#1d2d3b"/><circle cx="112" cy="180" r="15" fill="#d7e2eb"/>
+      <circle cx="380" cy="180" r="35" fill="#1d2d3b"/><circle cx="380" cy="180" r="15" fill="#d7e2eb"/>
+    </g>
   </svg>;
 }
 
