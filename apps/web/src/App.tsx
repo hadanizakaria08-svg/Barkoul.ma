@@ -57,7 +57,7 @@ function FeatureCard({kind,title,subtitle,href}:{kind:"boxes"|"fleet"|"driver";t
   </a>;
 }
 function HeroTruckScene() {
-  return <svg className="reference-hero-scene" viewBox="0 0 1200 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="شاحنات تنقل البضائع على طريق مغربي">
+  return <svg className="reference-hero-scene home-hero-photo" viewBox="0 0 1200 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="شاحنات تنقل البضائع على طريق مغربي">
     <defs><linearGradient id="heroSky" x2="0" y2="1"><stop stopColor="#63c7ff"/><stop offset="1" stopColor="#e8f7ff"/></linearGradient><linearGradient id="heroRoad" x2="0" y2="1"><stop stopColor="#596b7c"/><stop offset="1" stopColor="#172d45"/></linearGradient></defs>
     <rect width="1200" height="430" fill="url(#heroSky)"/>
     <g fill="#fff" opacity=".8"><ellipse cx="180" cy="82" rx="100" ry="27"/><ellipse cx="235" cy="70" rx="65" ry="34"/><ellipse cx="780" cy="72" rx="120" ry="28"/><ellipse cx="850" cy="58" rx="70" ry="35"/></g>
@@ -273,7 +273,7 @@ export default function App() {
       {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}</nav>
     </header>
     <main>
-      <section className="reference-hero">
+      <section className="reference-hero home-hero">
         <div className="reference-sky" aria-hidden="true"></div>
         <div className="reference-headline"><h1>ربط الشحنات<br/><span>بسائقي الشاحنات في المغرب</span></h1><i></i></div>
         <div className="reference-landscape">
