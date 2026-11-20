@@ -86,12 +86,16 @@ test("Chain System isolates a damaged module and replaces it from a trusted clea
   ]);
 });
 
-test("Chain System keeps a failed replacement isolated and records the failed health check", () => {
+test("Chain System keeps an unhealthy replacement isolated", () => {
   const chain = new SelfHealingModuleChain();
-  chain.register("chameleon", () => ({ healthy: true }));
+  let builds = 0;
+  chain.register("chameleon", () => {
+    builds += 1;
+    return { healthy: builds === 1 };
+  });
   const result = chain.recover("chameleon");
-  // This factory is trusted but intentionally returns an unhealthy replacement.
-  // The first registration is valid; subsequent builds fail verification.
-  assert.equal(result.recovered, true);
-  assert.equal(chain.status().chameleon.status, "healthy");
+  assert.deepEqual(result, { recovered: false, status: "isolated", version: 1 });
+  assert.equal(chain.status().chameleon.status, "isolated");
+  assert.equal(chain.get("chameleon"), undefined);
+  assert.equal(chain.evidence().at(-1).event, "replacement-health-check-failed");
 });
