@@ -7,14 +7,14 @@ type Row = Record<string, any>;
 interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; }
 const tripLabels: Record<string,string> = { agreed:"تم الاتفاق", loading:"جاري التحميل", in_transit:"في الطريق", delivered:"تم التسليم", cancelled:"ملغاة" };
 
-function OfferCard({cargo,userId,onSent}:{cargo:Cargo;userId:string;onSent:()=>void}) {
+function OfferCard({cargo,onSent}:{cargo:Cargo;onSent:()=>void}) {
   const [price,setPrice]=useState(""); const [note,setNote]=useState("");
   const [busy,setBusy]=useState(false); const [message,setMessage]=useState("");
   async function submit(e:FormEvent){
     e.preventDefault(); const db=getSupabase(); const amount=Number(price);
     if(!db||!Number.isFinite(amount)||amount<=0){setMessage("أدخل عرضاً مالياً صحيحاً.");return;}
     setBusy(true);setMessage("");
-    try { const {error}=await db.from("negotiations").insert({cargo_id:cargo.id,proposer_id:userId,proposed_price_mad:amount,message:note.trim()||null,status:"pending"});
+    try { const {error}=await db.rpc("create_negotiation",{p_cargo_id:cargo.id,p_proposed_price_mad:amount,p_message:note.trim()||null});
       if(error)throw error;setMessage("تم إرسال عرضك لصاحب الشحنة.");setPrice("");setNote("");onSent();
     } catch { setMessage("تعذر إرسال العرض. تحقق من حالة الشحنة أو وجود عرض سابق."); } finally { setBusy(false); }
   }
@@ -127,7 +127,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
       </article>)}
     </div>}
     {role==="driver"&&<div className="workspace-block"><h3>الشحنات المتاحة لتقديم العروض</h3>
-      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:openCargos.length===0?<p className="empty">لا توجد شحنات مفتوحة حالياً.</p>:openCargos.map(c=><OfferCard key={c.id} cargo={c} userId={userId} onSent={()=>void load()}/>)}
+      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:openCargos.length===0?<p className="empty">لا توجد شحنات مفتوحة حالياً.</p>:openCargos.map(c=><OfferCard key={c.id} cargo={c} onSent={()=>void load()}/>)}
       <h3>عروضي</h3>{offers.length===0?<p className="empty">لم ترسل عروضاً بعد.</p>:offers.map(o=><article className="cargo-card" key={o.id}><strong>{Number(o.proposed_price_mad).toLocaleString("ar-MA")} درهم</strong><p>الشحنة #{o.cargo_id} · {o.status}</p><p className="muted">{o.message}</p></article>)}
       <h3>وثائق التحقق</h3><form className="form-card" onSubmit={e=>{e.preventDefault();void sendDocument();}}>
         <label>نوع الوثيقة<select value={docType} onChange={e=>setDocType(e.target.value)}><option>رخصة السياقة</option><option>البطاقة الوطنية</option><option>وثيقة المركبة</option><option>وثيقة أخرى</option></select></label>
