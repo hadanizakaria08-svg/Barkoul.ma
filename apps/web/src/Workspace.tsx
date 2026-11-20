@@ -59,8 +59,8 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
 
   async function cancelCargo(id:number){
     if(!db)return;setBusy(true);setMessage("");
-    try{const {data,error}=await db.from("cargos").update({status:"cancelled"}).eq("id",id).eq("owner_id",userId).eq("status","open").select("id");
-      if(error)throw error;if(!data?.length)throw new Error("Cargo is no longer open");
+    try{const {error}=await db.rpc("cancel_open_cargo",{p_cargo_id:id});
+      if(error)throw error;
       setMessage("تم إلغاء الشحنة المفتوحة.");await load();
     }catch{setMessage("تعذر إلغاء الشحنة؛ ربما تم قبول عرض أو تغيرت حالتها.");}finally{setBusy(false);}
   }
