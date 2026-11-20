@@ -33,7 +33,7 @@ function MoroccoMark() {
 function FeatureCard({kind,title,subtitle,href}:{kind:"boxes"|"fleet"|"driver";title:string;subtitle:string;href:string}) {
   return <a className="reference-feature" href={href}>
     <div className={`reference-feature-art art-${kind}`} aria-hidden="true">
-      <img loading="lazy" src={kind==="boxes" ? "https://images.unsplash.com/photo-1607166452427-7e4477079cb9?auto=format&fit=crop&w=720&q=85" : kind==="fleet" ? "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=85" : "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=720&q=85"} alt="" />
+      <img loading="lazy" src={kind==="boxes" ? "https://images.pexels.com/photos/6170458/pexels-photo-6170458.jpeg?auto=compress&cs=tinysrgb&w=720" : kind==="fleet" ? "https://images.pexels.com/photos/16180770/pexels-photo-16180770.jpeg?auto=compress&cs=tinysrgb&w=720" : "https://images.pexels.com/photos/6169166/pexels-photo-6169166.jpeg?auto=compress&cs=tinysrgb&w=720"} alt="" />
     </div>
     <div className="reference-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">›</b></div>
   </a>;
@@ -246,7 +246,7 @@ export default function App() {
         <div className="reference-sky" aria-hidden="true"></div>
         <div className="reference-headline"><h1>ربط الشحنات<br/><span>بسائقي الشاحنات في المغرب</span></h1><i></i></div>
         <div className="reference-landscape">
-          <img className="reference-hero-photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1800&q=90" alt="شاحنات نقل بضائع تسير على الطريق" fetchPriority="high" />
+          <img className="reference-hero-photo" src="https://images.pexels.com/photos/20234936/pexels-photo-20234936.jpeg?auto=compress&cs=tinysrgb&w=1800" alt="شاحنات نقل بضائع تسير على الطريق" fetchPriority="high" />
           <div className="reference-photo-shade" aria-hidden="true"></div>
           <MoroccoMark/>
         </div>
