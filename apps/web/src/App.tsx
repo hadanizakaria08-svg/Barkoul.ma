@@ -236,7 +236,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar reference-topbar">
       <a className="brand reference-brand" href="#"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-      <nav><a className="account-entry" href="#account">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
+      <nav><a className="account-entry" href="#account" aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
       <a href="#search">الشحنات</a><a href="#publish">نشر شحنة</a>
       {user && profileRole === "admin" && <a href="#admin">غرفة المدير</a>}
       {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}</nav>
