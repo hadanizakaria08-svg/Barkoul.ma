@@ -37,7 +37,7 @@ export default function App() {
   async function refresh() {
     setLoading(true); setError("");
     try { setCargos(await listOpenCargos()); }
-    catch (e) { setError(e instanceof Error ? e.message : "تعذر تحميل الشحنات."); }
+    catch { setError("تعذر تحميل الشحنات حالياً. تحقق من الاتصال ثم حاول مجدداً."); }
     finally { setLoading(false); }
   }
 
@@ -112,7 +112,7 @@ export default function App() {
       setAuthMessage(authMode === "signup" && !result.data.session
         ? "تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك."
         : "تمت العملية بنجاح.");
-    } catch (e) { setAuthMessage(e instanceof Error ? e.message : "تعذر إتمام العملية."); }
+    } catch { setAuthMessage("تعذر إتمام العملية. تحقق من البيانات والاتصال ثم حاول مجدداً."); }
     finally { setBusy(false); }
   }
 
@@ -123,7 +123,7 @@ export default function App() {
       const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + window.location.pathname });
       if (error) throw error;
       setAuthMessage("إذا كان البريد مسجلاً، فستصلك رسالة لإعادة تعيين كلمة المرور.");
-    } catch (e) { setAuthMessage(e instanceof Error ? e.message : "تعذر إرسال رسالة الاستعادة."); }
+    } catch { setAuthMessage("تعذر إرسال رسالة الاستعادة حالياً. حاول مجدداً لاحقاً."); }
     finally { setBusy(false); }
   }
 
@@ -142,7 +142,7 @@ export default function App() {
       await publishCargo(normalizedDraft);
       setDraft(initialDraft); setPublishMessage("تم إرسال الشحنة. سنحدّث القائمة.");
       await refresh();
-    } catch (e) { setPublishMessage(e instanceof Error ? e.message : "تعذر نشر الشحنة."); }
+    } catch { setPublishMessage("تعذر نشر الشحنة حالياً. تحقق من الاتصال والصلاحيات ثم حاول مجدداً."); }
     finally { setBusy(false); }
   }
 
