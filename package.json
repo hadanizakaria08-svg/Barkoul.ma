@@ -3,7 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace @barkoul/web",
     "build": "npm run build --workspace @barkoul/web",
@@ -14,9 +17,12 @@
     "security:runtime-deps": "node scripts/check-runtime-dependency-boundary.mjs",
     "mobile:sync": "cap sync",
     "mobile:android": "cap open android",
-    "mobile:ios": "cap open ios"
+    "mobile:ios": "cap open ios",
+    "security:source": "node scripts/check-source-security.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@capacitor/cli": "^7.6.10",
     "@capacitor/android": "^7.6.10",
