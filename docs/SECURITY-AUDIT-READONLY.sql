@@ -68,8 +68,8 @@ WHERE table_schema IN ('public', 'storage')
 ORDER BY table_schema, table_name, grantee, privilege_type;
 
 SELECT
-  sequence_schema,
-  sequence_name,
+  object_schema AS sequence_schema,
+  object_name AS sequence_name,
   grantee,
   privilege_type,
   is_grantable
