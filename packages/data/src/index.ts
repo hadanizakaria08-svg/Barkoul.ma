@@ -19,7 +19,7 @@ export async function listOpenCargos(): Promise<Cargo[]> {
   const db = getSupabase();
   if (!db) throw new Error("لم يتم إعداد اتصال قاعدة البيانات بعد.");
   const { data, error } = await db.from("cargos")
-    .select("id,title,origin_city,destination_city,goods_type,weight_text,truck_type,loading_date,offered_price_mad,notes,status,created_at")
+    .select("id,title,origin_city,destination_city,goods_type,weight_text,truck_type,loading_date,offered_price_mad,notes,status,created_at,owner_id")
     .eq("status", "open")
     .order("created_at", { ascending: false });
   if (error) throw error;
