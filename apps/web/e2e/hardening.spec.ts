@@ -49,12 +49,12 @@ test("allows switching between login, signup, and password recovery views", asyn
 test("exposes required cargo fields and bounded free-text inputs", async ({ page }) => {
   await page.goto("/");
   for (const label of ["عنوان الشحنة", "مدينة الانطلاق", "مدينة الوصول", "نوع البضاعة", "نوع الشاحنة", "تاريخ النقل"]) {
-    await expect(page.getByLabel(label)).toHaveAttribute("required", "");
+    await expect(page.locator("#publish").getByLabel(label)).toHaveAttribute("required", "");
   }
-  await expect(page.getByLabel("عنوان الشحنة")).toHaveAttribute("maxlength", "120");
-  await expect(page.getByLabel("ملاحظات")).toHaveAttribute("maxlength", "1000");
-  await expect(page.getByLabel("السعر المقترح (درهم)")).toHaveAttribute("min", "0");
-  await expect(page.getByLabel("السعر المقترح (درهم)")).toHaveAttribute("step", "0.01");
+  await expect(page.locator("#publish").getByLabel("عنوان الشحنة")).toHaveAttribute("maxlength", "120");
+  await expect(page.locator("#publish").getByLabel("ملاحظات")).toHaveAttribute("maxlength", "1000");
+  await expect(page.locator("#publish").getByLabel("السعر المقترح (درهم)")).toHaveAttribute("min", "0");
+  await expect(page.locator("#publish").getByLabel("السعر المقترح (درهم)")).toHaveAttribute("step", "0.01");
 });
 
 test("accepts Arabic search input and truck category selection without navigation errors", async ({ page }) => {
