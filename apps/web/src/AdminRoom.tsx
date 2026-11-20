@@ -194,7 +194,6 @@ export default function AdminRoom({
         </article>)}</div>}
       </section>
       <section className="admin-section">
-      <section className="admin-section">
         <div className="section-heading"><div><p className="eyebrow">العمولات والتحصيل</p><h2>مستحقات النقل</h2></div></div>
         <p className="muted">تُنشأ عمولة 10 دراهم على صاحب البضاعة و20 درهماً على السائق بعد تأكيد التسليم. سجّل التحصيل فقط بعد استلام النقد أو التحقق من الدفع الإلكتروني خارج المنصة.</p>
         {charges.length===0?<p className="empty">لا توجد عمولات مسجلة حالياً.</p>:<div className="admin-grid">{charges.map(ch=><article className="admin-card" key={ch.id}>
@@ -211,12 +210,7 @@ export default function AdminRoom({
           <h2>{a.action}</h2><p>{a.target_table??"—"} · {a.target_id??"—"}</p><p className="muted">{new Date(a.created_at).toLocaleString("ar-MA")}</p>
         </article>)}</div>}
       </section>
-      <section className="admin-section"><div className="section-heading"><div><p className="eyebrow">أقسام الإدارة</p><h2>مركز التحكم</h2></div></div>
-        <div className="admin-grid">{sections.map((section)=><article className="admin-card" key={section.title}>
-          <span className="admin-card-icon" aria-hidden="true">{section.icon}</span><h2>{section.title}</h2>
-          <p>{section.description}</p><span className="admin-pending">يُستكمل ربط هذا القسم بعد اختبار صلاحياته</span>
-        </article>)}</div>
-      </section>
+
       <p className="admin-footnote">كل قرارات اعتماد الأدوار تمر عبر قاعدة البيانات وتُسجّل في سجل التدقيق.</p>
     </main>
   </div>;
