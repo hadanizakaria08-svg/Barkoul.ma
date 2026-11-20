@@ -114,7 +114,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
       </article>)}
     </div>}
     {role==="driver"&&<div className="workspace-block"><h3>الشحنات المتاحة لتقديم العروض</h3>
-      {openCargos.length===0?<p className="empty">لا توجد شحنات مفتوحة حالياً.</p>:openCargos.map(c=><OfferCard key={c.id} cargo={c} userId={userId} onSent={()=>void load()}/>)}
+      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:openCargos.length===0?<p className="empty">لا توجد شحنات مفتوحة حالياً.</p>:openCargos.map(c=><OfferCard key={c.id} cargo={c} userId={userId} onSent={()=>void load()}/>)}
       <h3>عروضي</h3>{offers.length===0?<p className="empty">لم ترسل عروضاً بعد.</p>:offers.map(o=><article className="cargo-card" key={o.id}><strong>{Number(o.proposed_price_mad).toLocaleString("ar-MA")} درهم</strong><p>الشحنة #{o.cargo_id} · {o.status}</p><p className="muted">{o.message}</p></article>)}
       <h3>وثائق التحقق</h3><form className="form-card" onSubmit={e=>{e.preventDefault();void sendDocument();}}>
         <label>نوع الوثيقة<select value={docType} onChange={e=>setDocType(e.target.value)}><option>رخصة السياقة</option><option>البطاقة الوطنية</option><option>وثيقة المركبة</option><option>وثيقة أخرى</option></select></label>
