@@ -119,3 +119,7 @@
 
 /* Keep the Barkoul wordmark legible on the dark reference header. */
 .reference-brand .brand-word > span{color:#ffd34d}
+
+/* WCAG: override the legacy brand accent on the large wordmark; keep .ma gold. */
+.reference-brand .brand-word{color:#fff}
+.reference-brand .brand-word>span{color:#ffd34d}
