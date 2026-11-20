@@ -21,7 +21,6 @@ function OfferCard({cargo,userId,onSent}:{cargo:Cargo;userId:string;onSent:()=>v
       if(error)throw error;setMessage("تم إرسال عرضك لصاحب الشحنة.");setPrice("");setNote("");onSent();
     } catch { setMessage("تعذر إرسال العرض. تحقق من حالة الشحنة أو وجود عرض سابق."); } finally { setBusy(false); }
   }
-  if(cargo.owner_id===userId)return null;
   return <form className="form-card" onSubmit={submit}><h3>{cargo.title}</h3>
     <p>{cargo.origin_city} ← {cargo.destination_city}</p>
     <label>عرضك بالدرهم<input type="number" min="0.01" step="0.01" required value={price} onChange={e=>setPrice(e.target.value)}/></label>
