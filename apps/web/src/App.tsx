@@ -25,76 +25,18 @@ function BrandTruck() {
 
 function MoroccoMark() {
   return <svg className="morocco-mark" viewBox="0 0 220 330" role="img" aria-label="خريطة المغرب">
-    <path d="M86 8 128 18 146 49 174 54 165 85 191 104 174 133 184 157 157 180 151 214 124 228 117 265 91 280 75 316 48 302 43 268 24 250 40 221 32 193 51 172 43 143 63 116 58 86 78 62Z" fill="#ef1d2d" stroke="white" strokeWidth="7" strokeLinejoin="round"/>
+    <path d="M86 8 128 18 146 49 174 54 165 85 191 104 174 133 184 157 157 180 151 214 124 228 117 265 91 280 75 316 48 302 43 268 24 250 40 221 32 193 51 172 43 143 63 116 58 86 78 62Z" fill="#D62828" stroke="white" strokeWidth="7" strokeLinejoin="round"/>
     <path d="m100 104 15 35 37-1-30 22 12 36-34-23-31 23 11-37-30-21 38 1Z" fill="none" stroke="#087c42" strokeWidth="9" strokeLinejoin="round"/>
   </svg>;
 }
 
-function FeatureArt({kind}:{kind:"boxes"|"fleet"|"driver"}) {
-  if (kind === "boxes") return <svg viewBox="0 0 320 190" role="img" aria-label="طرود وصناديق شحن">
-    <ellipse cx="160" cy="170" rx="126" ry="12" fill="#9bbbd2"/>
-    <path d="M38 130h244v35H38z" fill="#b77b35"/><path d="M48 130v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35m24-35v35" stroke="#e6b66f" strokeWidth="5"/>
-    <g stroke="#a96827" strokeWidth="2"><path d="m60 80 48-24 49 24-49 25z" fill="#eebd78"/><path d="M60 80v49l48 24v-48z" fill="#d9984e"/><path d="M108 105v48l49-24V80z" fill="#c9823e"/><path d="m142 66 42-22 45 22-45 23z" fill="#f5cc8e"/><path d="M142 66v43l42 22V89z" fill="#dfa45e"/><path d="M184 89v42l45-22V66z" fill="#c98643"/><path d="m176 105 38-19 40 19-40 20z" fill="#edbd7d"/><path d="M176 105v37l38 19v-36z" fill="#d9984e"/><path d="M214 125v36l40-19v-37z" fill="#c9823e"/></g>
-  </svg>;
-  if (kind === "fleet") return <svg viewBox="0 0 320 190" role="img" aria-label="شاحنة نقل بضائع">
-    <ellipse cx="160" cy="164" rx="132" ry="12" fill="#a9c3d5"/>
-    <path d="M24 63h184v81H24z" rx="8" fill="#1457a7"/><path d="M35 73h162v60H35z" fill="#e9f4ff"/><path d="M208 91h49l36 35v18h-85z" fill="#e7353c"/><path d="M223 99h29l25 26h-54z" fill="#bdeaff"/><path d="M18 138h280v12H18z" fill="#173c60"/>
-    <circle cx="76" cy="151" r="19" fill="#263746"/><circle cx="76" cy="151" r="8" fill="#cbd8e2"/><circle cx="244" cy="151" r="19" fill="#263746"/><circle cx="244" cy="151" r="8" fill="#cbd8e2"/>
-    <path d="M35 82h162M35 97h162M35 112h162" stroke="#b8d5ed" strokeWidth="3"/>
-  </svg>;
-  return <svg viewBox="0 0 320 190" role="img" aria-label="سائق توصيل">
-    <rect x="0" y="0" width="320" height="190" fill="#d8efff"/>
-    <circle cx="160" cy="65" r="42" fill="#c9875d"/><path d="M118 62q3-48 45-45 40 3 44 47-21-17-43-17-23 0-46 15" fill="#173d62"/>
-    <path d="M91 185q6-78 69-78 66 0 70 78" fill="#1559a4"/><path d="M143 112h34l-17 26z" fill="#fff"/><path d="M152 138h16l12 47h-40z" fill="#0d3d78"/>
-    <path d="M205 111q28-8 39 13l-22 19-21-14z" fill="#c9875d"/><path d="m219 121 17 12-9 8-18-12z" fill="#fff"/>
-    <circle cx="145" cy="67" r="4" fill="#253746"/><circle cx="175" cy="67" r="4" fill="#253746"/><path d="M148 84q12 12 25 0" fill="none" stroke="#7b3d2c" strokeWidth="4" strokeLinecap="round"/>
-  </svg>;
-}
-function FeatureCard({kind,title,subtitle,href}:{kind:"boxes"|"fleet"|"driver";title:string;subtitle:string;href:string}) {
-  return <a className="reference-feature" href={href}>
-    <div className={`reference-feature-art art-${kind}`}><FeatureArt kind={kind}/></div>
-    <div className="reference-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">›</b></div>
+function FeatureCard({image,alt,title,subtitle,href,map=false}:{image?:string;alt?:string;title:string;subtitle:string;href:string;map?:boolean}) {
+  return <a className={`home-feature-card${map?" home-feature-map-card":""}`} href={href}>
+    <div className={`home-feature-visual${map?" home-feature-map":""}`}>
+      {image ? <img src={image} alt={alt ?? ""} loading="lazy" decoding="async"/> : <MoroccoMark/>}
+    </div>
+    <div className="home-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">←</b></div>
   </a>;
-}
-function HeroTruckScene() {
-  return <svg className="reference-hero-scene home-hero-photo" viewBox="0 0 1200 430" preserveAspectRatio="xMidYMid slice" role="img" aria-label="شاحنة نقل بضائع تظهر من الأمام على طريق مغربي">
-    <defs>
-      <linearGradient id="heroSky" x2="0" y2="1"><stop stopColor="#63c7ff"/><stop offset="1" stopColor="#e8f7ff"/></linearGradient>
-      <linearGradient id="heroRoad" x2="0" y2="1"><stop stopColor="#596b7c"/><stop offset="1" stopColor="#172d45"/></linearGradient>
-      <linearGradient id="truckCab" x2="0" y2="1"><stop stopColor="#2588d6"/><stop offset="1" stopColor="#073d82"/></linearGradient>
-    </defs>
-    <rect width="1200" height="430" fill="url(#heroSky)"/>
-    <g fill="#fff" opacity=".8"><ellipse cx="180" cy="82" rx="100" ry="27"/><ellipse cx="235" cy="70" rx="65" ry="34"/><ellipse cx="780" cy="72" rx="120" ry="28"/><ellipse cx="850" cy="58" rx="70" ry="35"/></g>
-    <path d="M0 260 170 185 310 255 490 170 680 260 870 185 1040 250 1200 190v110H0z" fill="#9ac7b2"/>
-    <path d="M0 288q260-60 480 0t720-5v147H0z" fill="#75a66b"/>
-    <path d="M0 318 1200 278v152H0z" fill="url(#heroRoad)"/>
-    <path d="M0 365 1200 325" stroke="#fff" strokeWidth="8" strokeDasharray="55 38" opacity=".9"/>
-    <g transform="translate(365 48)">
-      <path d="M72 12 390 12 426 88 426 270 36 270 36 88Z" fill="#e8f2fa" stroke="#123d69" strokeWidth="12" strokeLinejoin="round"/>
-      <path d="M83 26 379 26 401 91 61 91Z" fill="#bceaff" stroke="#fff" strokeWidth="9" strokeLinejoin="round"/>
-      <path d="M231 27v64" stroke="#80c7ef" strokeWidth="7"/>
-      <path d="M35 103 0 119 0 168 39 159M426 103 461 119 461 168 422 159" fill="#e6f2fb" stroke="#123d69" strokeWidth="10" strokeLinejoin="round"/>
-      <path d="M8 124 34 132 34 151 8 158ZM453 124 427 132 427 151 453 158Z" fill="#a8e2ff"/>
-      <path d="M45 166 417 166 405 247 57 247Z" fill="url(#truckCab)" stroke="#123d69" strokeWidth="8" strokeLinejoin="round"/>
-      <path d="M73 178h316v16H73z" fill="#4ba5e8" opacity=".8"/>
-      <path d="M88 207h280v49H88z" fill="#092e5c"/>
-      <path d="M118 213h220M118 230h220M118 247h220" stroke="#b9d6eb" strokeWidth="5"/>
-      <rect x="47" y="179" width="45" height="34" rx="8" fill="#fff2a8" stroke="#123d69" strokeWidth="6"/>
-      <rect x="370" y="179" width="45" height="34" rx="8" fill="#fff2a8" stroke="#123d69" strokeWidth="6"/>
-      <path d="M43 260h374l-15 28H58z" fill="#d7e4ef" stroke="#123d69" strokeWidth="8" strokeLinejoin="round"/>
-      <path d="M80 285v27M380 285v27" stroke="#182f43" strokeWidth="24" strokeLinecap="round"/>
-      <path d="M72 310h40M350 310h40" stroke="#b9c8d5" strokeWidth="8" strokeLinecap="round"/>
-      <rect x="181" y="263" width="150" height="19" rx="7" fill="#e7353c"/>
-      <text x="256" y="277" textAnchor="middle" fontSize="13" fontWeight="900" fill="#fff">BARKOUL.MA</text>
-    </g>
-    <g transform="translate(885 220) scale(.43)" opacity=".96">
-      <rect x="0" y="40" width="300" height="135" rx="8" fill="#f4f8fd"/>
-      <path d="M300 80h105l78 75v20H300z" fill="#d72c35"/>
-      <path d="M328 94h66l57 59H328z" fill="#a8e2ff"/>
-      <circle cx="112" cy="180" r="35" fill="#1d2d3b"/><circle cx="112" cy="180" r="15" fill="#d7e2eb"/>
-      <circle cx="380" cy="180" r="35" fill="#1d2d3b"/><circle cx="380" cy="180" r="15" fill="#d7e2eb"/>
-    </g>
-  </svg>;
 }
 
 export default function App() {
@@ -292,30 +234,42 @@ export default function App() {
   }
 
   return <div className="app-shell">
-    <header className="topbar reference-topbar">
-      <a className="brand reference-brand" href="#"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-      <nav><a className="account-entry" href="#account" aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
-      <a href="#search">الشحنات</a><a href="#publish">نشر شحنة</a>
-      {user && profileRole === "admin" && <a href="#admin">غرفة المدير</a>}
-      {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}</nav>
+    <header className="topbar home-topbar">
+      <a className="brand home-brand" href="#" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
+      <nav aria-label="القائمة الرئيسية">
+        <a className="home-nav-link" href="#search">الشحنات</a>
+        <a className="home-nav-link" href="#publish">نشر شحنة</a>
+        {user && profileRole === "admin" && <a className="home-nav-link" href="#admin">غرفة المدير</a>}
+        <a className="account-entry" href="#account" aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
+        {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}
+      </nav>
     </header>
     <main>
-      <section className="reference-hero home-hero">
-        <div className="reference-sky" aria-hidden="true"></div>
-        <div className="reference-headline"><h1>ربط الشحنات<br/><span>بسائقي الشاحنات في المغرب</span></h1><i></i></div>
-        <div className="reference-landscape">
-          <HeroTruckScene/>
-          <MoroccoMark/>
+      <section className="home-hero" aria-labelledby="home-title">
+        <div className="home-hero-copy">
+          <span className="home-kicker"><span aria-hidden="true">●</span> منصة النقل المغربية</span>
+          <h1 id="home-title">شحناتك تلتقي<br/><span>بسائقي الشاحنات</span></h1>
+          <p>منصة واحدة تجمع أصحاب البضائع والناقلين، لتسهيل العثور على شحنات وفرص نقل بين مدن المغرب.</p>
+          <div className="home-hero-actions">
+            <a className="home-cta home-cta-primary" href="#publish"><span aria-hidden="true">＋</span> أنشر شحنة</a>
+            <a className="home-cta home-cta-secondary" href="#search"><span aria-hidden="true">⌕</span> أبحث عن شحنة</a>
+          </div>
+          <div className="home-trust-points">
+            <span><b aria-hidden="true">✓</b> تصفح الشحنات دون حساب</span>
+            <span><b aria-hidden="true">✓</b> تغطية مدن المغرب</span>
+          </div>
         </div>
-        <div className="reference-actions">
-          <a className="reference-action publish-action" href="#publish"><span>▣</span> أنشر شحنة</a>
-          <a className="reference-action search-action" href="#search"><span>⌕</span> أبحث عن شحنة</a>
+        <div className="home-hero-visual">
+          <img className="home-hero-photo" src="https://images.unsplash.com/photo-1778341665926-521de6227e0b?auto=format&fit=crop&w=1600&q=85" alt="شاحنة نقل بضائع تسير على الطريق السريع" fetchPriority="high" decoding="async"/>
+          <div className="home-photo-shade" aria-hidden="true"></div>
+          <div className="home-photo-caption"><span>نقل البضائع عبر المغرب</span><strong>طريق أوضح. فرص أكثر.</strong></div>
+          <div className="home-map-card"><MoroccoMark/><div><strong>من الشمال إلى الجنوب</strong><span>اربط شحنتك بالناقل المناسب</span></div></div>
         </div>
       </section>
-      <section className="reference-features" aria-label="خدمات Barkoul">
-        <FeatureCard kind="boxes" title="نشر شحنة" subtitle="بخطوات سهلة" href="#publish"/>
-        <FeatureCard kind="fleet" title="الشحنات المتاحة" subtitle="في جميع المدن" href="#search"/>
-        <FeatureCard kind="driver" title="البحث عن شاحنات" subtitle="بسرعة وأمان" href="#search"/>
+      <section className="home-features" aria-label="خدمات Barkoul">
+        <FeatureCard image="https://images.unsplash.com/photo-1778341665926-521de6227e0b?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href="#publish"/>
+        <FeatureCard image="https://images.unsplash.com/photo-1762232621678-3d1755f78685?auto=format&fit=crop&w=720&q=80" alt="حافلة تسير على طريق في المغرب" title="للسائقين والناقلين" subtitle="اكتشف فرص النقل والرحلات" href="#search"/>
+        <FeatureCard title="تغطية وطنية" subtitle="من طنجة إلى مدن الجنوب" href="#search" map/>
       </section>
       <section className="cargo-categories" aria-label="أنواع الشحنات">
         <div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>ماذا تريد أن تنقل؟</h2></div>
