@@ -11,6 +11,9 @@ interface AdminRoomProps {
   onSignOut: () => void;
 }
 
+interface DriverDocument { id:number; driver_id:string; document_type:string; storage_path:string; review_status:"pending"|"verified"|"rejected"; uploaded_at:string; signed_url?:string; }
+interface AuditEntry { id:number; admin_id:string|null; action:string; target_table:string|null; target_id:string|null; created_at:string; }
+interface AdminCargo { id:number; title:string; origin_city:string; destination_city:string; status:string; created_at:string; }
 interface RoleRequest {
   id: number;
   user_id: string;
@@ -36,6 +39,10 @@ export default function AdminRoom({
   const [requestError, setRequestError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
   const [actionMessage, setActionMessage] = useState("");
+  const [documents,setDocuments]=useState<DriverDocument[]>([]);
+  const [audit,setAudit]=useState<AuditEntry[]>([]);
+  const [adminCargos,setAdminCargos]=useState<AdminCargo[]>([]);
+  const [adminDataError,setAdminDataError]=useState("");
   const homeLink = <a className="button button-light" href="#">العودة إلى المنصة</a>;
   const loadRequests = useCallback(async () => {
     const db = getSupabase();
@@ -52,9 +59,35 @@ export default function AdminRoom({
     } finally { setLoadingRequests(false); }
   }, []);
 
+  const loadAdminData = useCallback(async () => {
+    const db=getSupabase(); if(!db||profileRole!=="admin")return;
+    setAdminDataError("");
+    try {
+      const [docsRes,auditRes,cargoRes]=await Promise.all([
+        db.from("driver_documents").select("id,driver_id,document_type,storage_path,review_status,uploaded_at").order("uploaded_at",{ascending:false}).limit(100),
+        db.from("admin_audit_log").select("id,admin_id,action,target_table,target_id,created_at").order("created_at",{ascending:false}).limit(50),
+        db.from("cargos").select("id,title,origin_city,destination_city,status,created_at").order("created_at",{ascending:false}).limit(100)
+      ]);
+      if(docsRes.error||auditRes.error||cargoRes.error)throw new Error("Admin data read failed");
+      const signed=await Promise.all((docsRes.data??[]).map(async(d:any)=>{
+        const {data}=await db.storage.from("driver-documents").createSignedUrl(d.storage_path,300);
+        return {...d,signed_url:data?.signedUrl};
+      }));
+      setDocuments(signed as DriverDocument[]);setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);
+    } catch {setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");}
+  },[profileRole]);
+
+  async function reviewDocument(id:number,status:"verified"|"rejected"){
+    const db=getSupabase();if(!db||profileRole!=="admin")return;
+    setBusyId(id);setActionMessage("");
+    try{const {error}=await db.from("driver_documents").update({review_status:status}).eq("id",id);
+      if(error)throw error;setActionMessage(status==="verified"?"تم اعتماد الوثيقة.":"تم رفض الوثيقة.");await loadAdminData();
+    }catch{setActionMessage("تعذر تحديث حالة الوثيقة.");}finally{setBusyId(null);}
+  }
+
   useEffect(() => {
-    if (user && profileRole === "admin") void loadRequests();
-  }, [user?.id, profileRole, loadRequests]);
+    if (user && profileRole === "admin") { void loadRequests(); void loadAdminData(); }
+  }, [user?.id, profileRole, loadRequests, loadAdminData]);
 
   async function reviewRequest(id: number, approve: boolean) {
     const db = getSupabase();
@@ -124,6 +157,34 @@ export default function AdminRoom({
             </div>
           </article>)}</div>}
         {actionMessage && <p className="form-message" role="status">{actionMessage}</p>}
+      </section>
+      <section className="admin-section">
+        <div className="section-heading"><div><p className="eyebrow">التحقق من السائقين</p><h2>الوثائق المرفوعة</h2></div>
+          <button className="button button-outline" onClick={()=>void loadAdminData()}>تحديث</button></div>
+        {adminDataError&&<p className="notice notice-warn" role="alert">{adminDataError}</p>}
+        {documents.length===0?<p className="empty">لا توجد وثائق مرفوعة للمراجعة.</p>:
+          <div className="admin-grid">{documents.map(d=><article className="admin-card" key={d.id}>
+            <h2>{d.document_type}</h2><p>معرّف السائق: <bdi>{d.driver_id}</bdi></p>
+            <p>الحالة: {d.review_status==="pending"?"قيد المراجعة":d.review_status==="verified"?"معتمدة":"مرفوضة"}</p>
+            <p className="muted">{new Date(d.uploaded_at).toLocaleString("ar-MA")}</p>
+            {d.signed_url&&<a className="button button-light" href={d.signed_url} target="_blank" rel="noopener noreferrer">فتح الوثيقة (رابط مؤقت)</a>}
+            {d.review_status==="pending"&&<div className="hero-actions">
+              <button className="button button-primary" disabled={busyId!==null} onClick={()=>void reviewDocument(d.id,"verified")}>اعتماد</button>
+              <button className="button button-outline" disabled={busyId!==null} onClick={()=>void reviewDocument(d.id,"rejected")}>رفض</button>
+            </div>}
+          </article>)}</div>}
+      </section>
+      <section className="admin-section">
+        <div className="section-heading"><div><p className="eyebrow">مراقبة المنصة</p><h2>الشحنات المنشورة</h2></div></div>
+        {adminCargos.length===0?<p className="empty">لا توجد شحنات.</p>:<div className="admin-grid">{adminCargos.map(c=><article className="admin-card" key={c.id}>
+          <h2>{c.title}</h2><p>{c.origin_city} ← {c.destination_city}</p><p>الحالة: {c.status} · #{c.id}</p>
+        </article>)}</div>}
+      </section>
+      <section className="admin-section">
+        <div className="section-heading"><div><p className="eyebrow">الأمان والمساءلة</p><h2>سجل التدقيق</h2></div></div>
+        {audit.length===0?<p className="empty">لا توجد أحداث إدارية مسجلة بعد.</p>:<div className="admin-grid">{audit.map(a=><article className="admin-card" key={a.id}>
+          <h2>{a.action}</h2><p>{a.target_table??"—"} · {a.target_id??"—"}</p><p className="muted">{new Date(a.created_at).toLocaleString("ar-MA")}</p>
+        </article>)}</div>}
       </section>
       <section className="admin-section"><div className="section-heading"><div><p className="eyebrow">أقسام الإدارة</p><h2>مركز التحكم</h2></div></div>
         <div className="admin-grid">{sections.map((section)=><article className="admin-card" key={section.title}>
