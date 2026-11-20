@@ -14,11 +14,11 @@
       --green:#173f78;
       --green2:#2463a6;
       --orange:#eab84c;
-      --bg:#f4f7f5;
+      --bg:#f3f7fc;
       --white:#fff;
-      --text:#17231e;
-      --muted:#68766f;
-      --border:#dce5df;
+      --text:#17283d;
+      --muted:#64748b;
+      --border:#dce5f0;
       --danger:#b42318;
       --success:#17633b;
       --blue:#244d85;
@@ -107,7 +107,7 @@
     }
 
     .hero {
-      background:linear-gradient(135deg,#173f78,#26745b);
+      background:linear-gradient(135deg,#173f78,#2463a6);
       color:white;
       padding:48px 6%;
       text-align:center;
@@ -500,6 +500,32 @@
     </button>
   </section>
 
+  <!-- مساحة السائق والمالك والرحلات -->
+  <section class="panel hidden" id="workspacePanel">
+    <h2>حسابي والعمليات</h2>
+    <div class="notice" id="workspaceNotice">تظهر هنا عروضك ووثائقك ورحلاتك.</div>
+    <section id="driverDocsPanel" class="hidden">
+      <h3>وثائق السائق</h3>
+      <p class="small">ارفع رخصة السياقة أو وثيقة مهنية بصيغة PDF أو JPG أو PNG أو WEBP. الحد الأقصى 10MB. الملفات خاصة ولا يراها إلا صاحبها والإدارة.</p>
+      <div class="grid">
+        <div class="field"><label for="documentType">نوع الوثيقة</label><select id="documentType"><option value="driving_license">رخصة السياقة</option><option value="identity">بطاقة التعريف</option><option value="professional_card">بطاقة مهنية</option><option value="vehicle_document">وثيقة المركبة</option><option value="other">وثيقة أخرى</option></select></div>
+        <div class="field"><label for="driverDocumentFile">اختر الملف</label><input id="driverDocumentFile" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"></div>
+      </div>
+      <button class="btn btn-green" id="uploadDocumentBtn" type="button">رفع الوثيقة</button>
+      <div id="documentStatus" class="status" role="status" aria-live="polite"></div>
+      <div id="myDocuments"></div>
+    </section>
+    <section id="myNegotiationsPanel" class="hidden">
+      <h3>العروض والتفاوض</h3>
+      <div id="myNegotiations"></div>
+    </section>
+    <section id="myTripsPanel" class="hidden">
+      <h3>رحلاتي وتتبع الحالة</h3>
+      <p class="small">تظهر بيانات الاتصال للطرف الآخر بعد قبول العرض وإنشاء الرحلة.</p>
+      <div id="myTrips"></div>
+    </section>
+  </section>
+
   <!-- نشر شحنة -->
 
   <section class="panel hidden" id="publishPanel">
@@ -697,6 +723,9 @@ const db = window.supabase.createClient(
 let currentUser = null;
 let currentProfileRole = "user";
 let pendingRoleRequest = null;
+let myDriverDocuments = [];
+let driverVerified = false;
+let workspaceLoading = false;
 let authMode = "login";
 let allCargos = [];
 let loadingCargos = false;
@@ -1192,6 +1221,75 @@ function createCargoCard(cargo) {
     addDetail(card, "ملاحظات", cargo.notes);
   }
 
+  if (currentUser && currentProfileRole === "owner" && cargo.status === "open") {
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "btn btn-danger";
+    cancel.textContent = "إلغاء الشحنة";
+    cancel.addEventListener("click", async () => {
+      if (!window.confirm("هل تريد إلغاء هذه الشحنة؟")) return;
+      cancel.disabled = true;
+      try {
+        const { error } = await db.rpc("cancel_open_cargo", { p_cargo_id: cargo.id });
+        if (error) throw error;
+        showGlobalMessage("تم إلغاء الشحنة.", "success");
+        await loadCargos();
+        await loadWorkspace();
+      } catch (e) {
+        showGlobalMessage("تعذر إلغاء الشحنة: " + (e.message || ""), "error");
+        cancel.disabled = false;
+      }
+    });
+    card.appendChild(cancel);
+  }
+
+  if (currentUser && currentProfileRole === "driver" && cargo.status === "open" && driverVerified) {
+    const offerBox = document.createElement("div");
+    offerBox.className = "field";
+    const priceLabel = document.createElement("label");
+    priceLabel.textContent = "عرض السعر بالدرهم";
+    const priceInput = document.createElement("input");
+    priceInput.type = "number";
+    priceInput.min = "1";
+    priceInput.step = "0.01";
+    priceInput.placeholder = "السعر الذي تقترحه";
+    const messageInput = document.createElement("textarea");
+    messageInput.maxLength = 500;
+    messageInput.placeholder = "رسالة قصيرة لصاحب الشحنة (اختياري)";
+    const offerButton = document.createElement("button");
+    offerButton.type = "button";
+    offerButton.className = "btn btn-green";
+    offerButton.textContent = "إرسال عرض";
+    offerButton.addEventListener("click", async () => {
+      const price = Number(priceInput.value);
+      if (!Number.isFinite(price) || price <= 0) {
+        showStatus("globalStatus", "أدخل سعراً صحيحاً أكبر من صفر.", "error");
+        return;
+      }
+      offerButton.disabled = true;
+      try {
+        const { error } = await db.from("negotiations").insert({
+          cargo_id: cargo.id,
+          proposer_id: currentUser.id,
+          proposed_price_mad: price,
+          message: messageInput.value.trim() || null,
+          status: "pending"
+        });
+        if (error) throw error;
+        showGlobalMessage("تم إرسال عرضك إلى صاحب الشحنة.", "success");
+        priceInput.value = "";
+        messageInput.value = "";
+        await loadWorkspace();
+      } catch (e) {
+        const msg = e.code === "23505" ? "يبدو أن لديك عرضاً مسجلاً بالفعل." : (e.message || "تعذر إرسال العرض.");
+        showGlobalMessage(msg, "error");
+      } finally {
+        offerButton.disabled = false;
+      }
+    });
+    offerBox.append(priceLabel, priceInput, messageInput, offerButton);
+    card.appendChild(offerBox);
+  }
   return card;
 }
 
@@ -1258,7 +1356,197 @@ function resetFilters() {
 }
 
 /* =========================================
-   8. نشر شحنة
+   8. مساحة السائق والمالك والرحلات
+========================================= */
+function makeWorkspaceCard(target, title, lines, buttons = []) {
+  const card = document.createElement("article");
+  card.className = "cargo-card";
+  const h = document.createElement("h3");
+  h.textContent = title;
+  card.appendChild(h);
+  for (const line of lines) {
+    const p = document.createElement("p");
+    p.className = "cargo-detail";
+    p.textContent = line;
+    card.appendChild(p);
+  }
+  for (const button of buttons) card.appendChild(button);
+  $(target).appendChild(card);
+  return card;
+}
+function workspaceButton(label, handler, className = "btn btn-light") {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = className;
+  b.textContent = label;
+  b.addEventListener("click", handler);
+  return b;
+}
+async function loadWorkspace() {
+  if (!currentUser || workspaceLoading) return;
+  workspaceLoading = true;
+  $("workspacePanel").classList.remove("hidden");
+  $("driverDocsPanel").classList.toggle("hidden", currentProfileRole !== "driver");
+  $("myNegotiationsPanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
+  $("myTripsPanel").classList.toggle("hidden", !["driver","owner","admin"].includes(currentProfileRole));
+  try {
+    if (currentProfileRole === "driver") {
+      const { data: docs, error: docsError } = await db.from("driver_documents")
+        .select("id,document_type,review_status,uploaded_at")
+        .eq("driver_id", currentUser.id).order("uploaded_at", { ascending: false });
+      if (docsError) throw docsError;
+      myDriverDocuments = docs || [];
+      driverVerified = myDriverDocuments.some(d => d.review_status === "verified");
+      $("workspaceNotice").textContent = driverVerified
+        ? "تم التحقق من وثائقك. يمكنك إرسال عروض على الشحنات المفتوحة."
+        : "أكمل رفع وثائقك وانتظر مراجعة الإدارة قبل تقديم عروض الأسعار.";
+      renderMyDocuments();
+    } else {
+      driverVerified = false;
+    }
+
+    const { data: offers, error: offersError } = await db.from("negotiations")
+      .select("id,cargo_id,proposer_id,proposed_price_mad,message,status,created_at,cargos(title,owner_id,origin_city,destination_city)")
+      .order("created_at", { ascending: false }).limit(100);
+    if (offersError) throw offersError;
+    renderNegotiations(offers || []);
+
+    const { data: trips, error: tripsError } = await db.from("trips")
+      .select("id,cargo_id,owner_id,driver_id,agreed_price_mad,status,last_latitude,last_longitude,location_updated_at,created_at")
+      .order("created_at", { ascending: false }).limit(100);
+    if (tripsError) throw tripsError;
+    await renderTrips(trips || []);
+  } catch (e) {
+    console.error("Workspace load error:", e);
+    $("workspaceNotice").textContent = "تعذر تحميل مساحة الحساب: " + (e.message || "خطأ غير معروف");
+  } finally {
+    workspaceLoading = false;
+  }
+}
+function renderMyDocuments() {
+  $("myDocuments").replaceChildren();
+  if (!myDriverDocuments.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "لم ترفع أي وثيقة بعد."; $("myDocuments").appendChild(p); return;
+  }
+  for (const d of myDriverDocuments) {
+    const state = d.review_status === "verified" ? "معتمدة" : d.review_status === "rejected" ? "مرفوضة — يمكنك رفع نسخة صحيحة جديدة" : "قيد المراجعة";
+    makeWorkspaceCard("myDocuments", "وثيقة " + d.id, ["النوع: " + d.document_type, "الحالة: " + state, "تاريخ الرفع: " + new Date(d.uploaded_at).toLocaleString("ar-MA")]);
+  }
+}
+async function uploadDriverDocument() {
+  if (!currentUser || currentProfileRole !== "driver") return;
+  const file = $("driverDocumentFile").files[0];
+  if (!file) { showStatus("documentStatus", "اختر ملفاً أولاً.", "error"); return; }
+  const allowed = ["application/pdf","image/jpeg","image/png","image/webp"];
+  if (!allowed.includes(file.type) || file.size > 10 * 1024 * 1024) {
+    showStatus("documentStatus", "الملف غير مقبول. استخدم PDF أو JPG أو PNG أو WEBP بحجم لا يتجاوز 10MB.", "error"); return;
+  }
+  const ext = file.name.split(".").pop().toLowerCase();
+  const path = currentUser.id + "/" + crypto.randomUUID() + "." + ext;
+  const btn = $("uploadDocumentBtn"); btn.disabled = true; btn.textContent = "جارٍ رفع الوثيقة...";
+  try {
+    const { error: uploadError } = await db.storage.from("driver-documents").upload(path, file, { contentType: file.type, upsert: false });
+    if (uploadError) throw uploadError;
+    const { error: rowError } = await db.from("driver_documents").insert({
+      driver_id: currentUser.id,
+      document_type: $("documentType").value,
+      storage_path: path,
+      review_status: "pending"
+    });
+    if (rowError) throw rowError;
+    $("driverDocumentFile").value = "";
+    showStatus("documentStatus", "تم رفع الوثيقة وإرسالها للمراجعة.", "success");
+    await loadWorkspace();
+  } catch (e) {
+    console.error("Document upload error:", e);
+    showStatus("documentStatus", "تعذر رفع الوثيقة: " + (e.message || ""), "error");
+  } finally {
+    btn.disabled = false; btn.textContent = "رفع الوثيقة";
+  }
+}
+function renderNegotiations(offers) {
+  $("myNegotiations").replaceChildren();
+  const mine = offers.filter(o => o.proposer_id === currentUser.id || o.cargos?.owner_id === currentUser.id);
+  if (!mine.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "لا توجد عروض تفاوض حالياً."; $("myNegotiations").appendChild(p); return;
+  }
+  for (const o of mine) {
+    const isOwner = o.cargos?.owner_id === currentUser.id;
+    const lines = [
+      "الشحنة: " + (o.cargos?.title || ("رقم " + o.cargo_id)),
+      "المسار: " + (o.cargos?.origin_city || "—") + " ← " + (o.cargos?.destination_city || "—"),
+      "السعر المقترح: " + o.proposed_price_mad + " درهم",
+      "الرسالة: " + (o.message || "—"),
+      "الحالة: " + ({pending:"قيد الانتظار",accepted:"مقبول",rejected:"مرفوض",countered:"عرض مقابل"}[o.status] || o.status)
+    ];
+    const buttons = [];
+    if (isOwner && o.status === "pending") {
+      buttons.push(workspaceButton("قبول العرض وإنشاء الرحلة", async () => {
+        if (!confirm("قبول هذا العرض؟ سيتم إنشاء رحلة وإغلاق عروض الشحنة الأخرى.")) return;
+        try {
+          const { data, error } = await db.rpc("respond_to_negotiation", { p_negotiation_id: o.id, p_accept: true });
+          if (error) throw error;
+          showGlobalMessage("تم قبول العرض وإنشاء الرحلة رقم " + data + ".", "success");
+          await loadCargos(); await loadWorkspace();
+        } catch (e) { showGlobalMessage("تعذر قبول العرض: " + (e.message || ""), "error"); }
+      }, "btn btn-green"));
+      buttons.push(workspaceButton("رفض العرض", async () => {
+        try {
+          const { error } = await db.rpc("respond_to_negotiation", { p_negotiation_id: o.id, p_accept: false });
+          if (error) throw error;
+          await loadWorkspace();
+        } catch (e) { showGlobalMessage("تعذر رفض العرض: " + (e.message || ""), "error"); }
+      }, "btn btn-danger"));
+    }
+    makeWorkspaceCard("myNegotiations", "عرض رقم " + o.id, lines, buttons);
+  }
+}
+async function renderTrips(trips) {
+  $("myTrips").replaceChildren();
+  if (!trips.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "لا توجد رحلات مرتبطة بحسابك بعد."; $("myTrips").appendChild(p); return;
+  }
+  for (const t of trips) {
+    let contactText = "بيانات الطرف الآخر غير متاحة.";
+    try {
+      const { data, error } = await db.rpc("get_trip_contact", { p_trip_id: t.id });
+      if (!error && data?.length) contactText = "جهة الاتصال: " + (data[0].full_name || "—") + " — " + (data[0].phone || "لم يضف رقماً");
+    } catch (_) {}
+    const lines = [
+      "رقم الشحنة: " + t.cargo_id,
+      "السعر المتفق عليه: " + t.agreed_price_mad + " درهم",
+      "الحالة: " + ({agreed:"تم الاتفاق",loading:"جاري التحميل",in_transit:"في الطريق",delivered:"تم التسليم",cancelled:"ملغاة"}[t.status] || t.status),
+      contactText,
+      t.last_latitude != null ? "آخر موقع مسجل: " + t.last_latitude + ", " + t.last_longitude : "لم يتم تسجيل موقع GPS بعد"
+    ];
+    const buttons = [];
+    const move = async (status) => {
+      try {
+        let latitude = null, longitude = null;
+        if (status === "in_transit" || status === "delivered") {
+          if (navigator.geolocation) {
+            const pos = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }));
+            latitude = pos.coords.latitude; longitude = pos.coords.longitude;
+          }
+        }
+        const { error } = await db.rpc("update_trip_progress", { p_trip_id: t.id, p_status: status, p_latitude: latitude, p_longitude: longitude });
+        if (error) throw error;
+        showGlobalMessage("تم تحديث حالة الرحلة.", "success");
+        await loadWorkspace();
+      } catch (e) { showGlobalMessage("تعذر تحديث الرحلة: " + (e.message || ""), "error"); }
+    };
+    if (["agreed","loading"].includes(t.status)) {
+      buttons.push(workspaceButton("بدء التحميل / تأكيد التحميل", () => move("loading"), "btn btn-green"));
+      buttons.push(workspaceButton("إلغاء الرحلة", () => { if (confirm("هل تريد إلغاء الرحلة؟")) move("cancelled"); }, "btn btn-danger"));
+    }
+    if (t.status === "loading" && currentUser.id === t.driver_id) buttons.push(workspaceButton("انطلاق الشحنة", () => move("in_transit"), "btn btn-green"));
+    if (t.status === "in_transit" && currentUser.id === t.driver_id) buttons.push(workspaceButton("تأكيد التسليم", () => move("delivered"), "btn btn-green"));
+    makeWorkspaceCard("myTrips", "رحلة رقم " + t.id, lines, buttons);
+  }
+}
+
+/* =========================================
+   9. نشر شحنة
 ========================================= */
 
 async function publishCargo(event) {
@@ -1531,6 +1819,7 @@ $("refreshBtn").addEventListener("click", loadCargos);
 
 $("logoutBtn").addEventListener("click", logout);
 $("requestRoleBtn").addEventListener("click", requestRoleChange);
+$("uploadDocumentBtn").addEventListener("click", uploadDriverDocument);
 
 /* =========================================
    12. متابعة حالة الحساب
@@ -1546,7 +1835,7 @@ const authListener = db.auth.onAuthStateChange(
     } else {
       updateAuthUI();
       setTimeout(() => {
-        refreshAccountState().catch((error) => {
+        refreshAccountState().then(() => loadWorkspace()).catch((error) => {
           console.error("Account refresh error:", error);
         });
       }, 0);
@@ -1571,6 +1860,7 @@ async function initializeApp() {
   await checkSession();
 
   await loadCargos();
+  if (currentUser) await loadWorkspace();
 }
 
 initializeApp().catch((error) => {
