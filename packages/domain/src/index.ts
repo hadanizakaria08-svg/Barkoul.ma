@@ -7,6 +7,22 @@ export function canPublishCargo(role: string | null | undefined): boolean {
   return role === "owner" || role === "admin";
 }
 
+/**
+ * A driver may propose a negotiation only while the cargo is open,
+ * and never on their own cargo. This is a UI/domain rule; database RLS
+ * and constraints remain the authoritative enforcement boundary.
+ */
+export function canProposeNegotiation(
+  cargoStatus: string | null | undefined,
+  cargoOwnerId: string | null | undefined,
+  actorId: string | null | undefined
+): boolean {
+  return cargoStatus === "open" &&
+    typeof cargoOwnerId === "string" && cargoOwnerId.length > 0 &&
+    typeof actorId === "string" && actorId.length > 0 &&
+    cargoOwnerId !== actorId;
+}
+
 export const TRUCK_TYPES = [
   "شاحنة كبيرة",
   "شاحنة متوسطة",
