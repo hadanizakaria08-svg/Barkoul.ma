@@ -16,6 +16,11 @@ test("keeps cargo publication disabled without an authenticated session", async 
   await expect(page.getByRole("button", { name: "نشر الشحنة" })).toBeDisabled();
 });
 
+test("does not expose publisher-role refresh to signed-out visitors", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "إعادة التحقق من الصلاحية" })).toHaveCount(0);
+});
+
 test("exposes labelled search and account controls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByLabel("من مدينة")).toBeVisible();
