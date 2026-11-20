@@ -331,19 +331,19 @@ export default function App() {
         </div>
       </section>
       <section className="home-features" aria-label="خدمات Barkoul">
-        <FeatureCard image="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href={user ? "#publish" : "#account"}/>
+        <FeatureCard image="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}/>
         <FeatureCard image="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=720&q=80" alt="حافلة تسير على طريق في المغرب" title="للسائقين والناقلين" subtitle="اكتشف فرص النقل والرحلات" href="#search"/>
         <FeatureCard title="تغطية وطنية" subtitle="من طنجة إلى مدن الجنوب" href="#search" map/>
       </section>
       <section className="cargo-categories" aria-label="أنواع الشحنات">
         <div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>ماذا تريد أن تنقل؟</h2></div>
         <div className="category-grid">
-          <a href={user ? "#publish" : "#account"}><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="خضر وفواكه طازجة" loading="lazy"/><strong>خضر وفواكه</strong></a>
-          <a href={user ? "#publish" : "#account"}><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80" alt="مواد البناء" loading="lazy"/><strong>مواد البناء</strong></a>
-          <a href={user ? "#publish" : "#account"}><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80" alt="طرود وبضائع" loading="lazy"/><strong>بضائع عامة</strong></a>
-          <a href={user ? "#publish" : "#account"}><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" alt="أثاث وأجهزة منزلية" loading="lazy"/><strong>أثاث وأجهزة</strong></a>
-          <a href={user ? "#publish" : "#account"}><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="مواد غذائية" loading="lazy"/><strong>مواد غذائية</strong></a>
-          <a href={user ? "#publish" : "#account"}><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="شاحنة نقل مبرد" loading="lazy"/><strong>شاحنة تبريد</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="خضر وفواكه طازجة" loading="lazy"/><strong>خضر وفواكه</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80" alt="مواد البناء" loading="lazy"/><strong>مواد البناء</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80" alt="طرود وبضائع" loading="lazy"/><strong>بضائع عامة</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" alt="أثاث وأجهزة منزلية" loading="lazy"/><strong>أثاث وأجهزة</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="مواد غذائية" loading="lazy"/><strong>مواد غذائية</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="شاحنة نقل مبرد" loading="lazy"/><strong>شاحنة تبريد</strong></a>
         </div>
       </section>
 
