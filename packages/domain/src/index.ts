@@ -1,4 +1,4 @@
-export type CargoStatus = "open" | "reserved" | "completed" | "cancelled";
+export type CargoStatus = "open" | "pending" | "matched" | "completed" | "cancelled";
 
 export type ProfileRole = "user" | "driver" | "owner" | "admin";
 
