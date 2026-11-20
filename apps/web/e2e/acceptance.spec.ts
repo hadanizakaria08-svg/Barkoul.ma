@@ -8,12 +8,15 @@ test("serves the Arabic RTL application shell and primary journeys", async ({ pa
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: "أبحث عن شحنة" })).toHaveAttribute("href", "#search");
-  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "#publish");
+  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "#account");
 });
 
-test("keeps cargo publication disabled without an authenticated session", async ({ page }) => {
+test("keeps the cargo form out of the public homepage and directs visitors to account access", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "نشر الشحنة" })).toBeDisabled();
+  await expect(page.locator("#publish")).toHaveCount(0);
+  await page.getByRole("link", { name: "أنشر شحنة" }).click();
+  await expect(page).toHaveURL(/#account$/);
+  await expect(page.locator("#account").getByLabel("البريد الإلكتروني")).toBeVisible();
 });
 
 test("does not expose publisher-role refresh to signed-out visitors", async ({ page }) => {
