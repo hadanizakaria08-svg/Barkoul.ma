@@ -47,3 +47,14 @@ test("meets automated WCAG 2.2 AA accessibility checks on the initial screen", a
     .analyze();
   expect(results.violations).toEqual([]);
 });
+
+test("ships a restrictive browser security policy and referrer policy", async ({ page }) => {
+  await page.goto("/");
+  const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute("content");
+  expect(csp).toContain("default-src 'self'");
+  expect(csp).toContain("object-src 'none'");
+  expect(csp).toContain("script-src 'self'");
+  expect(csp).toContain("https://*.supabase.co");
+  expect(csp).not.toContain("'unsafe-eval'");
+  await expect(page.locator('meta[name="referrer"]')).toHaveAttribute("content", "strict-origin-when-cross-origin");
+});
