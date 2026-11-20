@@ -3,47 +3,45 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#103b75">
-<title>Barkoul.ma — معاينة الواجهة الجديدة</title>
+<title>Barkoul.ma — معاينة الواجهة المصححة</title>
 <style>
 :root{--navy:#103b75;--blue:#1768c5;--sky:#eaf3ff;--gold:#f4bd52;--ink:#17345a;--muted:#6b7d95;--line:#dce7f5;--bg:#f5f8fd}
-*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65}
-.top{background:#0c3267;color:#fff;padding:8px 6%;font-size:13px;display:flex;justify-content:space-between}
-.nav{background:#fff;padding:16px 6%;display:flex;align-items:center;justify-content:space-between;gap:20px;box-shadow:0 5px 20px #183d6b0d}
-.logo{font-size:27px;font-weight:900;color:var(--navy);direction:ltr}.logo span{color:var(--gold)}
-.links{display:flex;gap:27px;font-size:14px;font-weight:bold}.links a{color:#35516f;text-decoration:none}
-.actions{display:flex;gap:9px}.btn{border:0;border-radius:11px;padding:12px 19px;font-weight:bold;font-size:14px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65}
+.top{background:#0c3267;color:#fff;padding:8px 6%;font-size:13px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.nav{background:#fff;padding:15px 6%;display:flex;align-items:center;justify-content:space-between;gap:18px;box-shadow:0 5px 20px #183d6b0d}
+.logo{font-size:27px;font-weight:900;color:var(--navy);direction:ltr;white-space:nowrap}.logo span{color:var(--gold)}
+.links{display:flex;gap:25px;font-size:14px;font-weight:bold}.links a{color:#35516f;text-decoration:none}
+.actions{display:flex;gap:9px}.btn{border:0;border-radius:11px;padding:12px 19px;font-weight:bold;font-size:14px;white-space:nowrap}
 .primary{background:var(--blue);color:#fff;box-shadow:0 8px 18px #1768c52b}.light{background:#edf4fd;color:var(--navy);border:1px solid #d8e6f8}
-.hero{padding:48px 6%;background:linear-gradient(120deg,#f6faff,#e5f0ff 65%,#d8e8ff);display:grid;grid-template-columns:1fr 1.05fr;align-items:center;gap:40px;overflow:hidden}
+.hero{padding:42px 6%;background:linear-gradient(120deg,#f6faff,#e5f0ff 65%,#d8e8ff);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:center;gap:36px;overflow:hidden}
 .copy{max-width:560px}.tag{display:inline-block;border:1px solid #c9def8;background:#dcecff;color:#1555a1;padding:7px 15px;border-radius:30px;font-size:13px;font-weight:bold}
-.copy h1{font-size:52px;line-height:1.15;color:#0e4388;margin:17px 0 8px}.copy h2{font-size:26px;margin:0 0 12px;color:#214d80}
-.copy p{color:#617792;font-size:16px;margin:0 0 24px}.heroBtns{display:flex;gap:12px}.heroBtns .btn{min-width:175px;padding:15px 18px;font-size:16px}
-.visual{position:relative;min-height:315px;border-radius:26px;background:linear-gradient(135deg,#0c4388,#2879ce);box-shadow:0 24px 50px #123e732d;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.visual:before,.visual:after{content:"";position:absolute;border:1px solid #ffffff32;border-radius:50%;width:380px;height:380px}.visual:after{width:520px;height:520px}
-.road{position:absolute;bottom:0;left:0;right:0;height:76px;background:#092e61;transform:skewY(-5deg);transform-origin:left}
-.vehicles{position:relative;z-index:2;display:flex;align-items:end;gap:12px;direction:ltr;margin-top:-12px}
-.truck{font-size:116px;filter:drop-shadow(0 13px 8px #09284b66)}.bus{font-size:82px;filter:drop-shadow(0 13px 8px #09284b66)}
-.map{position:absolute;z-index:3;right:24px;top:20px;width:92px;height:135px;background:#fff;border:3px solid #fff;border-radius:48% 35% 45% 30%;clip-path:polygon(15% 0,78% 4%,86% 18%,76% 31%,91% 44%,72% 58%,82% 73%,58% 100%,35% 88%,25% 68%,8% 52%,18% 33%,5% 16%);box-shadow:0 5px 16px #082b5840}
-.map:after{content:"المغرب";position:absolute;bottom:19px;right:10px;font-size:12px;font-weight:bold;color:#1556a0;writing-mode:vertical-rl}
-.visualLabel{position:absolute;left:22px;top:22px;background:#fff;color:#124783;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:bold;z-index:4}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:-1px 6% 25px;position:relative}
-.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:center;box-shadow:0 7px 22px #143e760a}.stat b{display:block;color:var(--blue);font-size:20px}.stat small{color:var(--muted)}
+.copy h1{font-size:clamp(38px,5vw,56px);line-height:1.15;color:#0e4388;margin:16px 0 8px}.copy h2{font-size:clamp(21px,2.4vw,27px);margin:0 0 12px;color:#214d80}
+.copy p{color:#617792;font-size:16px;margin:0 0 24px}.heroBtns{display:flex;gap:12px;flex-wrap:wrap}.heroBtns .btn{min-width:165px;padding:15px 16px;font-size:15px}
+.visual{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.34fr);gap:12px;align-items:stretch}
+.photo{display:block;width:100%;height:310px;min-width:0;object-fit:cover;object-position:center;border:5px solid white;border-radius:22px;box-shadow:0 18px 42px #092d6628;background:#fff}
+.mapFrame{background:#fff;border:1px solid #dce7f5;border-radius:20px;box-shadow:0 12px 30px #092d6618;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
+.map{display:block;width:100%;height:245px;object-fit:contain;object-position:center}
+.mapCaption{font-weight:bold;color:#1555a1;font-size:13px;text-align:center;margin-top:5px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 6% 25px;position:relative}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:center;box-shadow:0 7px 22px #143e760a;min-width:0}.stat b{display:block;color:var(--blue);font-size:20px}.stat small{color:var(--muted)}
 .section{padding:12px 6% 34px}.sectionHead{text-align:center;margin:12px 0 22px}.sectionHead h2{font-size:25px;color:var(--navy);margin:0}.sectionHead p{margin:5px 0;color:var(--muted);font-size:14px}
-.services{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}.service{background:#fff;border:1px solid var(--line);border-radius:16px;padding:19px 10px;text-align:center;font-weight:bold;box-shadow:0 8px 22px #173e7008}
-.service i{font-style:normal;font-size:35px;display:block;margin-bottom:8px}.service small{display:block;color:var(--muted);font-weight:normal;font-size:12px}
+.services{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}.service{background:#fff;border:1px solid var(--line);border-radius:16px;padding:19px 10px;text-align:center;font-weight:bold;box-shadow:0 8px 22px #173e7008;min-width:0}
+.service i{font-style:normal;font-size:32px;display:block;margin-bottom:8px}.service small{display:block;color:var(--muted);font-weight:normal;font-size:12px}
 .bottom{margin:0 6% 34px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:20px}
 .bottom h3{margin:0;color:var(--navy)}.bottom p{margin:3px 0 0;color:var(--muted);font-size:13px}
 .footer{background:#0c3267;color:#dceaff;padding:24px 6%;text-align:center;font-size:13px}.footer strong{color:#fff}
-@media(max-width:850px){.links{display:none}.hero{grid-template-columns:1fr;text-align:center;padding:34px 5%;gap:25px}.copy{margin:auto}.heroBtns{justify-content:center}.visual{min-height:270px}.stats{grid-template-columns:repeat(2,1fr);margin:0 5% 20px}.services{grid-template-columns:repeat(3,1fr)}.bottom{margin:0 5% 25px}}
-@media(max-width:520px){.top{justify-content:center}.top span:first-child{display:none}.nav{padding:12px 4%;flex-wrap:wrap}.logo{font-size:23px}.actions{width:100%}.actions .btn{flex:1;padding:10px 6px}.hero{padding:28px 4%}.copy h1{font-size:40px}.copy h2{font-size:21px}.copy p{font-size:14px}.heroBtns{display:grid;grid-template-columns:1fr 1fr}.heroBtns .btn{min-width:0;font-size:13px;padding:12px 6px}.visual{min-height:220px}.truck{font-size:82px}.bus{font-size:58px}.map{width:66px;height:100px;right:14px;top:14px}.visualLabel{left:12px;top:12px}.services{grid-template-columns:repeat(2,1fr);gap:9px}.service{padding:14px 6px}.bottom{display:block;text-align:center}.bottom .btn{margin-top:12px;width:100%}}
+@media(max-width:900px){.links{display:none}.hero{grid-template-columns:1fr;text-align:center;padding:34px 5%;gap:24px}.copy{margin:auto}.heroBtns{justify-content:center}.visual{width:min(100%,680px);margin:auto}.photo{height:270px}.map{height:220px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));margin:0 5% 20px}.services{grid-template-columns:repeat(3,minmax(0,1fr))}.bottom{margin:0 5% 25px}}
+@media(max-width:560px){.top{justify-content:center}.top span:first-child{display:none}.nav{padding:12px 4%;flex-wrap:wrap}.logo{font-size:23px}.actions{width:100%}.actions .btn{flex:1;padding:10px 6px}.hero{padding:27px 4%}.copy h1{font-size:39px}.copy h2{font-size:21px}.copy p{font-size:14px}.heroBtns{display:grid;grid-template-columns:1fr 1fr;width:100%}.heroBtns .btn{min-width:0;font-size:13px;padding:12px 5px}.visual{grid-template-columns:minmax(0,1fr) 88px;gap:8px}.photo{height:190px;aspect-ratio:4/3;border-width:3px;border-radius:15px}.mapFrame{padding:5px;border-radius:14px}.map{height:165px}.mapCaption{font-size:11px}.services{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.service{padding:14px 6px}.bottom{display:block;text-align:center}.bottom .btn{margin-top:12px;width:100%}}
+@media(max-width:360px){.visual{grid-template-columns:minmax(0,1fr) 76px}.photo{height:165px}.map{height:145px}}
 </style></head>
 <body>
 <div class="top"><span>منصة مغربية للنقل واللوجستيك</span><span>🇲🇦 تغطية شاملة لجميع مدن المغرب</span></div>
-<header class="nav"><div class="logo">BARKOUL<span>.MA</span></div><nav class="links"><a href="#home">الرئيسية</a><a href="#services">الخدمات</a><a href="#how">كيف تعمل المنصة؟</a><a href="#contact">اتصل بنا</a></nav><div class="actions"><button class="btn light">تسجيل الدخول</button><button class="btn primary">إنشاء حساب</button></div></header>
+<header class="nav"><div class="logo">BARKOUL<span>.MA</span></div><nav class="links"><a href="#home">الرئيسية</a><a href="#services">الخدمات</a><a href="#how">كيف تعمل المنصة؟</a><a href="#contact">اتصل بنا</a></nav><div class="actions"><button class="btn light" type="button">تسجيل الدخول</button><button class="btn primary" type="button">إنشاء حساب</button></div></header>
 <main id="home">
-<section class="hero"><div class="copy"><span class="tag">حلول النقل واللوجستيك في المغرب</span><h1>Barkoul.ma</h1><h2>شحن بضاعتك أصبح أسهل</h2><p>منصة تجمع أصحاب البضائع بسائقي الشاحنات، لتجد وسيلة النقل المناسبة بسرعة ووضوح، من مدينة إلى أخرى في جميع أنحاء المملكة.</p><div class="heroBtns"><button class="btn primary">⌕　أبحث عن شحنة</button><button class="btn light">＋　أنشر شحنة</button></div></div>
-<div class="visual"><span class="visualLabel">النقل في جميع أنحاء المغرب</span><div class="map"></div><div class="vehicles"><span class="truck">🚛</span><span class="bus">🚌</span></div><div class="road"></div></div></section>
+<section class="hero"><div class="copy"><span class="tag">حلول النقل واللوجستيك في المغرب</span><h1>Barkoul.ma</h1><h2>شحن بضاعتك أصبح أسهل</h2><p>منصة تجمع أصحاب البضائع بسائقي الشاحنات، لتجد وسيلة النقل المناسبة بسرعة ووضوح، من مدينة إلى أخرى في جميع أنحاء المملكة.</p><div class="heroBtns"><button class="btn primary" type="button">⌕　أبحث عن شحنة</button><button class="btn light" type="button">＋　أنشر شحنة</button></div></div>
+<div class="visual"><img class="photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=85" alt="شاحنة نقل بضائع على الطريق" loading="eager"><div class="mapFrame"><img class="map" src="https://commons.wikimedia.org/wiki/Special:FilePath/Morocco_full_map.svg" alt="خريطة المغرب كاملة" loading="eager"><span class="mapCaption">المغرب</span></div></div></section>
 <div class="stats"><div class="stat"><b>🇲🇦 12</b><small>جهة مغربية</small></div><div class="stat"><b>🚚 نقل متنوع</b><small>مختلف أنواع الشاحنات</small></div><div class="stat"><b>🤝 مباشر</b><small>تواصل بين الطرفين</small></div><div class="stat"><b>🔒 موثوق</b><small>حسابات وخدمات منظمة</small></div></div>
 <section class="section" id="services"><div class="sectionHead"><h2>اختر نوع الشحنة</h2><p>خدمات نقل تناسب احتياجاتك</p></div><div class="services"><div class="service"><i>🥬</i>خضر وفواكه<small>نقل المنتجات الفلاحية</small></div><div class="service"><i>🧱</i>مواد البناء<small>معدات ومواد الورش</small></div><div class="service"><i>📦</i>بضائع متنوعة<small>شحنات عامة</small></div><div class="service"><i>🛋️</i>أثاث وأجهزة<small>نقل الأثاث المنزلي</small></div><div class="service"><i>❄️</i>شاحنة تبريد<small>نقل البضائع المبردة</small></div><div class="service"><i>🚌</i>حافلات ونقل<small>حلول نقل متنوعة</small></div></div></section>
-<section class="bottom" id="how"><div><h3>هل لديك شحنة تريد نقلها؟</h3><p>انشر تفاصيل الشحنة ليتمكن السائقون من الاطلاع عليها والتواصل معك.</p></div><button class="btn primary">أنشر شحنة الآن　←</button></section>
+<section class="bottom" id="how"><div><h3>هل لديك شحنة تريد نقلها؟</h3><p>انشر تفاصيل الشحنة ليتمكن السائقون من الاطلاع عليها والتواصل معك.</p></div><button class="btn primary" type="button">أنشر شحنة الآن　←</button></section>
 </main><footer class="footer" id="contact"><strong>Barkoul.ma</strong> — منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات<br>© 2026 جميع الحقوق محفوظة</footer>
 </body></html>
