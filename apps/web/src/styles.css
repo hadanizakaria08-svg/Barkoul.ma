@@ -112,3 +112,6 @@
  .reference-feature-copy strong{font-size:13px}
  .reference-feature-copy>span{font-size:11px}
 }
+
+/* Keep muted text readable against the light public-page surface. */
+.muted{color:#4b5d72}
