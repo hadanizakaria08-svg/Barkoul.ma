@@ -11,7 +11,7 @@ const [html, robots, sitemap, manifest] = await Promise.all([
 ]);
 
 test("SEO metadata declares the exact public GitHub Pages canonical URL", () => {
-  assert.match(html, new RegExp('<link\\s+rel="canonical"\\s+href="' + base.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&") + '"'));
+  assert.ok(html.includes('<link rel="canonical" href="' + base + '" />'));
   assert.match(html, /<meta\\s+name="description"\\s+content="[^"]{60,}"/);
   assert.match(html, /<meta\\s+property="og:title"/);
   assert.match(html, /<meta\\s+property="og:description"/);
