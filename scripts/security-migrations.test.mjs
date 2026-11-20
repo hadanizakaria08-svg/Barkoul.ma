@@ -7,6 +7,10 @@ const migration = await readFile(
   "utf8"
 );
 const workspace = await readFile(new URL("../apps/web/src/Workspace.tsx", import.meta.url), "utf8");
+const rpcValidationMigration = await readFile(
+  new URL("../supabase/migrations/20261120149500_validate_rpc_arguments.sql", import.meta.url),
+  "utf8"
+);
 
 describe("database mutation boundaries", () => {
   it("removes direct table grants before restoring least-privilege access", () => {
@@ -61,5 +65,22 @@ describe("database mutation boundaries", () => {
     assert.ok(migration.includes("GRANT SELECT ON public.admin_users, public.admin_audit_log, public.commission_charges"));
     assert.ok(migration.includes("cargo_id, proposer_id, proposed_price_mad, message, status"));
     assert.ok(migration.includes("ON public.negotiations TO authenticated"));
+  });
+
+  it("rejects null and unsupported arguments at sensitive RPC boundaries", () => {
+    for (const signature of [
+      "public.respond_to_negotiation",
+      "public.update_trip_progress",
+      "public.admin_set_profile_role",
+      "public.admin_review_role_request",
+      "public.admin_review_driver_document",
+      "public.admin_record_commission_payment"
+    ]) {
+      assert.ok(rpcValidationMigration.includes(`CREATE OR REPLACE FUNCTION ${signature}`));
+    }
+    assert.ok(rpcValidationMigration.includes("p_negotiation_id IS NULL OR p_accept IS NULL"));
+    assert.ok(rpcValidationMigration.includes("p_status NOT IN ('loading','in_transit','delivered','cancelled')"));
+    assert.ok(rpcValidationMigration.includes("p_method NOT IN ('cash','electronic')"));
+    assert.ok(rpcValidationMigration.includes("p_approve IS NULL"));
   });
 });
