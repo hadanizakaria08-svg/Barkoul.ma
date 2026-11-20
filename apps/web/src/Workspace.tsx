@@ -59,6 +59,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
 
   async function cancelCargo(id:number){
     if(!db)return;setBusy(true);setMessage("");
+    // Cargo lifecycle updates are server-guarded; clients cannot UPDATE cargo rows directly.
     try{const {error}=await db.rpc("cancel_open_cargo",{p_cargo_id:id});
       if(error)throw error;
       setMessage("تم إلغاء الشحنة المفتوحة.");await load();
