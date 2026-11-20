@@ -7,6 +7,8 @@ import {
   filterCargos,
   normalizeCargoDraft,
   validateCargoDraft,
+  validateDriverDocumentFile,
+  DRIVER_DOCUMENT_MAX_BYTES,
   type Cargo,
   type CargoDraft
 } from "./index";
@@ -123,5 +125,21 @@ describe("cargo domain rules", () => {
 
   it("filters truck categories after trimming search input", () => {
     assert.deepEqual(filterCargos(cargos,"","","  شاحنة كبيرة  ").map(c=>c.id), [1,2]);
+  });
+});
+
+describe("driver document validation", () => {
+  it("accepts supported non-empty files within the 10 MB limit", () => {
+    assert.equal(validateDriverDocumentFile({ type: "application/pdf", size: 1024 }), null);
+    assert.equal(validateDriverDocumentFile({ type: "image/jpeg", size: DRIVER_DOCUMENT_MAX_BYTES }), null);
+    assert.equal(validateDriverDocumentFile({ type: "image/png", size: 2048 }), null);
+    assert.equal(validateDriverDocumentFile({ type: "image/webp", size: 2048 }), null);
+  });
+
+  it("rejects empty, oversized, unsupported, and invalid-size files", () => {
+    assert.match(validateDriverDocumentFile({ type: "application/pdf", size: 0 }) ?? "", /فارغ/);
+    assert.match(validateDriverDocumentFile({ type: "application/pdf", size: DRIVER_DOCUMENT_MAX_BYTES + 1 }) ?? "", /10 ميغابايت/);
+    assert.match(validateDriverDocumentFile({ type: "image/heic", size: 1024 }) ?? "", /غير مدعوم/);
+    assert.match(validateDriverDocumentFile({ type: "image/png", size: Number.NaN }) ?? "", /غير صالح/);
   });
 });
