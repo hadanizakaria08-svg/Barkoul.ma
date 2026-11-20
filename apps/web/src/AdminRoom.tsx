@@ -23,14 +23,7 @@ interface RoleRequest {
   created_at: string;
 }
 
-const sections = [
-  { title: "إدارة الحسابات", description: "مراجعة طلبات تفعيل حسابات السائقين وأصحاب البضائع", icon: "👥" },
-  { title: "إدارة الشحنات", description: "مراجعة الشحنات وحالات النشر", icon: "🚚" },
-  { title: "التحقق من السائقين", description: "مراجعة وثائق السائقين وطلبات التحقق", icon: "🪪" },
-  { title: "المفاوضات والرحلات", description: "متابعة العروض والاتفاقات والرحلات", icon: "🧾" },
-  { title: "سجل التدقيق", description: "مراجعة الأحداث الإدارية والأمنية", icon: "🛡️" },
-  { title: "العمولات والتحصيل", description: "متابعة العمولات بعد اعتماد آلية الدفع", icon: "💳" }
-];
+
 
 export default function AdminRoom({
   user, profileRole, profileLoading, profileError, onRefreshRole, onSignOut
