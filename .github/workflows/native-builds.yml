@@ -3,8 +3,20 @@ name: Native platform build checks
 on:
   push:
     branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'apps/desktop/**'
+      - 'capacitor.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
   pull_request:
     branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'apps/desktop/**'
+      - 'capacitor.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:
