@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildCargoInsertPayload,
   canPublishCargo,
   filterCargos,
   normalizeCargoDraft,
@@ -32,6 +33,21 @@ describe("cargo domain rules", () => {
 
   it("accepts a valid future cargo", () => {
     assert.deepEqual(validateCargoDraft(draft,"2026-11-18"), []);
+  });
+
+  it("creates a strict cargo insert payload and ignores unexpected caller fields", () => {
+    const untrusted = {
+      ...draft,
+      owner_id: "attacker-id",
+      status: "completed",
+      id: 999,
+      created_at: "2000-01-01T00:00:00Z"
+    } as CargoDraft;
+    assert.deepEqual(buildCargoInsertPayload(untrusted, "verified-user-id"), {
+      ...draft,
+      owner_id: "verified-user-id",
+      status: "open"
+    });
   });
 
   it("rejects same origin and destination", () => {
