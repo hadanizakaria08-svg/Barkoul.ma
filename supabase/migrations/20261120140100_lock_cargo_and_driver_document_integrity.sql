@@ -145,3 +145,10 @@ FROM auth.users u
 LEFT JOIN public.profiles p ON p.id = u.id
 WHERE p.id IS NULL AND u.deleted_at IS NULL
 ON CONFLICT (id) DO NOTHING;
+
+-- Match the client rule: an offer must carry a strictly positive price.
+ALTER TABLE public.negotiations
+  DROP CONSTRAINT IF EXISTS negotiations_proposed_price_mad_check;
+ALTER TABLE public.negotiations
+  ADD CONSTRAINT negotiations_proposed_price_mad_check
+  CHECK (proposed_price_mad > 0);
