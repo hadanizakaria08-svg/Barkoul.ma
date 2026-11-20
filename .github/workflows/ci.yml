@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: ["rebuild/**"]
+    branches: [main, "rebuild/**"]
 permissions:
   contents: read
 jobs:
