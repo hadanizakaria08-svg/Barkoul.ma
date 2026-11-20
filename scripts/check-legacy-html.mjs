@@ -8,7 +8,7 @@ const admin = fs.readFileSync("apps/web/src/AdminRoom.tsx", "utf8");
 assert.match(shell, /<div id="root"><\/div>/, "React mount point must exist");
 assert.match(shell, /type="module" src="\.\/assets\/app\.js"/, "Built application entry must be loaded");
 assert.match(shell, /\.\/assets\/app\.css/, "Built application styles must be loaded");
-assert.match(app, /reference-hero/, "Approved homepage hero must be present");
+assert.match(app, /home-hero/, "Rebuilt responsive homepage hero must be present");
 assert.match(app, /أنشر شحنة/, "Publish action must be present");
 assert.match(app, /أبحث عن شحنة/, "Search action must be present");
 assert.match(app, /#admin/, "Protected admin route must be present");
@@ -23,4 +23,4 @@ assert.deepEqual(stillPresent, [], "Legacy standalone interfaces must be retired
 for (const [name, source] of [["apps/web/index.html", shell], ["apps/web/src/App.tsx", app], ["apps/web/src/AdminRoom.tsx", admin]]) {
   assert.doesNotMatch(source, /service_role|sb_secret_/i, name + " must not contain a server-side key");
 }
-console.log("Approved React interface verified; legacy root interfaces retired; admin workflows preserved.");
+console.log("Responsive photo-led React homepage verified; legacy root interfaces retired; admin workflows preserved.");
