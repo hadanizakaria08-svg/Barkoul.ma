@@ -851,16 +851,24 @@ function updateAuthUI() {
       ? "حسابك مفعل كصاحب بضائع. يمكنك نشر شحنتك."
       : "حسابك مسجل. يلزم تفعيل صفة صاحب بضائع قبل نشر الشحنات.";
 
-    if (pendingRoleRequest) {
+    if (currentProfileRole === "driver") {
+      $("roleRequestMessage").textContent =
+        "حسابك مفعل كسائق. لا تحتاج إلى إرسال طلب تفعيل آخر.";
+      $("requestedRole").disabled = true;
+      $("requestRoleBtn").disabled = true;
+      $("requestRoleBtn").textContent = "حساب سائق مفعل";
+    } else if (pendingRoleRequest) {
       $("roleRequestMessage").textContent =
         "طلبك لتفعيل صفة " +
         (pendingRoleRequest.requested_role === "driver" ? "سائق" : "صاحب بضائع") +
         " قيد المراجعة لدى الإدارة.";
+      $("requestedRole").disabled = true;
       $("requestRoleBtn").disabled = true;
       $("requestRoleBtn").textContent = "الطلب قيد المراجعة";
     } else {
       $("roleRequestMessage").textContent =
         "اختر نوع الحساب الذي تحتاجه. لا يمكنك نشر الشحنات قبل الموافقة على طلب صاحب البضائع.";
+      $("requestedRole").disabled = false;
       $("requestRoleBtn").disabled = currentProfileRole !== "user";
       $("requestRoleBtn").textContent = "إرسال طلب التفعيل";
     }
