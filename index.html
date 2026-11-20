@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123c32">
+  <meta name="theme-color" content="#173f78">
   <meta name="description" content="Barkoul.ma منصة مغربية لربط أصحاب البضائع بسائقي الشاحنات">
   <title>Barkoul.ma | نقل البضائع في المغرب</title>
 
@@ -11,9 +11,9 @@
 
   <style>
     :root {
-      --green:#123c32;
-      --green2:#1d604d;
-      --orange:#f2a900;
+      --green:#173f78;
+      --green2:#2463a6;
+      --orange:#eab84c;
       --bg:#f4f7f5;
       --white:#fff;
       --text:#17231e;
@@ -107,7 +107,7 @@
     }
 
     .hero {
-      background:linear-gradient(135deg,#123c32,#26745b);
+      background:linear-gradient(135deg,#173f78,#26745b);
       color:white;
       padding:48px 6%;
       text-align:center;
@@ -171,7 +171,7 @@
 
     input:focus,select:focus,textarea:focus {
       border-color:var(--green2);
-      box-shadow:0 0 0 2px #1d604d18;
+      box-shadow:0 0 0 2px #2463a618;
     }
 
     textarea {
@@ -182,7 +182,7 @@
     .notice {
       padding:11px 13px;
       border-radius:8px;
-      background:#edf5ef;
+      background:#edf3fb;
       color:var(--green);
       margin:12px 0;
       font-size:14px;
@@ -509,7 +509,21 @@
       سجل الدخول أولاً حتى تتمكن من نشر شحنتك.
     </div>
 
-    <form id="cargoForm">
+    <div id="roleRequestPanel" class="notice hidden">
+      <strong>تفعيل حسابك للنشر أو القيادة</strong>
+      <p id="roleRequestMessage">اختر نوع الحساب الذي تحتاجه، وسيصل طلبك إلى الإدارة للمراجعة.</p>
+      <div class="field">
+        <label for="requestedRole">نوع الحساب المطلوب</label>
+        <select id="requestedRole">
+          <option value="owner">صاحب بضائع (نشر الشحنات)</option>
+          <option value="driver">سائق شاحنة</option>
+        </select>
+      </div>
+      <button class="btn btn-green" id="requestRoleBtn" type="button">إرسال طلب التفعيل</button>
+      <div id="roleRequestStatus" class="status" role="status" aria-live="polite"></div>
+    </div>
+
+    <form id="cargoForm" class="hidden">
 
       <p class="required-note">
         الحقول التي تحمل علامة * إجبارية.
@@ -681,6 +695,8 @@ const db = window.supabase.createClient(
 ========================================= */
 
 let currentUser = null;
+let currentProfileRole = "user";
+let pendingRoleRequest = null;
 let authMode = "login";
 let allCargos = [];
 let loadingCargos = false;
@@ -781,12 +797,47 @@ function setAuthMode(mode) {
   }
 }
 
+async function refreshAccountState() {
+  if (!currentUser) {
+    currentProfileRole = "user";
+    pendingRoleRequest = null;
+    updateAuthUI();
+    return;
+  }
+
+  const { data: profile, error: profileError } = await db
+    .from("profiles")
+    .select("role")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+  currentProfileRole = profile?.role || "user";
+
+  const { data: request, error: requestError } = await db
+    .from("profile_role_requests")
+    .select("id,requested_role,status")
+    .eq("user_id", currentUser.id)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (requestError) throw requestError;
+  pendingRoleRequest = request || null;
+  updateAuthUI();
+}
+
 function updateAuthUI() {
   const loggedIn = Boolean(currentUser);
 
   $("loginTopBtn").classList.toggle("hidden", loggedIn);
   $("logoutBtn").classList.toggle("hidden", !loggedIn);
   $("userInfo").classList.toggle("hidden", !loggedIn);
+
+  const canPublish = loggedIn && ["owner", "admin"].includes(currentProfileRole);
+  $("cargoForm").classList.toggle("hidden", !canPublish);
+  $("roleRequestPanel").classList.toggle("hidden", !loggedIn || canPublish);
 
   if (loggedIn) {
     const displayName =
@@ -796,11 +847,25 @@ function updateAuthUI() {
 
     $("userInfo").textContent = "مرحباً، " + displayName;
 
-    $("publishNotice").textContent =
-      "أنت مسجل الدخول. يمكنك الآن نشر شحنتك.";
+    $("publishNotice").textContent = canPublish
+      ? "حسابك مفعل كصاحب بضائع. يمكنك نشر شحنتك."
+      : "حسابك مسجل. يلزم تفعيل صفة صاحب بضائع قبل نشر الشحنات.";
+
+    if (pendingRoleRequest) {
+      $("roleRequestMessage").textContent =
+        "طلبك لتفعيل صفة " +
+        (pendingRoleRequest.requested_role === "driver" ? "سائق" : "صاحب بضائع") +
+        " قيد المراجعة لدى الإدارة.";
+      $("requestRoleBtn").disabled = true;
+      $("requestRoleBtn").textContent = "الطلب قيد المراجعة";
+    } else {
+      $("roleRequestMessage").textContent =
+        "اختر نوع الحساب الذي تحتاجه. لا يمكنك نشر الشحنات قبل الموافقة على طلب صاحب البضائع.";
+      $("requestRoleBtn").disabled = currentProfileRole !== "user";
+      $("requestRoleBtn").textContent = "إرسال طلب التفعيل";
+    }
   } else {
     $("userInfo").textContent = "";
-
     $("publishNotice").textContent =
       "سجل الدخول أولاً حتى تتمكن من نشر شحنتك.";
   }
@@ -820,7 +885,47 @@ async function checkSession() {
 
   currentUser = data.session ? data.session.user : null;
 
-  updateAuthUI();
+  await refreshAccountState();
+}
+
+async function requestRoleChange() {
+  if (!currentUser) {
+    setAuthMode("login");
+    openPanel("authPanel");
+    return;
+  }
+
+  if (currentProfileRole !== "user" || pendingRoleRequest) return;
+
+  const role = $("requestedRole").value;
+  if (!["owner", "driver"].includes(role)) return;
+
+  $("requestRoleBtn").disabled = true;
+  clearStatus("roleRequestStatus");
+
+  try {
+    const { error } = await db.from("profile_role_requests").insert({
+      user_id: currentUser.id,
+      requested_role: role,
+      status: "pending"
+    });
+
+    if (error) throw error;
+
+    showStatus(
+      "roleRequestStatus",
+      "تم إرسال طلبك إلى الإدارة بنجاح. ستظهر حالة الطلب هنا بعد التحديث.",
+      "success"
+    );
+    await refreshAccountState();
+  } catch (error) {
+    console.error("Role request error:", error);
+    const message = error.code === "23505"
+      ? "لديك طلب تفعيل قيد المراجعة بالفعل."
+      : (error.message || "تعذر إرسال الطلب حالياً.");
+    showStatus("roleRequestStatus", message, "error");
+    $("requestRoleBtn").disabled = false;
+  }
 }
 
 async function handleAuth(event) {
@@ -1168,6 +1273,16 @@ async function publishCargo(event) {
     return;
   }
 
+  if (!["owner", "admin"].includes(currentProfileRole)) {
+    showStatus(
+      "publishStatus",
+      "يلزم تفعيل حساب صاحب البضائع أولاً. أرسل طلب التفعيل أعلاه.",
+      "error"
+    );
+    $("roleRequestPanel").classList.remove("hidden");
+    return;
+  }
+
   const title = $("cargoTitle").value.trim();
   const origin = $("originCity").value.trim();
   const destination = $("destinationCity").value.trim();
@@ -1316,6 +1431,8 @@ async function logout() {
     if (error) throw error;
 
     currentUser = null;
+    currentProfileRole = "user";
+    pendingRoleRequest = null;
 
     updateAuthUI();
 
@@ -1350,6 +1467,11 @@ function openPublish() {
   if (!currentUser) {
     setAuthMode("login");
     openPanel("authPanel");
+  } else {
+    refreshAccountState().catch((error) => {
+      console.error("Account refresh error:", error);
+      showGlobalMessage("تعذر تحميل صلاحيات الحساب. أعد المحاولة.", "error");
+    });
   }
 }
 
@@ -1400,6 +1522,7 @@ $("resetFilterBtn").addEventListener("click", resetFilters);
 $("refreshBtn").addEventListener("click", loadCargos);
 
 $("logoutBtn").addEventListener("click", logout);
+$("requestRoleBtn").addEventListener("click", requestRoleChange);
 
 /* =========================================
    12. متابعة حالة الحساب
@@ -1408,7 +1531,18 @@ $("logoutBtn").addEventListener("click", logout);
 const authListener = db.auth.onAuthStateChange(
   (_event, session) => {
     currentUser = session ? session.user : null;
-    updateAuthUI();
+    if (!currentUser) {
+      currentProfileRole = "user";
+      pendingRoleRequest = null;
+      updateAuthUI();
+    } else {
+      updateAuthUI();
+      setTimeout(() => {
+        refreshAccountState().catch((error) => {
+          console.error("Account refresh error:", error);
+        });
+      }, 0);
+    }
   }
 );
 
