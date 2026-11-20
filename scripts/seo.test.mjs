@@ -12,24 +12,24 @@ const [html, robots, sitemap, manifest] = await Promise.all([
 
 test("SEO metadata declares the exact public GitHub Pages canonical URL", () => {
   assert.ok(html.includes('<link rel="canonical" href="' + base + '" />'));
-  assert.match(html, /<meta\\s+name="description"\\s+content="[^"]{60,}"/);
-  assert.match(html, /<meta\\s+property="og:title"/);
-  assert.match(html, /<meta\\s+property="og:description"/);
-  assert.match(html, /<meta\\s+property="og:url"/);
-  assert.doesNotMatch(html, /<meta\\s+name="robots"\\s+content="[^"]*noindex/i);
+  assert.match(html, /<meta\s+name="description"\s+content="[^"]{60,}"/);
+  assert.match(html, /<meta\s+property="og:title"/);
+  assert.match(html, /<meta\s+property="og:description"/);
+  assert.match(html, /<meta\s+property="og:url"/);
+  assert.doesNotMatch(html, /<meta\s+name="robots"\s+content="[^"]*noindex/i);
 });
 
 test("robots.txt allows crawling and points to the published sitemap", () => {
-  assert.match(robots, /^User-agent:\\s*\\*\\s*\\nAllow:\\s*\\//m);
+  assert.match(robots, /^User-agent:\s*\*\s*\nAllow:\s*\//m);
   assert.ok(robots.includes("Sitemap: " + base + "sitemap.xml"));
 });
 
 test("sitemap is valid XML-shaped content and lists only the canonical homepage", () => {
-  assert.match(sitemap, /^<\\?xml version="1\\.0" encoding="UTF-8"\\?>/);
-  assert.match(sitemap, /<urlset xmlns="http:\\/\\/www\\.sitemaps\\.org\\/schemas\\/sitemap\\/0\\.9">/);
+  assert.match(sitemap, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(sitemap, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
   assert.equal((sitemap.match(/<url>/g) ?? []).length, 1);
   assert.ok(sitemap.includes("<loc>" + base + "</loc>"));
-  assert.match(sitemap, /<\\/urlset>\\s*$/);
+  assert.match(sitemap, /<\/urlset>\s*$/);
 });
 
 test("web app manifest stays scoped to the GitHub Pages project path", () => {
