@@ -70,7 +70,7 @@ BEGIN
   IF v_cargo_status IS DISTINCT FROM 'open' THEN
     RAISE EXCEPTION 'Cargo is no longer open';
   END IF;
-  IF v_owner_id IS NOT DISTINCT FROM v_uid THEN
+  IF v_owner_id IS NULL OR v_owner_id = v_uid THEN
     RAISE EXCEPTION 'You cannot offer on your own cargo';
   END IF;
   IF NOT EXISTS (
