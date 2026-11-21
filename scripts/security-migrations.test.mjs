@@ -145,3 +145,20 @@ describe("private driver-document upload boundary", () => {
     assert.equal(policy.includes("review_status"), false);
   });
 });
+
+const publicCargoVisibilityMigration = await readFile(
+  new URL("../supabase/migrations/20261121100000_limit_public_cargo_column_visibility.sql", import.meta.url),
+  "utf8"
+);
+
+describe("anonymous cargo field privacy", () => {
+  it("removes owner UUID access and grants only public listing fields", () => {
+    assert.ok(publicCargoVisibilityMigration.includes("REVOKE SELECT ON TABLE public.cargos FROM PUBLIC, anon"));
+    assert.ok(publicCargoVisibilityMigration.includes("REVOKE SELECT (owner_id) ON TABLE public.cargos FROM PUBLIC, anon"));
+    const grant = publicCargoVisibilityMigration.split("GRANT SELECT (")[1] ?? "";
+    assert.ok(grant.includes("id,"));
+    assert.ok(grant.includes("title,"));
+    assert.ok(grant.includes("created_at"));
+    assert.equal(grant.includes("owner_id"), false);
+  });
+});
