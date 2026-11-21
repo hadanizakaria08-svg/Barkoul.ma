@@ -11,7 +11,7 @@ interface AdminRoomProps {
   onSignOut: () => void;
 }
 
-interface DriverDocument { id:number; driver_id:string; document_type:string; storage_path:string; review_status:"pending"|"verified"|"rejected"; uploaded_at:string; signed_url?:string; }
+interface DriverDocument { id:number; driver_id:string; document_type:string; storage_path:string; review_status:"pending"|"verified"|"rejected"; uploaded_at:string; }
 interface AuditEntry { id:number; admin_id:string|null; action:string; target_table:string|null; target_id:string|null; created_at:string; }
 interface AdminCargo { id:number; title:string; origin_city:string; destination_city:string; status:string; created_at:string; }
 interface CommissionCharge {id:number;trip_id:number;payer_id:string;payer_role:"owner"|"driver";amount_mad:number;status:"due"|"paid"|"waived";payment_method:string|null;payment_reference:string|null;created_at:string;}
@@ -34,6 +34,9 @@ export default function AdminRoom({
   const [busyId, setBusyId] = useState<number | null>(null);
   const [actionMessage, setActionMessage] = useState("");
   const [documents,setDocuments]=useState<DriverDocument[]>([]);
+  const [documentLinks,setDocumentLinks]=useState<Record<number,string>>({});
+  const [documentLinkErrors,setDocumentLinkErrors]=useState<Record<number,string>>({});
+  const [openingDocumentId,setOpeningDocumentId]=useState<number|null>(null);
   const [audit,setAudit]=useState<AuditEntry[]>([]);
   const [adminCargos,setAdminCargos]=useState<AdminCargo[]>([]);
   const [charges,setCharges]=useState<CommissionCharge[]>([]);
@@ -66,13 +69,26 @@ export default function AdminRoom({
         db.from("commission_charges").select("id,trip_id,payer_id,payer_role,amount_mad,status,payment_method,payment_reference,created_at").order("created_at",{ascending:false}).limit(100)
       ]);
       if(docsRes.error||auditRes.error||cargoRes.error||chargesRes.error)throw new Error("Admin data read failed");
-      const signed=await Promise.all((docsRes.data??[]).map(async(d:any)=>{
-        const {data}=await db.storage.from("driver-documents").createSignedUrl(d.storage_path,300);
-        return {...d,signed_url:data?.signedUrl};
-      }));
-      setDocuments(signed as DriverDocument[]);setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);setCharges((chargesRes.data??[]) as CommissionCharge[]);
+      setDocuments((docsRes.data??[]) as DriverDocument[]);
+      setDocumentLinks({});
+      setDocumentLinkErrors({});
+      setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);setCharges((chargesRes.data??[]) as CommissionCharge[]);
     } catch {setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");}
   },[profileRole]);
+
+  async function createDocumentLink(id:number,path:string){
+    const db=getSupabase();if(!db||profileRole!=="admin")return;
+    setOpeningDocumentId(id);
+    setDocumentLinkErrors(old=>({...old,[id]:""}));
+    try{
+      const {data,error}=await db.storage.from("driver-documents").createSignedUrl(path,300);
+      if(error||!data?.signedUrl)throw new Error("Signed URL unavailable");
+      setDocumentLinks(old=>({...old,[id]:data.signedUrl}));
+    }catch{
+      setDocumentLinks(old=>{const next={...old};delete next[id];return next;});
+      setDocumentLinkErrors(old=>({...old,[id]:"تعذر إنشاء رابط مؤقت. تحقق من صلاحية الوثيقة ثم أعد المحاولة."}));
+    }finally{setOpeningDocumentId(null);}
+  }
 
   async function recordCommission(id:number,method:"cash"|"electronic"){
     const db=getSupabase();if(!db||profileRole!=="admin")return;
@@ -174,7 +190,13 @@ export default function AdminRoom({
             <h2>{d.document_type}</h2><p>معرّف السائق: <bdi>{d.driver_id}</bdi></p>
             <p>الحالة: {d.review_status==="pending"?"قيد المراجعة":d.review_status==="verified"?"معتمدة":"مرفوضة"}</p>
             <p className="muted">{new Date(d.uploaded_at).toLocaleString("ar-MA")}</p>
-            {d.signed_url&&<a className="button button-light" href={d.signed_url} target="_blank" rel="noopener noreferrer">فتح الوثيقة (رابط مؤقت)</a>}
+            {documentLinks[d.id]
+              ? <div className="hero-actions">
+                  <a className="button button-light" href={documentLinks[d.id]} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">فتح الوثيقة (رابط صالح لخمس دقائق)</a>
+                  <button className="button button-outline" disabled={openingDocumentId!==null} onClick={()=>void createDocumentLink(d.id,d.storage_path)}>تجديد الرابط</button>
+                </div>
+              : <button className="button button-light" disabled={openingDocumentId!==null} onClick={()=>void createDocumentLink(d.id,d.storage_path)}>{openingDocumentId===d.id?"جارٍ إنشاء الرابط…":"إنشاء رابط مؤقت للوثيقة"}</button>}
+            {documentLinkErrors[d.id]&&<p className="notice notice-warn" role="alert">{documentLinkErrors[d.id]}</p>}
             {d.review_status==="pending"&&<div className="hero-actions">
               <button className="button button-primary" disabled={busyId!==null} onClick={()=>void reviewDocument(d.id,"verified")}>اعتماد</button>
               <button className="button button-outline" disabled={busyId!==null} onClick={()=>void reviewDocument(d.id,"rejected")}>رفض</button>
