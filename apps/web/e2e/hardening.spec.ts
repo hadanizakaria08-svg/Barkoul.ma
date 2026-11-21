@@ -9,7 +9,10 @@ test("keeps the full public page within common mobile and desktop widths", async
       viewport: document.documentElement.clientWidth,
       document: document.documentElement.scrollWidth
     }));
-    expect(dimensions.document, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(dimensions.viewport);
+    expect(dimensions.document, `entry page horizontal overflow at ${width}px`).toBeLessThanOrEqual(dimensions.viewport);
+    await page.goto("/?page=services");
+    const servicesDimensions = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
+    expect(servicesDimensions.document, `services page horizontal overflow at ${width}px`).toBeLessThanOrEqual(servicesDimensions.viewport);
   }
 });
 
@@ -47,7 +50,7 @@ test("allows switching between login, signup, and password recovery views", asyn
 });
 
 test("keeps cargo publication fields private until a user signs in", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?page=services");
   await expect(page.locator("#publish")).toHaveCount(0);
   await expect(page.locator(".home-choice-publish")).toHaveAttribute("href", "?page=publish#publish-account");
   await page.locator(".home-choice-publish").click();
@@ -56,7 +59,7 @@ test("keeps cargo publication fields private until a user signs in", async ({ pa
 });
 
 test("accepts Arabic search input and truck category selection without navigation errors", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?page=services");
   const origin = page.getByLabel("من مدينة");
   const destination = page.getByLabel("إلى مدينة");
   const truck = page.locator("#search").getByLabel("نوع الشاحنة");
@@ -71,21 +74,24 @@ test("accepts Arabic search input and truck category selection without navigatio
 
 test("keeps navigation links connected to their intended pages", async ({ page }) => {
   await page.goto("/");
+  await page.locator(".entry-primary").click();
+  await expect(page).toHaveURL(/[?]page=services$/);
   await page.locator(".home-choice-search").click();
   await expect(page.locator("#search")).toBeVisible();
-  await expect(page).toHaveURL(/#search$/);
-  await page.goto("/");
+  await expect(page).toHaveURL(/[?]page=services#search$/);
   await page.locator(".home-choice-publish").click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
 });
 
-test("meets automated WCAG 2.2 AA checks across the public page", async ({ page }) => {
-  await page.goto("/");
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
-    .analyze();
-  expect(results.violations).toEqual([]);
+test("meets automated WCAG 2.2 AA checks across both public pages", async ({ page }) => {
+  for (const path of ["/", "/?page=services"]) {
+    await page.goto(path);
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(results.violations, `accessibility violations on ${path}`).toEqual([]);
+  }
 });
 
 
