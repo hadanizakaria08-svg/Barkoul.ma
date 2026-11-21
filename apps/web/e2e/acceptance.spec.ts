@@ -8,12 +8,18 @@ test("serves the Arabic RTL application shell and primary journeys", async ({ pa
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: "أبحث عن شحنة" })).toHaveAttribute("href", "#search");
-  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "#publish");
+  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "?page=publish#publish-account");
 });
 
-test("keeps cargo publication disabled without an authenticated session", async ({ page }) => {
+test("opens a separate publication page and keeps the cargo form behind sign-in", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "نشر الشحنة" })).toBeDisabled();
+  await expect(page.locator("#publish")).toHaveCount(0);
+  await expect(page.locator("#account")).toHaveCount(0);
+  await page.getByRole("link", { name: "أنشر شحنة" }).click();
+  await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
+  await expect(page.getByRole("heading", { name: "أنشر شحنتك" })).toBeVisible();
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.locator("#publish")).toHaveCount(0);
 });
 
 test("does not expose publisher-role refresh to signed-out visitors", async ({ page }) => {
@@ -21,13 +27,15 @@ test("does not expose publisher-role refresh to signed-out visitors", async ({ p
   await expect(page.getByRole("button", { name: "إعادة التحقق من الصلاحية" })).toHaveCount(0);
 });
 
-test("exposes labelled search and account controls", async ({ page }) => {
+test("keeps search on the homepage and account controls on the publication page", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByLabel("من مدينة")).toBeVisible();
   await expect(page.getByLabel("إلى مدينة")).toBeVisible();
   await expect(page.locator("#search").getByLabel("نوع الشاحنة")).toBeVisible();
-  await expect(page.locator("#account").getByLabel("البريد الإلكتروني")).toBeVisible();
-  await expect(page.locator("#account").getByLabel("كلمة المرور")).toBeVisible();
+  await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
+  await page.goto("/?page=publish#publish-account");
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.getByLabel("كلمة المرور")).toBeVisible();
 });
 
 test("does not introduce horizontal scrolling on a narrow mobile viewport", async ({ page }) => {

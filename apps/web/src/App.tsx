@@ -59,6 +59,7 @@ export default function App() {
   const [destination, setDestination] = useState("");
   const [truck, setTruck] = useState("");
   const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
+  const publishRoute = new URLSearchParams(window.location.search).get("page") === "publish";
 
   useEffect(() => {
     const syncRoute = () => setAdminRoute(window.location.hash === "#admin");
@@ -228,14 +229,82 @@ export default function App() {
     />;
   }
 
+  if (publishRoute) {
+    return <div className="app-shell">
+      <header className="topbar home-topbar publish-topbar">
+        <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
+        <nav aria-label="التنقل">
+          <a className="home-nav-link" href="./">الصفحة الرئيسية</a>
+          <a className="account-entry" href={user ? "#publish" : "#publish-account"}>{user ? "حسابي" : "دخول الحساب"}</a>
+        </nav>
+      </header>
+      <main className="publish-page">
+        <div className="publish-page-heading">
+          <p className="eyebrow">Barkoul.ma · نشر الشحنات</p>
+          <h1>أنشر شحنتك</h1>
+          <p>أدخل تفاصيل الشحنة ليتعرف عليها السائقون ويقدموا لك عروض النقل المناسبة.</p>
+        </div>
+        {!user ? (
+          <section className="section split publish-account" id="publish-account">
+            <div><p className="eyebrow">خطوة واحدة قبل النشر</p><h2>{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "مرحباً بعودتك" : "أنشئ حسابك"}</h2><p className="muted">سجّل الدخول أو أنشئ حساباً جديداً، ثم ستظهر لك استمارة نشر الشحنة هنا مباشرة.</p></div>
+            <form className="form-card" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>
+              {!resetMode && authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}
+              <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
+              {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
+              <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
+              {!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
+              <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
+              {authMessage && <p className="form-message" role="status">{authMessage}</p>}
+            </form>
+          </section>
+        ) : (
+          <section className="section publish-form-section" id="publish">
+            <div className="section-heading"><div><p className="eyebrow">أضف فرصة نقل</p><h2>تفاصيل الشحنة</h2></div></div>
+            {profileRole === "user" && <div className="form-card publish-role-card">
+              <h3>تفعيل نوع حسابك</h3>
+              <p className="muted">اختر دورك لإرسال طلب إلى الإدارة. لا يمكنك نشر الشحنات قبل اعتماد طلب صاحب البضائع.</p>
+              {roleRequest?.status === "pending" ? <p className="form-message" role="status">طلب {roleRequest.requested_role === "owner" ? "صاحب بضائع" : "سائق"} قيد المراجعة.</p> :
+               roleRequest?.status === "approved" ? <p className="form-message" role="status">تم اعتماد طلبك. حدّث الصفحة لتحديث الصلاحيات.</p> :
+               <div className="hero-actions">
+                 <button type="button" className="button button-primary" disabled={busy} onClick={()=>void submitRoleRequest("owner")}>أنا صاحب بضائع</button>
+                 <button type="button" className="button button-light" disabled={busy} onClick={()=>void submitRoleRequest("driver")}>أنا سائق</button>
+               </div>}
+              {roleRequestMessage && <p className="form-message" role="status">{roleRequestMessage}</p>}
+            </div>}
+            <form className="form-card cargo-form" onSubmit={submitCargo}>
+              <label>عنوان الشحنة<input required maxLength={120} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></label>
+              <div className="form-grid">
+                <label>مدينة الانطلاق<input required maxLength={100} value={draft.origin_city} onChange={e=>setDraft({...draft,origin_city:e.target.value})}/></label>
+                <label>مدينة الوصول<input required maxLength={100} value={draft.destination_city} onChange={e=>setDraft({...draft,destination_city:e.target.value})}/></label>
+                <label>نوع البضاعة<input required value={draft.goods_type} onChange={e=>setDraft({...draft,goods_type:e.target.value})} placeholder="خضر، فواكه، مواد بناء…"/></label>
+                <label>الوزن<input value={draft.weight_text ?? ""} onChange={e=>setDraft({...draft,weight_text:e.target.value || null})}/></label>
+                <label>نوع الشاحنة<select required value={draft.truck_type} onChange={e=>setDraft({...draft,truck_type:e.target.value})}><option value="">اختر النوع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}</select></label>
+                <label>تاريخ النقل<input type="date" required min={todayLocal()} value={draft.loading_date} onChange={e=>setDraft({...draft,loading_date:e.target.value})}/></label>
+                <label>السعر المقترح (درهم)<input type="number" min="0" step="0.01" value={draft.offered_price_mad ?? ""} onChange={e=>setDraft({...draft,offered_price_mad:e.target.value===""?null:Number(e.target.value)})}/></label>
+              </div>
+              <label>ملاحظات<textarea maxLength={1000} value={draft.notes ?? ""} onChange={e=>setDraft({...draft,notes:e.target.value || null})}/></label>
+              <button className="button button-primary" disabled={busy || profileLoading || !canPublishCargo(profileRole)}>{busy?"جارٍ النشر…":"نشر الشحنة"}</button>
+              {profileLoading && <p className="form-message" role="status">جارٍ التحقق من صلاحية الحساب…</p>}
+              {profileError && <p className="form-message" role="status">{profileError}</p>}
+              {!profileLoading && !profileError && !canPublishCargo(profileRole) && <p className="form-message" role="status">حسابك مسجل، لكن لم يُفعّل بعد كصاحب بضاعة. أرسل طلب تفعيل صاحب البضائع أعلاه وانتظر موافقة الإدارة.</p>}
+              {!profileLoading && !canPublishCargo(profileRole) && <button type="button" className="text-button" onClick={() => void refreshProfileRole()}>إعادة التحقق من الصلاحية</button>}
+              {publishMessage && <p className="form-message" role="status">{publishMessage}</p>}
+            </form>
+          </section>
+        )}
+      </main>
+      <footer className="reference-footer"><strong>Barkoul.ma <span>—</span> معاً نحو نقل أسهل وأسرع</strong></footer>
+    </div>;
+  }
+
   return <div className="app-shell">
     <header className="topbar home-topbar">
       <a className="brand home-brand" href="#" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
       <nav aria-label="القائمة الرئيسية">
         <a className="home-nav-link" href="#search">الشحنات</a>
-        <a className="home-nav-link" href="#publish">نشر شحنة</a>
+        <a className="home-nav-link" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>نشر شحنة</a>
         {user && profileRole === "admin" && <a className="home-nav-link" href="#admin">غرفة المدير</a>}
-        <a className="account-entry" href="#account" aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
+        <a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"} aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
         {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}
       </nav>
     </header>
@@ -246,7 +315,7 @@ export default function App() {
           <h1 id="home-title">شحناتك تلتقي<br/><span>بسائقي الشاحنات</span></h1>
           <p>منصة واحدة تجمع أصحاب البضائع والناقلين، لتسهيل العثور على شحنات وفرص نقل بين مدن المغرب.</p>
           <div className="home-hero-actions">
-            <a className="home-cta home-cta-primary" href="#publish"><span aria-hidden="true">＋</span> أنشر شحنة</a>
+            <a className="home-cta home-cta-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><span aria-hidden="true">＋</span> أنشر شحنة</a>
             <a className="home-cta home-cta-secondary" href="#search"><span aria-hidden="true">⌕</span> أبحث عن شحنة</a>
           </div>
           <div className="home-trust-points">
@@ -262,19 +331,19 @@ export default function App() {
         </div>
       </section>
       <section className="home-features" aria-label="خدمات Barkoul">
-        <FeatureCard image="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href="#publish"/>
+        <FeatureCard image="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}/>
         <FeatureCard image="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=720&q=80" alt="حافلة تسير على طريق في المغرب" title="للسائقين والناقلين" subtitle="اكتشف فرص النقل والرحلات" href="#search"/>
         <FeatureCard title="تغطية وطنية" subtitle="من طنجة إلى مدن الجنوب" href="#search" map/>
       </section>
       <section className="cargo-categories" aria-label="أنواع الشحنات">
         <div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>ماذا تريد أن تنقل؟</h2></div>
         <div className="category-grid">
-          <a href="#publish"><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="خضر وفواكه طازجة" loading="lazy"/><strong>خضر وفواكه</strong></a>
-          <a href="#publish"><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80" alt="مواد البناء" loading="lazy"/><strong>مواد البناء</strong></a>
-          <a href="#publish"><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80" alt="طرود وبضائع" loading="lazy"/><strong>بضائع عامة</strong></a>
-          <a href="#publish"><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" alt="أثاث وأجهزة منزلية" loading="lazy"/><strong>أثاث وأجهزة</strong></a>
-          <a href="#publish"><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="مواد غذائية" loading="lazy"/><strong>مواد غذائية</strong></a>
-          <a href="#publish"><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="شاحنة نقل مبرد" loading="lazy"/><strong>شاحنة تبريد</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="خضر وفواكه طازجة" loading="lazy"/><strong>خضر وفواكه</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80" alt="مواد البناء" loading="lazy"/><strong>مواد البناء</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80" alt="طرود وبضائع" loading="lazy"/><strong>بضائع عامة</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" alt="أثاث وأجهزة منزلية" loading="lazy"/><strong>أثاث وأجهزة</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="مواد غذائية" loading="lazy"/><strong>مواد غذائية</strong></a>
+          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="شاحنة نقل مبرد" loading="lazy"/><strong>شاحنة تبريد</strong></a>
         </div>
       </section>
 
@@ -286,24 +355,6 @@ export default function App() {
           <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
       </section>
 
-      <section className="section split" id="account"><div><p className="eyebrow">حسابك على Barkoul</p><h2>{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "مرحباً بعودتك" : "أنشئ حسابك"}</h2><p className="muted">يمكنك تصفح الشحنات دون حساب. يلزم تسجيل الدخول لنشر شحنة.</p></div>
-        <form className="form-card" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>{!resetMode && authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}<label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>{!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}<button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>{!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}<button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>{authMessage && <p className="form-message" role="status">{authMessage}</p>}</form>
-      </section>
-
-      <section className="section" id="publish"><div className="section-heading"><div><p className="eyebrow">أضف فرصة نقل</p><h2>نشر شحنة جديدة</h2></div></div>
-        {user && profileRole === "user" && <div className="form-card">
-          <h3>تفعيل نوع حسابك</h3>
-          <p className="muted">اختر دورك لإرسال طلب إلى الإدارة. لا يمكنك نشر الشحنات أو تقديم العروض قبل اعتماد الطلب.</p>
-          {roleRequest?.status === "pending" ? <p className="form-message" role="status">طلب {roleRequest.requested_role === "owner" ? "صاحب بضائع" : "سائق"} قيد المراجعة.</p> :
-           roleRequest?.status === "approved" ? <p className="form-message" role="status">تم اعتماد طلبك. حدّث الصفحة لتحديث الصلاحيات.</p> :
-           <div className="hero-actions">
-             <button type="button" className="button button-primary" disabled={busy} onClick={()=>void submitRoleRequest("owner")}>أنا صاحب بضائع</button>
-             <button type="button" className="button button-light" disabled={busy} onClick={()=>void submitRoleRequest("driver")}>أنا سائق</button>
-           </div>}
-          {roleRequestMessage && <p className="form-message" role="status">{roleRequestMessage}</p>}
-        </div>}
-        <form className="form-card cargo-form" onSubmit={submitCargo}><label>عنوان الشحنة<input required maxLength={120} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></label><div className="form-grid"><label>مدينة الانطلاق<input required maxLength={100} value={draft.origin_city} onChange={e=>setDraft({...draft,origin_city:e.target.value})}/></label><label>مدينة الوصول<input required maxLength={100} value={draft.destination_city} onChange={e=>setDraft({...draft,destination_city:e.target.value})}/></label><label>نوع البضاعة<input required value={draft.goods_type} onChange={e=>setDraft({...draft,goods_type:e.target.value})} placeholder="خضر، فواكه، مواد بناء…"/></label><label>الوزن<input value={draft.weight_text ?? ""} onChange={e=>setDraft({...draft,weight_text:e.target.value || null})}/></label><label>نوع الشاحنة<select required value={draft.truck_type} onChange={e=>setDraft({...draft,truck_type:e.target.value})}><option value="">اختر النوع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}</select></label><label>تاريخ النقل<input type="date" required min={todayLocal()} value={draft.loading_date} onChange={e=>setDraft({...draft,loading_date:e.target.value})}/></label><label>السعر المقترح (درهم)<input type="number" min="0" step="0.01" value={draft.offered_price_mad ?? ""} onChange={e=>setDraft({...draft,offered_price_mad:e.target.value===""?null:Number(e.target.value)})}/></label></div><label>ملاحظات<textarea maxLength={1000} value={draft.notes ?? ""} onChange={e=>setDraft({...draft,notes:e.target.value || null})}/></label><button className="button button-primary" disabled={busy || !user || profileLoading || !canPublishCargo(profileRole)}>{busy?"جارٍ النشر…":"نشر الشحنة"}</button>{user && profileLoading && <p className="form-message" role="status">جارٍ التحقق من صلاحية الحساب…</p>}{user && profileError && <p className="form-message" role="status">{profileError}</p>}{user && !profileLoading && !profileError && !canPublishCargo(profileRole) && <p className="form-message" role="status">حسابك مسجل، لكن لم يُفعّل بعد كصاحب بضاعة. تواصل مع الإدارة لتفعيل صلاحية نشر الشحنات.</p>}{user && !profileLoading && !canPublishCargo(profileRole) && <button type="button" className="text-button" onClick={() => void refreshProfileRole()} disabled={profileLoading}>إعادة التحقق من الصلاحية</button>}{publishMessage && <p className="form-message" role="status">{publishMessage}</p>}</form>
-      </section>
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace userId={user.id} role={profileRole} openCargos={cargos}/>}
     </main>
     <footer className="reference-footer">
