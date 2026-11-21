@@ -8,6 +8,7 @@ import {
   normalizeCargoDraft,
   validateCargoDraft,
   validateDriverDocumentFile,
+  validateDriverDocumentFileContent,
   DRIVER_DOCUMENT_MAX_BYTES,
   type Cargo,
   type CargoDraft
@@ -142,4 +143,31 @@ describe("driver document validation", () => {
     assert.match(validateDriverDocumentFile({ type: "image/heic", size: 1024 }) ?? "", /غير مدعوم/);
     assert.match(validateDriverDocumentFile({ type: "image/png", size: Number.NaN }) ?? "", /غير صالح/);
   });
+  it("accepts files whose leading signatures match their declared MIME types", async () => {
+    const makeFile = (type: string, bytes: number[]) => ({
+      type,
+      size: bytes.length,
+      slice: () => ({ arrayBuffer: async () => Uint8Array.from(bytes).buffer as ArrayBuffer })
+    });
+    assert.equal(await validateDriverDocumentFileContent(makeFile("application/pdf", [0x25,0x50,0x44,0x46,0x2d,0x31])), null);
+    assert.equal(await validateDriverDocumentFileContent(makeFile("image/jpeg", [0xff,0xd8,0xff,0x00])), null);
+    assert.equal(await validateDriverDocumentFileContent(makeFile("image/png", [0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])), null);
+    assert.equal(await validateDriverDocumentFileContent(makeFile("image/webp", [0x52,0x49,0x46,0x46,0,0,0,0,0x57,0x45,0x42,0x50])), null);
+  });
+
+  it("rejects MIME spoofing and unreadable file content", async () => {
+    const spoofed = {
+      type: "application/pdf",
+      size: 8,
+      slice: () => ({ arrayBuffer: async () => Uint8Array.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]).buffer as ArrayBuffer })
+    };
+    const unreadable = {
+      type: "image/jpeg",
+      size: 8,
+      slice: () => ({ arrayBuffer: async () => { throw new Error("read failed"); } })
+    };
+    assert.match(await validateDriverDocumentFileContent(spoofed) ?? "", /لا يطابق/);
+    assert.match(await validateDriverDocumentFileContent(unreadable) ?? "", /تعذر قراءة/);
+  });
+
 });
