@@ -127,3 +127,21 @@ describe("database mutation boundaries", () => {
     assert.ok(atomicWorkflowMigration.includes("v_current_status IS DISTINCT FROM 'pending'"));
   });
 });
+
+const driverUploadGuardMigration = await readFile(
+  new URL("../supabase/migrations/20261121082000_restrict_driver_document_upload_role.sql", import.meta.url),
+  "utf8"
+);
+
+describe("private driver-document upload boundary", () => {
+  it("restricts uploads to the authenticated driver's own folder and driver role", () => {
+    const policy = driverUploadGuardMigration.split("CREATE POLICY driver_documents_bucket_insert_guard")[1] ?? "";
+    assert.ok(policy.includes("AS RESTRICTIVE"));
+    assert.ok(policy.includes("FOR INSERT TO authenticated"));
+    assert.ok(policy.includes("bucket_id <> 'driver-documents'"));
+    assert.ok(policy.includes("(storage.foldername(name))[1] = (SELECT auth.uid())::text"));
+    assert.ok(policy.includes("p.role = 'driver'"));
+    // The first document must remain uploadable before an administrator verifies it.
+    assert.equal(policy.includes("review_status"), false);
+  });
+});
