@@ -68,7 +68,11 @@ GRANT SELECT ON public.profiles TO authenticated;
 GRANT UPDATE (full_name, phone) ON public.profiles TO authenticated;
 
 -- Public cargo discovery remains read-only. Publishing is limited to the application fields.
-GRANT SELECT ON public.cargos TO anon, authenticated;
+GRANT SELECT ON public.cargos TO authenticated;
+GRANT SELECT (
+  id, title, origin_city, destination_city, goods_type, weight_text,
+  truck_type, loading_date, offered_price_mad, notes, status, created_at
+) ON public.cargos TO anon;
 GRANT INSERT (
   title, origin_city, destination_city, goods_type, weight_text,
   truck_type, loading_date, offered_price_mad, notes, owner_id, status
