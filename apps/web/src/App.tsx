@@ -300,13 +300,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar home-topbar">
       <a className="brand home-brand" href="#" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-      <nav aria-label="القائمة الرئيسية">
-        <a className="home-nav-link" href="#search">الشحنات</a>
-        <a className="home-nav-link" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>نشر شحنة</a>
-        {user && profileRole === "admin" && <a className="home-nav-link" href="#admin">غرفة المدير</a>}
-        <a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"} aria-label="دخول / حساب جديد">{user ? "حسابي" : "دخول الحساب"} <span aria-hidden="true">👤</span></a>
-        {user && <button className="button button-outline" onClick={async()=>{await db?.auth.signOut();}}>تسجيل الخروج</button>}
-      </nav>
+
     </header>
     <main>
       <section className="home-hero" aria-labelledby="home-title">
@@ -315,8 +309,8 @@ export default function App() {
           <h1 id="home-title">شحناتك تلتقي<br/><span>بسائقي الشاحنات</span></h1>
           <p>منصة واحدة تجمع أصحاب البضائع والناقلين، لتسهيل العثور على شحنات وفرص نقل بين مدن المغرب.</p>
           <div className="home-hero-actions">
-            <a className="home-cta home-cta-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><span aria-hidden="true">＋</span> أنشر شحنة</a>
-            <a className="home-cta home-cta-secondary" href="#search"><span aria-hidden="true">⌕</span> أبحث عن شحنة</a>
+            <a className="home-cta home-cta-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>إضافة شحنة</a>
+            <a className="home-cta home-cta-secondary" href="#search">البحث عن شحنة</a>
           </div>
           <div className="home-trust-points">
             <span><b aria-hidden="true">✓</b> تصفح الشحنات دون حساب</span>
