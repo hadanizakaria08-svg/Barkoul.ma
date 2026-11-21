@@ -156,8 +156,11 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
         {t.last_latitude!=null&&<p className="muted">آخر موقع: {t.last_latitude.toFixed(5)}, {t.last_longitude.toFixed(5)}</p>}
         <div className="hero-actions"><button className="button button-light" disabled={busy} onClick={()=>void revealContact(t.id)}>بيانات الطرف الآخر</button>
           {t.status==="agreed"&&<button className="button button-primary" disabled={busy} onClick={()=>void progress(t,"loading")}>بدء التحميل</button>}
-          {t.status==="loading"&&t.driver_id===userId&&<button className="button button-primary" disabled={busy} onClick={()=>void progress(t,"in_transit",true)}>بدء الرحلة وإرسال موقعي</button>}
-          {t.status==="in_transit"&&t.driver_id===userId&&<button className="button button-primary" disabled={busy} onClick={()=>void progress(t,"delivered",true)}>تأكيد التسليم</button>}
+          {t.status==="loading"&&t.driver_id===userId&&<div className="hero-actions">
+            <button className="button button-primary" disabled={busy} onClick={()=>void progress(t,"in_transit")}>بدء الرحلة دون مشاركة الموقع</button>
+            <button className="button button-outline" disabled={busy} onClick={()=>void progress(t,"in_transit",true)}>بدء الرحلة وإرسال موقعي</button>
+          </div>}
+          {t.status==="in_transit"&&t.driver_id===userId&&<button className="button button-primary" disabled={busy} onClick={()=>void progress(t,"delivered")}>تأكيد التسليم</button>}
           {(t.status==="agreed"||t.status==="loading")&&<button className="button button-outline" disabled={busy} onClick={()=>void progress(t,"cancelled")}>إلغاء الرحلة</button>}
         </div>
         {contacts[t.id]&&<p className="form-message">الاسم: {contacts[t.id].full_name||"غير متوفر"} · الهاتف: {contacts[t.id].phone||"لم يضف رقمه بعد"}</p>}
