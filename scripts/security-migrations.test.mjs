@@ -145,6 +145,8 @@ describe("database mutation boundaries", () => {
   });
 });
 
+const adminRoom = await readFile(new URL("../apps/web/src/AdminRoom.tsx", import.meta.url), "utf8");
+
 const driverUploadGuardMigration = await readFile(
   new URL("../supabase/migrations/20261121082000_restrict_driver_document_upload_role.sql", import.meta.url),
   "utf8"
@@ -177,5 +179,20 @@ describe("anonymous cargo field privacy", () => {
     assert.ok(grant.includes("title,"));
     assert.ok(grant.includes("created_at"));
     assert.equal(grant.includes("owner_id"), false);
+  });
+});
+
+describe("administrator document review access", () => {
+  it("preserves administrator reads for private document previews", () => {
+    const policy = atomicWorkflowMigration.split("CREATE POLICY driver_documents_bucket_select_guard")[1]?.split("DROP POLICY IF EXISTS driver_documents_bucket_insert_guard")[0] ?? "";
+    assert.ok(policy.includes("(storage.foldername(name))[1]=(SELECT auth.uid())::text"));
+    assert.ok(policy.includes("(SELECT private.is_admin())"));
+  });
+
+  it("creates short-lived document links only when an administrator requests one", () => {
+    assert.ok(adminRoom.includes('createSignedUrl(path,300)'));
+    assert.ok(adminRoom.includes('createDocumentLink(d.id,d.storage_path)'));
+    assert.equal(adminRoom.includes('Promise.all((docsRes.data??[]).map(async(d:any)=>{'), false);
+    assert.ok(adminRoom.includes('referrerPolicy="no-referrer"'));
   });
 });
