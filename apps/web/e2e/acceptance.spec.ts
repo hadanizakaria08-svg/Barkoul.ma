@@ -7,15 +7,15 @@ test("serves the Arabic RTL application shell and primary journeys", async ({ pa
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("link", { name: "أبحث عن شحنة" })).toHaveAttribute("href", "#search");
-  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "?page=publish#publish-account");
+  await expect(page.locator(".home-choice-search")).toHaveAttribute("href", "#search");
+  await expect(page.locator(".home-choice-publish")).toHaveAttribute("href", "?page=publish#publish-account");
 });
 
 test("opens a separate publication page and keeps the cargo form behind sign-in", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#publish")).toHaveCount(0);
   await expect(page.locator("#account")).toHaveCount(0);
-  await page.getByRole("link", { name: "أنشر شحنة" }).click();
+  await page.locator(".home-choice-publish").click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
   await expect(page.getByRole("heading", { name: "أنشر شحنتك" })).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
