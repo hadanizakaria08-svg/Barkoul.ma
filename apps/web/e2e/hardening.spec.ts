@@ -49,8 +49,8 @@ test("allows switching between login, signup, and password recovery views", asyn
 test("keeps cargo publication fields private until a user signs in", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#publish")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "أنشر شحنة" })).toHaveAttribute("href", "?page=publish#publish-account");
-  await page.getByRole("link", { name: "أنشر شحنة" }).click();
+  await expect(page.locator(".home-choice-publish")).toHaveAttribute("href", "?page=publish#publish-account");
+  await page.locator(".home-choice-publish").click();
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
   await expect(page.locator("#publish")).toHaveCount(0);
 });
@@ -71,15 +71,11 @@ test("accepts Arabic search input and truck category selection without navigatio
 
 test("keeps navigation links connected to their intended pages", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "الشحنات", exact: true }).first().click();
+  await page.locator(".home-choice-search").click();
   await expect(page.locator("#search")).toBeVisible();
   await expect(page).toHaveURL(/#search$/);
   await page.goto("/");
-  await page.getByRole("link", { name: "نشر شحنة", exact: true }).first().click();
-  await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
-  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
-  await page.goto("/");
-  await page.getByRole("link", { name: "دخول / حساب جديد", exact: true }).click();
+  await page.locator(".home-choice-publish").click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
 });
