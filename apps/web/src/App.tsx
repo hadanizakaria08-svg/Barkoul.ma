@@ -313,7 +313,7 @@ export default function App() {
             <a className="entry-primary" href="?page=services">الدخول إلى الموقع <span aria-hidden="true">←</span></a>
             <p className="entry-guest-note">يمكنك تصفح الشحنات كزائر دون إنشاء حساب.</p>
           </div>
-          <div className="entry-map-panel" aria-label="تغطية خدمات النقل في المغرب">
+          <div className="entry-map-panel" role="group" aria-label="تغطية خدمات النقل في المغرب">
             <div className="entry-map-glow"></div>
             <MoroccoMark/>
             <strong>من طنجة إلى مدن الجنوب</strong>
