@@ -6,16 +6,16 @@ test("serves the Arabic RTL application shell and primary journeys", async ({ pa
   await expect(page).toHaveTitle(/Barkoul\.ma/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.locator(".home-choice-search")).toHaveAttribute("href", "#search");
-  await expect(page.locator(".home-choice-publish")).toHaveAttribute("href", "?page=publish#publish-account");
+  await expect(page.getByRole("heading", { name: /كل شحنة تجد طريقها/ })).toBeVisible();
+  await expect(page.locator(".entry-primary")).toHaveAttribute("href", "?page=services");
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
 });
 
 test("opens a separate publication page and keeps the cargo form behind sign-in", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?page=services");
   await expect(page.locator("#publish")).toHaveCount(0);
   await expect(page.locator("#account")).toHaveCount(0);
-  await page.locator(".home-choice-publish").click();
+  await page.locator(".services-topbar a[href*=" + '"?page=publish#publish-account"' + " ]").click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
   await expect(page.getByRole("heading", { name: "أنشر شحنتك" })).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
@@ -28,7 +28,7 @@ test("does not expose publisher-role refresh to signed-out visitors", async ({ p
 });
 
 test("keeps search on the homepage and account controls on the publication page", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?page=services");
   await expect(page.getByLabel("من مدينة")).toBeVisible();
   await expect(page.getByLabel("إلى مدينة")).toBeVisible();
   await expect(page.locator("#search").getByLabel("نوع الشاحنة")).toBeVisible();
@@ -40,7 +40,7 @@ test("keeps search on the homepage and account controls on the publication page"
 
 test("does not introduce horizontal scrolling on a narrow mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/");
+  await page.goto("/?page=services");
   const dimensions = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
     document: document.documentElement.scrollWidth
