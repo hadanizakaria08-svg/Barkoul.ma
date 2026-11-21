@@ -303,25 +303,23 @@ export default function App() {
 
     </header>
     <main>
-      <section className="home-hero" aria-labelledby="home-title">
-        <div className="home-hero-copy">
-          <span className="home-kicker"><span aria-hidden="true">●</span> منصة النقل المغربية</span>
-          <h1 id="home-title">شحناتك تلتقي<br/><span>بسائقي الشاحنات</span></h1>
-          <p>منصة واحدة تجمع أصحاب البضائع والناقلين، لتسهيل العثور على شحنات وفرص نقل بين مدن المغرب.</p>
-          <div className="home-hero-actions">
-            <a className="home-cta home-cta-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>إضافة شحنة</a>
-            <a className="home-cta home-cta-secondary" href="#search">البحث عن شحنة</a>
-          </div>
-          <div className="home-trust-points">
-            <span><b aria-hidden="true">✓</b> تصفح الشحنات دون حساب</span>
-            <span><b aria-hidden="true">✓</b> تغطية مدن المغرب</span>
-          </div>
+      <section className="home-choice-hero" aria-labelledby="home-title">
+        <div className="home-choice-heading">
+          <p className="home-kicker">منصة النقل المغربية</p>
+          <h1 id="home-title">مرحباً بك في Barkoul.ma</h1>
+          <p>اختر ما تريد القيام به</p>
         </div>
-        <div className="home-hero-visual">
-          <img className="home-hero-photo" src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1600&q=85" alt="شاحنة نقل بضائع تسير على الطريق السريع" fetchPriority="high" decoding="async"/>
-          <div className="home-photo-shade" aria-hidden="true"></div>
-          <div className="home-photo-caption"><span>نقل البضائع عبر المغرب</span><strong>طريق أوضح. فرص أكثر.</strong></div>
-          <div className="home-map-card"><MoroccoMark/><div><strong>من الشمال إلى الجنوب</strong><span>اربط شحنتك بالناقل المناسب</span></div></div>
+        <div className="home-choice-grid">
+          <a className="home-choice-card home-choice-publish" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>
+            <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1000&q=85" alt="شاحنة نقل بضائع على الطريق" fetchPriority="high" decoding="async"/>
+            <span className="home-choice-overlay"></span>
+            <span className="home-choice-label"><strong>إضافة شحنة</strong><small>أريد نقل بضاعتي</small></span>
+          </a>
+          <a className="home-choice-card home-choice-search" href="#search">
+            <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1000&q=85" alt="وسيلة نقل تسير على الطريق" fetchPriority="high" decoding="async"/>
+            <span className="home-choice-overlay"></span>
+            <span className="home-choice-label"><strong>البحث عن شحنة</strong><small>أبحث عن حمولة لنقلها</small></span>
+          </a>
         </div>
       </section>
       <section className="home-features" aria-label="خدمات Barkoul">

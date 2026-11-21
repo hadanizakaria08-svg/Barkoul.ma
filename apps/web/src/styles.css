@@ -362,3 +362,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .publish-page .cargo-form{max-width:850px}
 .publish-topbar{position:relative}
 @media(max-width:640px){.publish-page{padding:24px 10px 38px}.publish-page .section{padding:15px}.publish-page-heading{margin-bottom:18px}}
+
+/* Simple first screen: two clear photo actions for cargo owners and drivers. */
+.home-choice-hero{padding:clamp(26px,4vw,48px) clamp(16px,5vw,72px) clamp(30px,4vw,48px);background:linear-gradient(135deg,#f6fbff 0%,#eaf5ff 55%,#fff 100%)}
+.home-choice-heading{text-align:center;margin:0 auto 22px}
+.home-choice-heading .home-kicker{margin-bottom:10px}
+.home-choice-heading h1{margin:0;color:#103e70;font-size:clamp(27px,4vw,42px);font-weight:950;line-height:1.3}
+.home-choice-heading>p:last-child{margin:8px 0 0;color:#526b84;font-size:16px;font-weight:700}
+.home-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:1050px;margin:0 auto}
+.home-choice-card{position:relative;display:block;min-width:0;height:clamp(210px,27vw,330px);overflow:hidden;border:4px solid #fff;border-radius:22px;background:#dcecf8;box-shadow:0 12px 32px #174c7920;isolation:isolate;transition:transform .18s,box-shadow .18s}
+.home-choice-card:hover{transform:translateY(-3px);box-shadow:0 17px 36px #174c7930}
+.home-choice-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.home-choice-card:hover>img{transform:scale(1.035)}
+.home-choice-overlay{position:absolute;inset:0;background:linear-gradient(0deg,#082f57e8 0%,#082f5740 58%,#082f5705 100%)}
+.home-choice-label{position:absolute;right:clamp(16px,3vw,30px);bottom:clamp(16px,3vw,28px);display:grid;gap:6px;color:#fff;text-shadow:0 2px 8px #001b36a6}
+.home-choice-label strong{font-size:clamp(23px,3vw,34px);font-weight:950}
+.home-choice-label small{font-size:clamp(13px,1.5vw,16px);font-weight:800}
+@media(max-width:640px){
+ .home-choice-hero{padding:23px 13px 27px}
+ .home-choice-heading{margin-bottom:16px}
+ .home-choice-heading h1{font-size:clamp(25px,7vw,32px)}
+ .home-choice-heading>p:last-child{font-size:14px}
+ .home-choice-grid{gap:10px}
+ .home-choice-card{height:clamp(170px,49vw,235px);border-width:3px;border-radius:15px}
+ .home-choice-label{right:11px;bottom:12px;gap:4px}
+ .home-choice-label strong{font-size:clamp(16px,4.4vw,21px)}
+ .home-choice-label small{font-size:11px}
+}
+@media(max-width:360px){.home-choice-grid{grid-template-columns:1fr}.home-choice-card{height:190px}}
