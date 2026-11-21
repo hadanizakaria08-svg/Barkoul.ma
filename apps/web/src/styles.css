@@ -390,3 +390,47 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
  .home-choice-label small{font-size:11px}
 }
 @media(max-width:360px){.home-choice-grid{grid-template-columns:1fr}.home-choice-card{height:190px}}
+
+
+/* Two-page navigation: a dedicated welcome/sign-in screen followed by the service hub. */
+.entry-shell{min-height:100vh;display:flex;flex-direction:column}
+.entry-topbar{justify-content:space-between;padding-inline:clamp(18px,6vw,88px)}
+.entry-country{color:#4c6b89;font-size:14px;font-weight:850}
+.entry-main{width:min(1120px,100%);margin:0 auto;padding:clamp(28px,5vw,64px) clamp(16px,4vw,36px);flex:1}
+.entry-welcome{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);align-items:center;gap:clamp(28px,6vw,78px);padding:clamp(24px,5vw,58px);border:1px solid #d9e9f6;border-radius:26px;background:linear-gradient(125deg,#f4faff 0%,#e5f3ff 60%,#fff 100%);box-shadow:0 16px 42px #123f690d}
+.entry-copy{max-width:650px}
+.entry-copy h1{margin:14px 0;color:#103e70;font-size:clamp(32px,5vw,56px);font-weight:950;line-height:1.35}
+.entry-copy h1 span{display:block;color:#0878c9}
+.entry-copy>p:not(.home-kicker):not(.entry-guest-note){max-width:570px;color:#526b84;font-size:16px;line-height:2}
+.entry-primary{display:inline-flex;align-items:center;justify-content:center;gap:18px;min-height:58px;margin-top:12px;padding:13px 25px;border-radius:14px;background:linear-gradient(120deg,#0878c9,#07539d);color:#fff;font-size:19px;font-weight:950;box-shadow:0 9px 22px #075da533;transition:transform .18s,box-shadow .18s}
+.entry-primary:hover{transform:translateY(-2px);box-shadow:0 13px 26px #075da544}
+.entry-primary span{font-size:25px}
+.entry-guest-note{margin:12px 0 0;color:#5d7790;font-size:12px;font-weight:750}
+.entry-map-panel{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;overflow:hidden;border:1px solid #c5e2f7;border-radius:22px;background:radial-gradient(ellipse at 50% 45%,#fff 0%,#e7f5ff 48%,#cce8fb 100%)}
+.entry-map-panel .morocco-mark{position:relative;inset:auto;width:clamp(125px,19vw,185px);height:235px;filter:drop-shadow(0 8px 9px #083b7633)}
+.entry-map-panel>strong{position:relative;z-index:1;margin-top:4px;color:#104778;font-size:16px;font-weight:950}
+.entry-map-panel>span{position:relative;z-index:1;margin-top:5px;color:#5d7790;font-size:12px;font-weight:750}
+.entry-map-glow{position:absolute;inset:12%;border:1px dashed #8fc5eb;border-radius:50%;box-shadow:0 0 0 22px #fff4,0 0 0 44px #fff3}
+.entry-account{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:28px;margin-top:24px;padding:clamp(20px,3vw,32px);border:1px solid #dce9f4;border-radius:20px;background:#fff;box-shadow:0 8px 25px #123f690b}
+.entry-account-intro h2,.entry-signed-in h2{margin:7px 0;color:#103e70;font-size:clamp(22px,3vw,29px);font-weight:950}
+.entry-account-intro .muted,.entry-signed-in .muted{margin:0;line-height:1.9}
+.entry-auth-form{display:grid;gap:12px;padding:18px;border:1px solid #e0ebf5;border-radius:15px;background:#f8fbff}
+.entry-auth-form .button{width:100%}
+.entry-auth-form .text-button{justify-self:center}
+.entry-signed-in{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.services-topbar{position:relative}
+.services-topbar nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+@media(max-width:700px){
+ .entry-topbar{justify-content:center;gap:8px}
+ .entry-country{width:100%;text-align:center;padding-bottom:5px}
+ .entry-welcome{grid-template-columns:1fr;gap:20px;padding:22px}
+ .entry-copy{text-align:center}
+ .entry-copy h1{font-size:clamp(29px,8vw,42px)}
+ .entry-copy>p:not(.home-kicker):not(.entry-guest-note){font-size:14px}
+ .entry-map-panel{min-height:250px}
+ .entry-map-panel .morocco-mark{height:175px;width:120px}
+ .entry-account{grid-template-columns:1fr;gap:16px}
+ .entry-signed-in{align-items:flex-start;flex-direction:column}
+ .services-topbar{gap:12px}
+ .services-topbar nav{width:100%;justify-content:center}
+}
