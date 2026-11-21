@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { getSupabase } from "@barkoul/data";
-import { validateDriverDocumentFile, type Cargo, type ProfileRole } from "@barkoul/domain";
+import { validateDriverDocumentFile, validateDriverDocumentFileContent, type Cargo, type ProfileRole } from "@barkoul/domain";
 
 type Row = Record<string, any>;
 interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; }
@@ -99,12 +99,14 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
     const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100);
     const path=userId+"/"+crypto.randomUUID()+"-"+safeName;
     try{
+      const contentError=await validateDriverDocumentFileContent(file);
+      if(contentError){setMessage(contentError);return;}
       const {error:uploadError}=await db.storage.from("driver-documents").upload(path,file,{contentType:file.type,upsert:false});
       if(uploadError)throw uploadError;
       const {error:rowError}=await db.from("driver_documents").insert({driver_id:userId,document_type:docType,storage_path:path,review_status:"pending"});
       if(rowError){await db.storage.from("driver-documents").remove([path]);throw rowError;}
       setFile(null); setMessage("تم رفع الوثيقة الخاصة وإرسالها للمراجعة."); await load();
-    }catch{setMessage("تعذر رفع الوثيقة. تأكد من نوع الملف وحجمه (10 ميغابايت كحد أقصى).");}finally{setBusy(false);}
+    }catch{setMessage("تعذر رفع الوثيقة. تأكد من سلامة الملف ونوعه وحجمه (10 ميغابايت كحد أقصى).");}finally{setBusy(false);}
   }
 
   async function progress(trip:Row,status:string,withGps=false){
