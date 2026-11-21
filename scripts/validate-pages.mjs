@@ -6,9 +6,9 @@ const app = fs.readFileSync("apps/web/src/App.tsx", "utf8");
 const admin = fs.readFileSync("apps/web/src/AdminRoom.tsx", "utf8");
 
 assert.match(html, /<html lang="ar" dir="rtl">/, "The deployed app must be Arabic RTL");
-assert.match(html, /<div id="root"><\\/div>/, "React root is required");
-assert.match(html, /assets\\/app\\.js/, "The compiled app entry is required");
-assert.match(html, /assets\\/app\\.css/, "The compiled stylesheet is required");
+assert.match(html, /<div id="root"><\/div>/, "React root is required");
+assert.match(html, /assets\/app\.js/, "The compiled app entry is required");
+assert.match(html, /assets\/app\.css/, "The compiled stylesheet is required");
 assert.match(html, /Content-Security-Policy/, "A content security policy is required");
 assert.match(app, /home-choice-hero/, "The two-action photo homepage must be present");
 assert.match(app, /home-choice-card/, "Both photo action cards must be present");
@@ -20,7 +20,7 @@ assert.match(admin, /admin_review_role_request/, "Admin role review must remain 
 assert.match(admin, /admin_review_driver_document/, "Driver document review must remain integrated");
 assert.doesNotMatch(html + app + admin, /service_role|sb_secret_/i, "Public app source must not contain server-side secrets");
 
-const ids = [...html.matchAll(/\\bid=["']([^"']+)["']/g)].map((match) => match[1]);
+const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map((match) => match[1]);
 assert.equal(new Set(ids).size, ids.length, "The app shell must not contain duplicate IDs");
 
 const retired = ["index.html", "index-v2.html", "admin.html", "interface-preview.html", "preview-new-interface.html"];
