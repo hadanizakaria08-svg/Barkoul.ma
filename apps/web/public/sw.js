@@ -1,4 +1,4 @@
-const CACHE_NAME = "barkoul-static-v4";
+const CACHE_NAME = "barkoul-static-v5";
 
 const STATIC_ASSET_PATHS = new Set(
   ["assets/app.js", "assets/app.css", "icon.svg", "manifest.webmanifest"]
@@ -70,7 +70,7 @@ self.addEventListener("fetch", (event) => {
   if (!isPublicStaticAsset(url)) return;
 
   event.respondWith(
-    fetch(request).then(async (response) => {
+    fetch(new Request(request, { cache: "reload" })).then(async (response) => {
       if (isCacheablePublicResponse(response, url)) {
         try {
           const cache = await caches.open(CACHE_NAME);
