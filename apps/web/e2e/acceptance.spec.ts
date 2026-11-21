@@ -15,7 +15,7 @@ test("opens a separate publication page and keeps the cargo form behind sign-in"
   await page.goto("/?page=services");
   await expect(page.locator("#publish")).toHaveCount(0);
   await expect(page.locator("#account")).toHaveCount(0);
-  await page.locator(".services-topbar a[href*=" + '"?page=publish#publish-account"' + " ]").click();
+  await page.getByRole("link", { name: "دخول الحساب / نشر شحنة" }).click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
   await expect(page.getByRole("heading", { name: "أنشر شحنتك" })).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
