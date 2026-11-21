@@ -38,6 +38,16 @@ describe("database mutation boundaries", () => {
     assert.ok(migration.includes("REVOKE UPDATE (%1$I) ON TABLE %2$s"));
   });
 
+  it("limits anonymous cargo reads to public listing fields", () => {
+    assert.equal(migration.includes("GRANT SELECT ON public.cargos TO anon, authenticated"), false);
+    assert.ok(migration.includes("GRANT SELECT ON public.cargos TO authenticated"));
+    assert.ok(migration.includes("GRANT SELECT ("));
+    const grant = migration.split("GRANT SELECT (")[1]?.split(") ON public.cargos TO anon")[0] ?? "";
+    assert.ok(grant.includes("title"));
+    assert.ok(grant.includes("destination_city"));
+    assert.equal(grant.includes("owner_id"), false);
+  });
+
   it("keeps cargo publishing open-only and prevents direct updates or deletes", () => {
     assert.ok(migration.includes("status = 'open'"));
     assert.ok(migration.includes("DROP POLICY IF EXISTS cargos_secure_update"));
