@@ -70,7 +70,7 @@ self.addEventListener("fetch", (event) => {
   if (!isPublicStaticAsset(url)) return;
 
   event.respondWith(
-    fetch(new Request(request, { cache: "reload" })).then(async (response) => {
+    fetch(request, { cache: "reload" }).then(async (response) => {
       if (isCacheablePublicResponse(response, url)) {
         try {
           const cache = await caches.open(CACHE_NAME);
