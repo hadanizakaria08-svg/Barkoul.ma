@@ -183,3 +183,36 @@ export function validateDriverDocumentFile(file: { type: string; size: number })
   }
   return null;
 }
+
+export interface DriverDocumentBlob {
+  type: string;
+  size: number;
+  slice(start?: number, end?: number): { arrayBuffer(): Promise<ArrayBuffer> };
+}
+
+/**
+ * Checks the file signature as an additional client-side guard against MIME spoofing.
+ * This is not malware scanning and does not replace server-side Storage restrictions.
+ */
+export async function validateDriverDocumentFileContent(file: DriverDocumentBlob): Promise<string | null> {
+  const basicError = validateDriverDocumentFile(file);
+  if (basicError) return basicError;
+
+  let header: Uint8Array;
+  try {
+    header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  } catch {
+    return "تعذر قراءة محتوى الملف. اختر ملفاً آخر وحاول مجدداً.";
+  }
+
+  const asciiEquals = (offset: number, value: string) =>
+    value.split("").every((character, index) => header[offset + index] === character.charCodeAt(0));
+  const signatureMatches =
+    file.type === "application/pdf" ? asciiEquals(0, "%PDF-") :
+    file.type === "image/jpeg" ? header[0] === 0xff && header[1] === 0xd8 && header[2] === 0xff :
+    file.type === "image/png" ? [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((byte, index) => header[index] === byte) :
+    file.type === "image/webp" ? asciiEquals(0, "RIFF") && asciiEquals(8, "WEBP") :
+    false;
+
+  return signatureMatches ? null : "محتوى الملف لا يطابق نوعه المعلن. اختر ملف PDF أو صورة صحيحة.";
+}
