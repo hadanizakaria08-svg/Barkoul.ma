@@ -69,6 +69,13 @@ describe("database mutation boundaries", () => {
     assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.cancel_open_cargo(bigint) TO authenticated"));
   });
 
+  it("keeps delivery confirmation available when location permission is denied", () => {
+    assert.ok(workspace.includes('progress(t,"in_transit")'));
+    assert.ok(workspace.includes('progress(t,"in_transit",true)'));
+    assert.ok(workspace.includes('progress(t,"delivered")'));
+    assert.equal(workspace.includes('progress(t,"delivered",true)'), false);
+  });
+
   it("routes the owner UI through the cancellation RPC instead of direct table UPDATE", () => {
     assert.ok(workspace.includes('db.rpc("cancel_open_cargo",{p_cargo_id:id})'));
     assert.equal(workspace.includes('from("cargos").update('), false);
