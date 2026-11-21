@@ -5,9 +5,9 @@ const shell = fs.readFileSync("apps/web/index.html", "utf8");
 const app = fs.readFileSync("apps/web/src/App.tsx", "utf8");
 const admin = fs.readFileSync("apps/web/src/AdminRoom.tsx", "utf8");
 
-assert.match(shell, /<div id="root"><\\/div>/, "React mount point must exist");
-assert.match(shell, /type="module" src="\\.\\/assets\\/app\\.js"/, "Built application entry must be loaded");
-assert.match(shell, /\\.\\/assets\\/app\\.css/, "Built application styles must be loaded");
+assert.match(shell, /<div id="root"><\/div>/, "React mount point must exist");
+assert.match(shell, /type="module" src="\.\/assets\/app\.js"/, "Built application entry must be loaded");
+assert.match(shell, /\.\/assets\/app\.css/, "Built application styles must be loaded");
 assert.match(app, /home-choice-hero/, "Two-action photo homepage must be present");
 assert.match(app, /home-choice-card/, "Photo action cards must be present");
 assert.match(app, /إضافة شحنة/, "Publish action must be present");
