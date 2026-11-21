@@ -60,6 +60,7 @@ export default function App() {
   const [truck, setTruck] = useState("");
   const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
   const publishRoute = new URLSearchParams(window.location.search).get("page") === "publish";
+  const servicesRoute = new URLSearchParams(window.location.search).get("page") === "services";
 
   useEffect(() => {
     const syncRoute = () => setAdminRoute(window.location.hash === "#admin");
@@ -297,10 +298,58 @@ export default function App() {
     </div>;
   }
 
-  return <div className="app-shell">
-    <header className="topbar home-topbar">
-      <a className="brand home-brand" href="#" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
+  if (!servicesRoute) {
+    return <div className="app-shell entry-shell">
+      <header className="topbar home-topbar entry-topbar">
+        <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
+        <span className="entry-country">منصة النقل المغربية</span>
+      </header>
+      <main className="entry-main">
+        <section className="entry-welcome" aria-labelledby="entry-title">
+          <div className="entry-copy">
+            <p className="home-kicker">نقل البضائع في جميع أنحاء المغرب</p>
+            <h1 id="entry-title">كل شحنة تجد طريقها،<span> وكل سائق يجد فرصته.</span></h1>
+            <p>منصة مغربية تجمع أصحاب البضائع والناقلين في مكان واحد، لتسهيل البحث عن الشحنات وتنظيم النقل بين المدن.</p>
+            <a className="entry-primary" href="?page=services">الدخول إلى الموقع <span aria-hidden="true">←</span></a>
+            <p className="entry-guest-note">يمكنك تصفح الشحنات كزائر دون إنشاء حساب.</p>
+          </div>
+          <div className="entry-map-panel" aria-label="تغطية خدمات النقل في المغرب">
+            <div className="entry-map-glow"></div>
+            <MoroccoMark/>
+            <strong>من طنجة إلى مدن الجنوب</strong>
+            <span>تغطية وطنية · منصة واحدة</span>
+          </div>
+        </section>
+        <section className="entry-account" id="entry-account" aria-labelledby="entry-account-title">
+          {user ? (
+            <div className="entry-signed-in">
+              <div><p className="eyebrow">مرحباً بعودتك</p><h2 id="entry-account-title">أنت مسجل الدخول بالفعل</h2><p className="muted">يمكنك الانتقال مباشرة إلى خدمات Barkoul.ma.</p></div>
+              <a className="button button-primary" href="?page=services">متابعة إلى الخدمات</a>
+            </div>
+          ) : (
+            <>
+              <div className="entry-account-intro"><p className="eyebrow">حساب Barkoul.ma</p><h2 id="entry-account-title">{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "تسجيل الدخول" : "إنشاء حساب جديد"}</h2><p className="muted">سجّل الدخول لإدارة شحناتك وعروض النقل، أو تابع كزائر لتصفح الشحنات.</p></div>
+              <form className="entry-auth-form" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>
+                {!resetMode && authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}
+                <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
+                {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
+                <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
+                {!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
+                <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
+                {authMessage && <p className="form-message" role="status">{authMessage}</p>}
+              </form>
+            </>
+          )}
+        </section>
+      </main>
+      <footer className="reference-footer"><strong>Barkoul.ma <span>—</span> معاً نحو نقل أسهل وأسرع</strong></footer>
+    </div>;
+  }
 
+  return <div className="app-shell">
+    <header className="topbar home-topbar services-topbar">
+      <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
+      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الصفحة الأولى</a><a className="account-entry" href="?page=publish#publish-account">دخول الحساب / نشر شحنة</a></nav>
     </header>
     <main>
       <section className="home-choice-hero" aria-labelledby="home-title">
