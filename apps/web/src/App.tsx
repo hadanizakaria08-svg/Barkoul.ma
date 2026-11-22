@@ -25,15 +25,6 @@ function MoroccoMark() {
   </svg>;
 }
 
-function FeatureCard({image,alt,title,subtitle,href,map=false}:{image?:string;alt?:string;title:string;subtitle:string;href:string;map?:boolean}) {
-  return <a className={`home-feature-card${map?" home-feature-map-card":""}`} href={href}>
-    <div className={`home-feature-visual${map?" home-feature-map":""}`}>
-      {image ? <img src={image} alt={alt ?? ""} loading="lazy" decoding="async"/> : <MoroccoMark/>}
-    </div>
-    <div className="home-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">←</b></div>
-  </a>;
-}
-
 export default function App() {
   useEffect(() => { window.dispatchEvent(new Event("barkoul:app-ready")); }, []);
   const db = getSupabase();
@@ -171,7 +162,8 @@ export default function App() {
     } finally { setBusy(false); }
   }
 
-  const visible = useMemo(() => filterCargos(cargos, origin, destination, truck), [cargos, origin, destination, truck]);
+  const [selectedGoods, setSelectedGoods] = useState("");
+  const visible = useMemo(() => filterCargos(cargos, origin, destination, truck).filter(c => !selectedGoods || c.goods_type.toLocaleLowerCase().includes(selectedGoods.toLocaleLowerCase())), [cargos, origin, destination, truck, selectedGoods]);
 
   async function submitAuth(event: FormEvent) {
     event.preventDefault(); if (!db) return;
@@ -300,109 +292,110 @@ export default function App() {
 
   if (!servicesRoute) {
     return <div className="app-shell entry-shell">
-      <header className="topbar home-topbar entry-topbar">
+      <header className="topbar home-topbar entry-topbar approved-entry-topbar">
         <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-        <span className="entry-country">منصة النقل المغربية</span>
+        <strong className="entry-country">ربط أصحاب البضائع بسائقي الشاحنات</strong>
+        <nav aria-label="روابط التواصل" className="entry-social-nav">
+          <a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://youtube.com/" aria-label="يوتيوب">▶</a><a href="https://linkedin.com/" aria-label="لينكدإن">in</a><a href="https://x.com/" aria-label="X">𝕏</a>
+        </nav>
       </header>
-      <main className="entry-main">
-        <section className="entry-welcome" aria-labelledby="entry-title">
-          <div className="entry-copy">
-            <p className="home-kicker">نقل البضائع في جميع أنحاء المغرب</p>
-            <h1 id="entry-title">كل شحنة تجد طريقها،<span> وكل سائق يجد فرصته.</span></h1>
-            <p>منصة مغربية تجمع أصحاب البضائع والناقلين في مكان واحد، لتسهيل البحث عن الشحنات وتنظيم النقل بين المدن.</p>
-            <a className="entry-primary" href="?page=services">الدخول إلى الموقع <span aria-hidden="true">←</span></a>
-            <p className="entry-guest-note">يمكنك تصفح الشحنات كزائر دون إنشاء حساب.</p>
-          </div>
-          <div className="entry-map-panel" role="group" aria-label="تغطية خدمات النقل في المغرب">
-            <div className="entry-map-glow"></div>
-            <MoroccoMark/>
-            <strong>من طنجة إلى مدن الجنوب</strong>
-            <span>تغطية وطنية · منصة واحدة</span>
-          </div>
-        </section>
-        <section className="entry-account" id="entry-account" aria-labelledby="entry-account-title">
-          {user ? (
-            <div className="entry-signed-in">
-              <div><p className="eyebrow">مرحباً بعودتك</p><h2 id="entry-account-title">أنت مسجل الدخول بالفعل</h2><p className="muted">يمكنك الانتقال مباشرة إلى خدمات Barkoul.ma.</p></div>
-              <a className="button button-primary" href="?page=services">متابعة إلى الخدمات</a>
+      <main className="approved-entry-main">
+        <section className="approved-entry-hero" aria-labelledby="entry-title">
+          <div className="approved-entry-visual">
+            <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب</span></div>
+            <div className="approved-entry-vehicles">
+              <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/>
+              <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=850&q=90" alt="حافلة نقل ركاب" fetchPriority="high"/>
             </div>
-          ) : (
-            <>
-              <div className="entry-account-intro"><p className="eyebrow">حساب Barkoul.ma</p><h2 id="entry-account-title">{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "تسجيل الدخول" : "إنشاء حساب جديد"}</h2><p className="muted">سجّل الدخول لإدارة شحناتك وعروض النقل، أو تابع كزائر لتصفح الشحنات.</p></div>
-              <form className="entry-auth-form" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>
+            <div className="approved-entry-brand">
+              <BrandTruck/><strong>Barkoul<span>.ma</span></strong>
+              <b>ربط أصحاب البضائع بسائقي الشاحنات</b>
+            </div>
+          </div>
+          <section className="approved-login-card" id="entry-account" aria-labelledby="entry-account-title">
+            {user ? <div className="entry-signed-in">
+              <p className="eyebrow">مرحباً بعودتك</p><h2 id="entry-account-title">أنت مسجل الدخول بالفعل</h2>
+              <a className="button button-primary" href="?page=services">الدخول إلى الموقع</a>
+            </div> : <>
+              <div className="approved-login-heading"><span aria-hidden="true">♙</span><h1 id="entry-account-title">{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "تسجيل الدخول" : "إنشاء حساب جديد"}</h1></div>
+              <form className="approved-login-form" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>
                 {!resetMode && authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}
-                <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
-                {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
-                <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
-                {!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
+                <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="البريد الإلكتروني"/></label>
+                {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"} placeholder="كلمة المرور"/></label>}
+                <button className="button button-primary approved-login-submit" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"دخول":"إنشاء حساب"}</button>
+                {!resetMode && authMode==="login" && <button type="button" className="approved-reset-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
                 <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
                 {authMessage && <p className="form-message" role="status">{authMessage}</p>}
               </form>
-            </>
-          )}
+              <div className="approved-login-social"><span>أو تابعنا على وسائل التواصل الاجتماعي</span><div className="social-links"><a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://youtube.com/" aria-label="يوتيوب">▶</a><a href="https://linkedin.com/" aria-label="لينكدإن">in</a><a href="https://x.com/" aria-label="X">𝕏</a></div></div>
+            </>}
+          </section>
         </section>
+        <a className="approved-guest-entry" href="?page=services">تصفح خدمات الموقع كزائر <span>←</span></a>
       </main>
-      <footer className="reference-footer"><strong>Barkoul.ma <span>—</span> معاً نحو نقل أسهل وأسرع</strong></footer>
+      <footer className="approved-entry-footer"><span>♧ دعم فني ومساعدة</span><span>✓ أمان وموثوقية</span><span>♧ سهولة في الاستخدام</span><span>▣ نقل سريع ومضمون</span><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong></footer>
     </div>;
   }
 
+  const cargoCategories = [
+    ["الخضر والفواكه","photo-1540420773420-3366772f4999"],["الحبوب والدقيق","photo-1574323347407-f5e1ad6d020b"],["الألبان ومشتقاتها","photo-1563636619-e9143da7973b"],["المواد المجمدة","photo-1518843875459-f738682238a6"],
+    ["الإسمنت","photo-1518709268805-4e9042af9f23"],["الآجر والطوب","photo-1581094794329-c8112a89af12"],["الحديد والمعادن","photo-1504917595217-d4dc5ebe6122"],["الرمل والحصى","photo-1518709268805-4e9042af9f23"],["السيراميك","photo-1600607687939-ce8a6c25118c"],["الخشب","photo-1530124566582-a618bc2615dc"],
+    ["الأثاث","photo-1555041469-a586c61ea9bc"],["الأجهزة المنزلية","photo-1555041469-a586c61ea9bc"],["التجهيز والديكور","photo-1600210492486-724fe5c67fb0"],
+    ["السلع المعلبة","photo-1607082349566-187342175e2f"],["الآلات الصناعية","photo-1581092335878-2d9ff86ca2bf"],["الأقمشة والملابس","photo- textile"],["البلاستيك","photo-1607082349566-187342175e2f"],["الورق والكرتون","photo-1607082349566-187342175e2f"],["الإلكترونيات","photo-1498049794561-7780e7231661"],
+    ["السيارات","photo-1492144534655-ae79c964c9d7"],["معدات الحفر","photo- excavator"],["المعدات الفلاحية","photo- tractor"],["الأنابيب والمعادن","photo-1504917595217-d4dc5ebe6122"],["المولدات","photo-1518709268805-4e9042af9f23"],["الحمولات الضخمة","photo-1601584115197-04ecc0da31d7"],
+    ["بضائع متنوعة","photo-1607082349566-187342175e2f"],["شحنات خاصة","photo-1601584115197-04ecc0da31d7"]
+  ];
+  const categoryImages: Record<string,string> = {
+    "الخضر والفواكه":"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80",
+    "الحبوب والدقيق":"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=500&q=80",
+    "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
+    "المواد المجمدة":"https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=500&q=80",
+    "الإسمنت":"https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=500&q=80",
+    "الآجر والطوب":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
+    "الحديد والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
+    "الرمل والحصى":"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
+    "السيراميك":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
+    "الخشب":"https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=500&q=80",
+    "الأثاث":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
+    "الأجهزة المنزلية":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
+    "التجهيز والديكور":"https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=500&q=80",
+    "السلع المعلبة":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
+    "الآلات الصناعية":"https://images.unsplash.com/photo-1581092335878-2d9ff86ca2bf?auto=format&fit=crop&w=500&q=80",
+    "الأقمشة والملابس":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=500&q=80",
+    "البلاستيك":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
+    "الورق والكرتون":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
+    "الإلكترونيات":"https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=500&q=80",
+    "السيارات":"https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=500&q=80",
+    "معدات الحفر":"https://images.unsplash.com/photo-1580901368919-7738efb0f87e?auto=format&fit=crop&w=500&q=80",
+    "المعدات الفلاحية":"https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=80",
+    "الأنابيب والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
+    "المولدات":"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
+    "الحمولات الضخمة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
+    "بضائع متنوعة":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
+    "شحنات خاصة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80"
+  };
   return <div className="app-shell">
-    <header className="topbar home-topbar services-topbar">
+    <header className="topbar home-topbar services-topbar approved-services-topbar">
       <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الصفحة الأولى</a><a className="account-entry" href="?page=publish#publish-account">دخول الحساب / نشر شحنة</a></nav>
+      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الرئيسية</a><a className="home-nav-link" href="#search">أبحث عن شحنة</a><a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="home-nav-link" href="#categories">خدماتنا</a><a className="home-nav-link" href="#footer">الدعم والمساعدة</a></nav>
     </header>
     <main>
-      <section className="home-choice-hero" aria-labelledby="home-title">
-        <div className="home-choice-heading">
-          <p className="home-kicker">منصة النقل المغربية</p>
-          <h1 id="home-title">مرحباً بك في Barkoul.ma</h1>
-          <p>اختر ما تريد القيام به</p>
-        </div>
-        <div className="home-choice-grid">
-          <a className="home-choice-card home-choice-publish" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>
-            <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1000&q=85" alt="شاحنة نقل بضائع على الطريق" fetchPriority="high" decoding="async"/>
-            <span className="home-choice-overlay"></span>
-            <span className="home-choice-label"><strong>إضافة شحنة</strong><small>أريد نقل بضاعتي</small></span>
-          </a>
-          <a className="home-choice-card home-choice-search" href="#search">
-            <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1000&q=85" alt="وسيلة نقل تسير على الطريق" fetchPriority="high" decoding="async"/>
-            <span className="home-choice-overlay"></span>
-            <span className="home-choice-label"><strong>البحث عن شحنة</strong><small>أبحث عن حمولة لنقلها</small></span>
-          </a>
-        </div>
+      <section className="approved-services-hero">
+        <div className="approved-services-hero-copy"><p className="home-kicker">منصتكم للنقل والشحن في المغرب</p><h1>Barkoul.ma</h1><h2>ربط أصحاب البضائع بسائقي الشاحنات</h2><div className="hero-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#search">أبحث عن شحنة</a></div></div>
+        <div className="approved-services-hero-photo"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/><img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=700&q=85" alt="حافلة نقل" /></div>
       </section>
-      <section className="home-features" aria-label="خدمات Barkoul">
-        <FeatureCard image="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=720&q=80" alt="شاحنة نقل بضائع" title="لأصحاب البضائع" subtitle="انشر شحنتك واعثر على ناقل" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}/>
-        <FeatureCard image="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=720&q=80" alt="حافلة تسير على طريق في المغرب" title="للسائقين والناقلين" subtitle="اكتشف فرص النقل والرحلات" href="#search"/>
-        <FeatureCard title="تغطية وطنية" subtitle="من طنجة إلى مدن الجنوب" href="#search" map/>
-      </section>
-      <section className="cargo-categories" aria-label="أنواع الشحنات">
-        <div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>ماذا تريد أن تنقل؟</h2></div>
-        <div className="category-grid">
-          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="خضر وفواكه طازجة" loading="lazy"/><strong>خضر وفواكه</strong></a>
-          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80" alt="مواد البناء" loading="lazy"/><strong>مواد البناء</strong></a>
-          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=600&q=80" alt="طرود وبضائع" loading="lazy"/><strong>بضائع عامة</strong></a>
-          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" alt="أثاث وأجهزة منزلية" loading="lazy"/><strong>أثاث وأجهزة</strong></a>
-          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=600&q=80" alt="مواد غذائية" loading="lazy"/><strong>مواد غذائية</strong></a>
-          <a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80" alt="شاحنة نقل مبرد" loading="lazy"/><strong>شاحنة تبريد</strong></a>
-        </div>
-      </section>
-
+      <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع الشاحنة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}</select></label><button className="button button-primary" onClick={()=>document.getElementById("available-cargos")?.scrollIntoView({behavior:"smooth"})}>بحث الآن</button></div></section>
+      <section className="approved-categories" id="categories" aria-label="جميع أنواع الشحنات"><div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>جميع أنواع الشحنات والبضائع</h2><p>اختر السلعة لعرض الشحنات المطابقة، أو استخدم «شحنات أخرى» إذا لم تجد نوع بضاعتك.</p></div><div className="approved-category-grid">{cargoCategories.map(([name])=><a key={name} href="#available-cargos" onClick={()=>setSelectedGoods(name)}><img src={categoryImages[name] || categoryImages["بضائع متنوعة"]} alt={name} loading="lazy"/><strong>{name}</strong></a>)}</div><div className="approved-other-note"><strong>شحنات أخرى</strong><span>لم تجد السلعة؟ يمكنك كتابة اسمها وإضافة صورتها عند نشر الشحنة.</span><a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أضف شحنة أخرى</a></div></section>
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
-
-      <section className="section" id="search"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
+      <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
+        {selectedGoods && <p className="selected-category">التصنيف المختار: {selectedGoods} <button className="text-button" onClick={()=>setSelectedGoods("")}>إلغاء التصفية</button></p>}
         <div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع الشاحنة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}</select></label></div>
         {loading ? <p className="muted">جاري تحميل الشحنات…</p> : error ? <p className="notice notice-warn">{error}</p> : visible.length === 0 ? <p className="empty">لا توجد شحنات مطابقة حالياً.</p> :
           <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
       </section>
-
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace userId={user.id} role={profileRole} openCargos={cargos}/>}
     </main>
-    <footer className="reference-footer">
-      <div className="social-links" aria-label="روابط التواصل">
-        <a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://instagram.com/" aria-label="إنستغرام">◎</a><a href="https://x.com/" aria-label="X">𝕏</a>
-      </div>
-      <strong>Barkoul.ma <span>—</span> معاً نحو نقل أسهل وأسرع</strong>
-    </footer>
+    <footer className="reference-footer" id="footer"><div className="social-links" aria-label="روابط التواصل"><a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://youtube.com/" aria-label="يوتيوب">▶</a><a href="https://linkedin.com/" aria-label="لينكدإن">in</a><a href="https://x.com/" aria-label="X">𝕏</a></div><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong></footer>
   </div>;
+
 }
