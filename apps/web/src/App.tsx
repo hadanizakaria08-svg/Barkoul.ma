@@ -25,15 +25,6 @@ function MoroccoMark() {
   </svg>;
 }
 
-function FeatureCard({image,alt,title,subtitle,href,map=false}:{image?:string;alt?:string;title:string;subtitle:string;href:string;map?:boolean}) {
-  return <a className={`home-feature-card${map?" home-feature-map-card":""}`} href={href}>
-    <div className={`home-feature-visual${map?" home-feature-map":""}`}>
-      {image ? <img src={image} alt={alt ?? ""} loading="lazy" decoding="async"/> : <MoroccoMark/>}
-    </div>
-    <div className="home-feature-copy"><strong>{title}</strong><span>{subtitle}</span><b aria-hidden="true">←</b></div>
-  </a>;
-}
-
 export default function App() {
   useEffect(() => { window.dispatchEvent(new Event("barkoul:app-ready")); }, []);
   const db = getSupabase();
