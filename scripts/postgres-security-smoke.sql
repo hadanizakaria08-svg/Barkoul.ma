@@ -93,10 +93,10 @@ BEGIN
   IF (SELECT status FROM public.cargos WHERE id=1) <> 'matched' THEN
     RAISE EXCEPTION 'accepted cargo was not marked matched';
   END IF;
-  IF (SELECT status FROM public.negotiations WHERE id=:offer_one) <> 'accepted' THEN
+  IF (SELECT status FROM public.negotiations WHERE cargo_id=1 AND proposer_id='22222222-2222-4222-8222-222222222222') <> 'accepted' THEN
     RAISE EXCEPTION 'accepted offer did not reach accepted state';
   END IF;
-  IF (SELECT status FROM public.negotiations WHERE id=:offer_two) <> 'rejected' THEN
+  IF (SELECT status FROM public.negotiations WHERE cargo_id=1 AND proposer_id='33333333-3333-4333-8333-333333333333') <> 'rejected' THEN
     RAISE EXCEPTION 'competing offer was not rejected';
   END IF;
   IF (SELECT count(*) FROM public.trips WHERE cargo_id=1 AND status<>'cancelled') <> 1 THEN
