@@ -66,3 +66,26 @@
 ## حالة تطبيق migrations
 
 الملفات `supabase/migrations/20261120149000` إلى `20261120149700` تغييرات مقترحة في فرع التطوير. لم تُنفذ على مشروع الإنتاج في هذه الجولة. تتطلب مراجعة نتائج `docs/SECURITY-AUDIT-READONLY.sql` أولاً، ثم اختباراً على قاعدة staging منفصلة قبل أي موافقة على الإنتاج.
+
+
+## تدقيق إنتاج للقراءة فقط — 2026-11-22
+
+أُعيد فحص مشروع Supabase بعد وصول migration إنتاجية جديدة. لم تُنفذ أي كتابة أو DDL أو تغيير إعدادات في هذا الفحص.
+
+- حالة المشروع: `ACTIVE_HEALTHY`، قاعدة PostgreSQL 17.11.
+- أحدث إصدار مسجل في `supabase_migrations.schema_migrations`: `20261122111549_restrict_public_cargo_columns_and_driver_storage_upload`.
+- أصبح `anon` غير قادر على قراءة `cargos.owner_id`، مع بقاء قراءة `cargos.title` وأعمدة القائمة العامة متاحة.
+- ما زال `authenticated` يملك INSERT على `negotiations`، و`public.create_negotiation(bigint,numeric,text)` غير موجود في الإنتاج وقت الفحص. واجهة فرع التطوير تستدعي هذا RPC؛ لذلك لا تُنشر الواجهة قبل اعتماد migration المتوافقة.
+- `authenticated` لا يملك UPDATE مباشراً على `cargos`، لكنه يملك INSERT المطلوب لنشر الشحنات.
+- الفهرسان الجزئيان لمنع تكرار العرض المعلق وطلب الدور المعلق موجودان بالفعل: `negotiations_one_pending_per_driver_cargo` و`profile_role_requests_one_pending_per_user`.
+- RLS مفعّل على جداول التطبيق والتخزين التي أعادها فحص المخطط. سياسات Storage الحالية تشمل القراءة الخاصة والرفع الخاص والحذف الخاص، ولا تظهر بعد سياسات RESTRICTIVE الإضافية الموجودة في migration التطوير 1497.
+- تنفيذ `private.admin_review_driver_document_impl` الحي لا يرفض إعادة مراجعة وثيقة خرجت من حالة pending؛ migration 1497 في الفرع تضيف قفل السجل وشرط الحالة.
+- تنفيذ `private.respond_to_negotiation_impl` الحي يقفل العرض والشحنة في استعلام واحد؛ migration 1497 توحّد ترتيب الأقفال ليكون قفل الشحنة أولاً ثم العرض.
+- حاوية `driver-documents` خاصة، بحد 10 MiB، وأنواع PDF/JPEG/PNG/WebP.
+- Security Advisor ما زال يعرض تحذير `auth_leaked_password_protection` لأن حماية كلمات المرور المسربة معطلة. لم أغيّر إعدادات Auth.
+- Performance Advisor يعرض ثلاثة فهارس غير مستخدمة حتى وقت الفحص: `profile_role_requests_reviewed_by_idx` و`admin_audit_log_admin_id_idx` و`negotiations_proposer_id_idx`. لم تُحذف؛ يلزم تقييم أثرها على الاستخدام المستقبلي قبل أي إزالة.
+- لا توجد بيانات طلبات أدوار معلقة وقت الفحص.
+
+## تنبيه توافق سجل migrations
+
+سجل الإنتاج الحالي متقدم إلى `20261122111549`، بينما ملفات migrations التطويرية `20261120149000` و`20261120149500` و`20261120149700` تحمل إصدارات أقدم، وبعض الملفات السابقة في الفرع تقابل وظائف موجودة بالفعل في الإنتاج تحت أرقام إصدارات مختلفة. لذلك لا يجوز تشغيل `supabase db push` على هذا الفرع مباشرة أو افتراض أن أسماء الملفات الحالية تمثل سلسلة نشر متوافقة. يجب أولاً توحيد تاريخ migrations مع سجل الإنتاج وإنشاء migration أمامية بعد `20261122111549` تتضمن فقط الفروقات غير المطبقة، ثم اختبارها في PostgreSQL معزول. اختبارات PostgreSQL المضافة إلى CI تستخدم مخططاً اصطناعياً ولا تغيّر هذا القيد ولا تثبت توافق سجل Supabase الحي.
