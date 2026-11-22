@@ -51,10 +51,24 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
-      - name: Build debug APK
+      - name: Cache Gradle dependencies
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK (retry transient Maven rate limits)
         run: |
           cd android
-          ./gradlew --no-daemon assembleDebug
+          for attempt in 1 2 3; do
+            echo "Gradle Android build attempt ${attempt}/3"
+            if ./gradlew --no-daemon --stacktrace assembleDebug; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              delay=$((attempt * 30))
+              echo "Build failed; retrying after ${delay}s to recover from temporary repository throttling."
+              sleep "$delay"
+            fi
+          done
+          echo "Android build failed after 3 attempts. See Gradle output above."
+          exit 1
       - uses: actions/upload-artifact@v4
         with:
           name: barkoul-android-debug-apk
