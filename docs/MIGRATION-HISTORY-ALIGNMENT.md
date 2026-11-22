@@ -2,7 +2,7 @@
 
 ## Live project
 
-The live Supabase project `ajvpinnumhazuyziphwn` reports these 20 applied migration versions (verified 2026-11-22):
+The live Supabase project `ajvpinnumhazuyziphwn` reports these 21 applied migration versions (verified 2026-11-22):
 
 ```text
 20261120130125
@@ -25,6 +25,7 @@ The live Supabase project `ajvpinnumhazuyziphwn` reports these 20 applied migrat
 20261120141413
 20261120141749
 20261120142045
+20261122111549
 ```
 
 The active `supabase/migrations/` directory is aligned to those exact version identifiers. Three SQL source files had version prefixes that did not match the live ledger; they have been renamed to their verified production versions without changing their SQL contents. The already-applied `20261120142045` migration is represented by a history marker because its production change is already present and its source is not in this repository snapshot.
