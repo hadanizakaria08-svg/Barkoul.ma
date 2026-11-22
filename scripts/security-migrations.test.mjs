@@ -152,6 +152,17 @@ const driverUploadGuardMigration = await readFile(
   "utf8"
 );
 
+
+describe("driver document content validation feedback", () => {
+  it("shows the content-signature error returned by the file validator", () => {
+    const validationBranch = workspace
+      .split("const contentError=await validateDriverDocumentFileContent(file);")[1]
+      ?.split("const {error:uploadError}")[0] ?? "";
+    assert.match(validationBranch, /if\\(contentError\\)\\{setMessage\\(contentError\\);return;\\}/);
+    assert.equal(validationBranch.includes("setMessage(fileError)"), false);
+  });
+});
+
 describe("private driver-document upload boundary", () => {
   it("restricts uploads to the authenticated driver's own folder and driver role", () => {
     const policy = driverUploadGuardMigration.split("CREATE POLICY driver_documents_bucket_insert_guard")[1] ?? "";
