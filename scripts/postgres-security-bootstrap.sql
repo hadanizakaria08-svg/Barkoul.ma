@@ -196,7 +196,7 @@ CREATE POLICY negotiations_read_parties ON public.negotiations
 CREATE POLICY documents_insert_owner ON public.driver_documents
   FOR INSERT TO authenticated WITH CHECK (driver_id=(SELECT auth.uid()));
 CREATE POLICY documents_read_owner_or_admin ON public.driver_documents
-  FOR SELECT TO authenticated USING (driver_id=(SELECT auth.uid()));
+  FOR SELECT TO authenticated USING (driver_id=(SELECT auth.uid()) OR (SELECT private.is_admin()));
 
 CREATE POLICY profile_role_requests_insert_own ON public.profile_role_requests
   FOR INSERT TO authenticated WITH CHECK (user_id=(SELECT auth.uid()) AND status='pending');
