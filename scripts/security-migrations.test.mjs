@@ -158,7 +158,7 @@ describe("driver document content validation feedback", () => {
     const validationBranch = workspace
       .split("const contentError=await validateDriverDocumentFileContent(file);")[1]
       ?.split("const {error:uploadError}")[0] ?? "";
-    assert.match(validationBranch, /if\\(contentError\\)\\{setMessage\\(contentError\\);return;\\}/);
+    assert.ok(validationBranch.includes("if(contentError){setMessage(contentError);return;}"));
     assert.equal(validationBranch.includes("setMessage(fileError)"), false);
   });
 });
