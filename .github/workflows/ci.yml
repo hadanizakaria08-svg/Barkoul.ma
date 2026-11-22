@@ -1,7 +1,7 @@
 name: Barkoul CI
 on:
   pull_request:
-    branches: [main]
+    branches: [main, "rebuild/**"]
   push:
     branches: ["rebuild/**"]
 permissions:
