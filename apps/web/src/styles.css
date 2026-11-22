@@ -612,9 +612,21 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   .approved-entry-vehicles{height:40%;gap:6px}
 }
 
-/* Desktop visual guard: keep the Morocco map card on the left and brand copy on the right. */
+/* Desktop/tablet landscape: use two non-overlapping columns inside the hero. */
 @media(min-width:901px){
-  .approved-entry-map{left:3%;right:auto;top:3%;max-width:40%}
-  .approved-entry-brand{align-self:flex-end;justify-items:end;max-width:58%;padding:25px 28px 0;text-align:right}
-  .approved-entry-brand b{max-width:100%;line-height:1.45;overflow-wrap:anywhere}
+  .approved-entry-map{
+    left:3%;right:auto;top:5%;
+    width:40%;max-width:40%;
+    padding:8px 10px;gap:7px;
+  }
+  .approved-entry-map .morocco-mark{width:clamp(52px,6vw,76px);height:clamp(88px,10vw,124px)}
+  .approved-entry-map span{max-width:clamp(80px,11vw,118px);font-size:clamp(10px,1.05vw,13px);line-height:1.45}
+  .approved-entry-brand{
+    position:absolute;top:6%;right:3%;left:auto;
+    width:52%;max-width:52%;
+    padding:12px 10px 0;
+    justify-items:end;text-align:right;
+  }
+  .approved-entry-brand strong{font-size:clamp(32px,4.2vw,58px);line-height:1.08;letter-spacing:-1.5px}
+  .approved-entry-brand b{max-width:100%;font-size:clamp(13px,1.45vw,18px);line-height:1.5;overflow-wrap:anywhere}
 }
