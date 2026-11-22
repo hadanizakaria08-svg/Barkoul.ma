@@ -36,6 +36,19 @@ function MoroccoMark() {
   </svg>;
 }
 
+function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator") {
+  const drawings: Record<typeof kind, string> = {
+    cans: '<rect x="82" y="76" width="66" height="142" rx="12" fill="#e6f2fb" stroke="#1265a5" stroke-width="8"/><path d="M82 96h66M82 195h66" stroke="#1265a5" stroke-width="7"/><rect x="165" y="104" width="55" height="114" rx="11" fill="#ffd66b" stroke="#b87818" stroke-width="8"/><path d="M165 123h55M165 195h55" stroke="#b87818" stroke-width="7"/><path d="M101 130h28M101 151h28M181 153h22" stroke="#168be2" stroke-width="7" stroke-linecap="round"/>',
+    plastic: '<path d="M105 66h52v27l15 19v104q0 13-13 13h-57q-13 0-13-13V112l16-19Z" fill="#d9f2ff" stroke="#0878bd" stroke-width="8" stroke-linejoin="round"/><path d="M111 66V48h40v18M93 145h78M107 169h50" fill="none" stroke="#0878bd" stroke-width="8" stroke-linecap="round"/><path d="m185 94 22 8-11 18M203 104q25 31-1 59M78 191l-21-7 9-19M58 183q-25-30 1-58" fill="none" stroke="#18a66a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>',
+    paper: '<path d="M65 112 128 77l68 35-66 38Z" fill="#f4d69c" stroke="#9a6a2c" stroke-width="7" stroke-linejoin="round"/><path d="M65 112v82l65 39v-83Z" fill="#dba968" stroke="#9a6a2c" stroke-width="7" stroke-linejoin="round"/><path d="M130 150v83l66-39v-82Z" fill="#c88d4d" stroke="#9a6a2c" stroke-width="7" stroke-linejoin="round"/><path d="m91 98 65 37M94 175l22 13M148 183l27-16" stroke="#fff0cf" stroke-width="7" stroke-linecap="round"/>',
+    appliances: '<rect x="65" y="52" width="83" height="177" rx="12" fill="#f8fbff" stroke="#47708f" stroke-width="8"/><path d="M65 131h83M132 74v38M132 151v56" stroke="#47708f" stroke-width="7" stroke-linecap="round"/><rect x="165" y="103" width="73" height="126" rx="12" fill="#d9e8f4" stroke="#47708f" stroke-width="8"/><circle cx="201" cy="170" r="25" fill="#b6d8ed" stroke="#47708f" stroke-width="7"/><circle cx="201" cy="170" r="9" fill="#fff"/>',
+    tractor: '<circle cx="92" cy="196" r="39" fill="#27384a" stroke="#172a3b" stroke-width="7"/><circle cx="92" cy="196" r="17" fill="#dce8ef"/><circle cx="202" cy="201" r="25" fill="#27384a" stroke="#172a3b" stroke-width="7"/><circle cx="202" cy="201" r="10" fill="#dce8ef"/><path d="M72 146h113l20 31H69Z" fill="#f2b82c" stroke="#8a5b0a" stroke-width="8" stroke-linejoin="round"/><path d="M114 144V91h53l23 55" fill="#e7f5ff" stroke="#8a5b0a" stroke-width="8" stroke-linejoin="round"/><path d="M123 101h35v35h-35Z" fill="#9ed7f5"/><path d="M55 177h-22v-18h32" fill="none" stroke="#8a5b0a" stroke-width="8" stroke-linecap="round"/>',
+    excavator: '<path d="M83 174h108l-12 37H91Z" fill="#f2b82c" stroke="#8b5b0b" stroke-width="8" stroke-linejoin="round"/><path d="M91 211h112" stroke="#283b4c" stroke-width="15" stroke-linecap="round"/><circle cx="112" cy="211" r="10" fill="#d9e7ef"/><circle cx="181" cy="211" r="10" fill="#d9e7ef"/><path d="M122 170v-53h49l19 53" fill="#f8c947" stroke="#8b5b0b" stroke-width="8" stroke-linejoin="round"/><path d="M133 126h28v31h-28Z" fill="#bfe7fa"/><path d="M171 121 206 82l28 12-35 49M232 94l16-15 13 15-17 17" fill="none" stroke="#e3a51b" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>'
+  };
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eff8ff"/><stop offset="1" stop-color="#dceeff"/></linearGradient></defs><rect width="300" height="280" rx="24" fill="url(#bg)"/><circle cx="244" cy="48" r="20" fill="#fff" opacity=".65"/><path d="M0 238q75-26 150 0t150 0v42H0Z" fill="#c5e2f5"/>' + drawings[kind] + '</svg>';
+  return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+}
+
 export default function App() {
   useEffect(() => { window.dispatchEvent(new Event("barkoul:app-ready")); }, []);
   const db = getSupabase();
@@ -368,17 +381,17 @@ export default function App() {
     "السيراميك":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
     "الخشب":"https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=500&q=80",
     "الأثاث":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
-    "الأجهزة المنزلية":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
+    "الأجهزة المنزلية":categoryArtwork("appliances"),
     "التجهيز والديكور":"https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=500&q=80",
-    "السلع المعلبة":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
+    "السلع المعلبة":categoryArtwork("cans"),
     "الآلات الصناعية":"https://images.unsplash.com/photo-1581092335878-2d9ff86ca2bf?auto=format&fit=crop&w=500&q=80",
     "الأقمشة والملابس":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=500&q=80",
-    "البلاستيك":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
-    "الورق والكرتون":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
+    "البلاستيك":categoryArtwork("plastic"),
+    "الورق والكرتون":categoryArtwork("paper"),
     "الإلكترونيات":"https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=500&q=80",
     "السيارات":"https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=500&q=80",
-    "معدات الحفر":"https://images.unsplash.com/photo-1580901368919-7738efb0f87e?auto=format&fit=crop&w=500&q=80",
-    "المعدات الفلاحية":"https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=500&q=80",
+    "معدات الحفر":categoryArtwork("excavator"),
+    "المعدات الفلاحية":categoryArtwork("tractor"),
     "الأنابيب والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
     "المولدات":"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
     "الحمولات الضخمة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
