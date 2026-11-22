@@ -536,3 +536,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
  .approved-category-grid strong{font-size:10px}
  .approved-other-note{align-items:stretch;flex-direction:column;text-align:center}
 }
+
+
+/* Keep the approved blue-and-white brand accent readable on the blue header. */
+.approved-entry-topbar .home-brand .brand-word>span{color:#9ed5ff}
