@@ -36,7 +36,7 @@ function MoroccoMark() {
   </svg>;
 }
 
-function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator") {
+function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator" | "bricks" | "gravel" | "pipes") {
   const drawings: Record<typeof kind, string> = {
     cans: '<rect x="82" y="76" width="66" height="142" rx="12" fill="#e6f2fb" stroke="#1265a5" stroke-width="8"/><path d="M82 96h66M82 195h66" stroke="#1265a5" stroke-width="7"/><rect x="165" y="104" width="55" height="114" rx="11" fill="#ffd66b" stroke="#b87818" stroke-width="8"/><path d="M165 123h55M165 195h55" stroke="#b87818" stroke-width="7"/><path d="M101 130h28M101 151h28M181 153h22" stroke="#168be2" stroke-width="7" stroke-linecap="round"/>',
     plastic: '<path d="M105 66h52v27l15 19v104q0 13-13 13h-57q-13 0-13-13V112l16-19Z" fill="#d9f2ff" stroke="#0878bd" stroke-width="8" stroke-linejoin="round"/><path d="M111 66V48h40v18M93 145h78M107 169h50" fill="none" stroke="#0878bd" stroke-width="8" stroke-linecap="round"/><path d="m185 94 22 8-11 18M203 104q25 31-1 59M78 191l-21-7 9-19M58 183q-25-30 1-58" fill="none" stroke="#18a66a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -44,6 +44,9 @@ function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tr
     appliances: '<rect x="65" y="52" width="83" height="177" rx="12" fill="#f8fbff" stroke="#47708f" stroke-width="8"/><path d="M65 131h83M132 74v38M132 151v56" stroke="#47708f" stroke-width="7" stroke-linecap="round"/><rect x="165" y="103" width="73" height="126" rx="12" fill="#d9e8f4" stroke="#47708f" stroke-width="8"/><circle cx="201" cy="170" r="25" fill="#b6d8ed" stroke="#47708f" stroke-width="7"/><circle cx="201" cy="170" r="9" fill="#fff"/>',
     tractor: '<circle cx="92" cy="196" r="39" fill="#27384a" stroke="#172a3b" stroke-width="7"/><circle cx="92" cy="196" r="17" fill="#dce8ef"/><circle cx="202" cy="201" r="25" fill="#27384a" stroke="#172a3b" stroke-width="7"/><circle cx="202" cy="201" r="10" fill="#dce8ef"/><path d="M72 146h113l20 31H69Z" fill="#f2b82c" stroke="#8a5b0a" stroke-width="8" stroke-linejoin="round"/><path d="M114 144V91h53l23 55" fill="#e7f5ff" stroke="#8a5b0a" stroke-width="8" stroke-linejoin="round"/><path d="M123 101h35v35h-35Z" fill="#9ed7f5"/><path d="M55 177h-22v-18h32" fill="none" stroke="#8a5b0a" stroke-width="8" stroke-linecap="round"/>',
     excavator: '<path d="M83 174h108l-12 37H91Z" fill="#f2b82c" stroke="#8b5b0b" stroke-width="8" stroke-linejoin="round"/><path d="M91 211h112" stroke="#283b4c" stroke-width="15" stroke-linecap="round"/><circle cx="112" cy="211" r="10" fill="#d9e7ef"/><circle cx="181" cy="211" r="10" fill="#d9e7ef"/><path d="M122 170v-53h49l19 53" fill="#f8c947" stroke="#8b5b0b" stroke-width="8" stroke-linejoin="round"/><path d="M133 126h28v31h-28Z" fill="#bfe7fa"/><path d="M171 121 206 82l28 12-35 49M232 94l16-15 13 15-17 17" fill="none" stroke="#e3a51b" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>'
+    bricks: '<path d="M55 100h88v42H55Z M157 100h88v42h-88Z M105 151h88v42h-88Z M55 202h88v42H55Z M157 202h88v42h-88Z" fill="#c96e43" stroke="#8b4328" stroke-width="7" stroke-linejoin="round"/><path d="M55 121h88M157 121h88M105 172h88M55 223h88M157 223h88" stroke="#f3b18d" stroke-width="6"/>',
+    gravel: '<path d="M38 220q24-58 60-70 19-45 49-28 31-49 59-14 33-5 55 48l17 64Z" fill="#c6a77b" stroke="#8c765a" stroke-width="7" stroke-linejoin="round"/><g fill="#e8d5b7" stroke="#9c8769" stroke-width="4"><ellipse cx="76" cy="205" rx="17" ry="12"/><ellipse cx="111" cy="181" rx="15" ry="11"/><ellipse cx="145" cy="211" rx="19" ry="13"/><ellipse cx="181" cy="175" rx="17" ry="12"/><ellipse cx="216" cy="210" rx="18" ry="13"/><ellipse cx="156" cy="151" rx="13" ry="10"/><ellipse cx="91" cy="224" rx="12" ry="9"/></g>',
+    pipes: '<g stroke="#356783" stroke-width="8"><path d="M55 104h160v46H55Z" fill="#9ec6df"/><ellipse cx="55" cy="127" rx="18" ry="23" fill="#dff2ff"/><ellipse cx="215" cy="127" rx="18" ry="23" fill="#6f9db9"/><path d="M84 174h145v46H84Z" fill="#b7d7e9"/><ellipse cx="84" cy="197" rx="18" ry="23" fill="#eaf7ff"/><ellipse cx="229" cy="197" rx="18" ry="23" fill="#6f9db9"/></g><g fill="none" stroke="#fff" stroke-width="6"><ellipse cx="55" cy="127" rx="8" ry="13"/><ellipse cx="84" cy="197" rx="8" ry="13"/></g>',
   };
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eff8ff"/><stop offset="1" stop-color="#dceeff"/></linearGradient></defs><rect width="300" height="280" rx="24" fill="url(#bg)"/><circle cx="244" cy="48" r="20" fill="#fff" opacity=".65"/><path d="M0 238q75-26 150 0t150 0v42H0Z" fill="#c5e2f5"/>' + drawings[kind] + '</svg>';
   return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
@@ -392,9 +395,9 @@ export default function App() {
     "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
     "المواد المجمدة":"https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=500&q=80",
     "الإسمنت":"https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=500&q=80",
-    "الآجر والطوب":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
+    "الآجر والطوب":categoryArtwork("bricks"),
     "الحديد والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
-    "الرمل والحصى":"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
+    "الرمل والحصى":categoryArtwork("gravel"),
     "السيراميك":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
     "الخشب":"https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=500&q=80",
     "الأثاث":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
@@ -409,7 +412,7 @@ export default function App() {
     "السيارات":"https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=500&q=80",
     "معدات الحفر":categoryArtwork("excavator"),
     "المعدات الفلاحية":categoryArtwork("tractor"),
-    "الأنابيب والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
+    "الأنابيب والمعادن":categoryArtwork("pipes"),
     "المولدات":"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
     "الحمولات الضخمة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
     "بضائع متنوعة":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
