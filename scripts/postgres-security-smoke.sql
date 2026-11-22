@@ -187,14 +187,16 @@ BEGIN
   EXCEPTION WHEN OTHERS THEN
     IF SQLERRM='cross-user document upload unexpectedly succeeded' THEN RAISE; END IF;
   END;
-  BEGIN
-    DELETE FROM storage.objects
+  DELETE FROM storage.objects
+  WHERE bucket_id='driver-documents'
+    AND name='22222222-2222-4222-8222-222222222222/verified.pdf';
+  IF NOT EXISTS (
+    SELECT 1 FROM storage.objects
     WHERE bucket_id='driver-documents'
-      AND name='22222222-2222-4222-8222-222222222222/verified.pdf';
-    RAISE EXCEPTION 'deleting a referenced document unexpectedly succeeded';
-  EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM='deleting a referenced document unexpectedly succeeded' THEN RAISE; END IF;
-  END;
+      AND name='22222222-2222-4222-8222-222222222222/verified.pdf'
+  ) THEN
+    RAISE EXCEPTION 'RLS allowed deletion of a referenced driver document';
+  END IF;
 END
 $test$;
 RESET ROLE;
