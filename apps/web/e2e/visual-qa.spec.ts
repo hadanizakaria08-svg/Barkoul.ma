@@ -45,8 +45,8 @@ test("visual QA captures both approved pages at phone, tablet and desktop sizes"
   }
 });
 
-test("mobile welcome hero has no map, brand or vehicle overlap and all hero images load", async ({ page }) => {
-  for (const viewport of viewports.filter(item => item.width <= 900)) {
+test("welcome hero has no map, brand or vehicle overlap and all hero images load at every viewport", async ({ page }) => {
+  for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/");
     const map = await page.locator(".approved-entry-map").boundingBox();
