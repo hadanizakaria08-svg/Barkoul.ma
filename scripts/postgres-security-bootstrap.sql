@@ -166,6 +166,20 @@ ALTER TABLE public.admin_audit_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.commission_charges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
+CREATE OR REPLACE FUNCTION private.is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $function$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id=(SELECT auth.uid()) AND p.role='admin'
+  )
+$function$;
+GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated;
+
 CREATE POLICY profiles_insert_own ON public.profiles
   FOR INSERT TO authenticated WITH CHECK (id=(SELECT auth.uid()) AND role='user');
 CREATE POLICY profiles_read_own ON public.profiles
@@ -208,18 +222,6 @@ CREATE POLICY storage_legacy_all_authenticated ON storage.objects
 CREATE POLICY storage_legacy_all_anon ON storage.objects
   FOR ALL TO anon USING (true) WITH CHECK (true);
 
-CREATE FUNCTION private.is_admin()
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = ''
-AS $function$
-  SELECT EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id=(SELECT auth.uid()) AND p.role='admin'
-  )
-$function$;
 
 CREATE FUNCTION public.prevent_profile_role_escalation()
 RETURNS trigger
