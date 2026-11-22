@@ -15,7 +15,18 @@ const todayLocal = () => {
 };
 
 function BrandTruck() {
-  return null;
+  return <svg className="brand-truck" viewBox="0 0 180 108" role="img" aria-label="شاحنة Barkoul.ma" focusable="false">
+    <path d="M10 22h91a8 8 0 0 1 8 8v49H10a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8Z" fill="#168be2" stroke="currentColor" strokeWidth="5" strokeLinejoin="round"/>
+    <path d="M109 47h30l25 25v7h-55Z" fill="#ffd24a" stroke="currentColor" strokeWidth="5" strokeLinejoin="round"/>
+    <path d="M119 54h17l17 18h-34Z" fill="#eaf6ff" stroke="currentColor" strokeWidth="4" strokeLinejoin="round"/>
+    <path d="M20 34h70M20 48h55" stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity=".9"/>
+    <path d="M2 80h170" stroke="currentColor" strokeWidth="6" strokeLinecap="round"/>
+    <circle cx="43" cy="84" r="14" fill="#fff" stroke="currentColor" strokeWidth="6"/>
+    <circle cx="43" cy="84" r="5" fill="#168be2"/>
+    <circle cx="139" cy="84" r="14" fill="#fff" stroke="currentColor" strokeWidth="6"/>
+    <circle cx="139" cy="84" r="5" fill="#168be2"/>
+    <path d="M7 12h34" stroke="#ffd24a" strokeWidth="6" strokeLinecap="round"/>
+  </svg>;
 }
 
 function MoroccoMark() {
