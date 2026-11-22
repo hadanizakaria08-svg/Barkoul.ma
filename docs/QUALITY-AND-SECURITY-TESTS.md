@@ -21,7 +21,7 @@ This is an engineering test baseline, not a certification or penetration-test re
 8. Full `npm audit` across production and development dependencies; any advisory fails CI.
 9. A dependency-boundary check ensures picomatch, Vite, Vitest and Workbox are absent from the resolved dependency tree.
 10. CI installs directly from the committed lockfile using `npm ci`; it does not regenerate the lockfile during verification.
-11. PWA manifest and a small same-origin service worker are maintained directly. The service worker uses network-first refresh for same-origin static assets with a cache fallback when offline, and a cached app-shell fallback for navigation. Supabase API traffic and navigation URLs are never cached.
+11. PWA manifest and a small same-origin service worker are maintained directly. The service worker uses network-first refresh for same-origin static assets with a cache fallback when offline, and a cached app-shell fallback for navigation. Supabase API traffic and navigation URLs are never cached.\n12. A PostgreSQL 17 service in GitHub Actions runs an isolated migration integration fixture covering cargo publication/cancellation, negotiation submission/acceptance, driver-document ownership and review, storage RLS, and public cargo column grants. The fixture uses synthetic users and stubbed Auth/Storage helpers; it does not connect to Supabase production or replace full Supabase integration tests.
 
 ## Dependency-remediation decision
 
