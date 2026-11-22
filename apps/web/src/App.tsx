@@ -36,7 +36,7 @@ function MoroccoMark() {
   </svg>;
 }
 
-function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator" | "bricks" | "gravel" | "pipes") {
+function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator" | "bricks" | "gravel" | "pipes" | "boxes" | "special" | "generator") {
   const drawings: Record<typeof kind, string> = {
     cans: '<rect x="82" y="76" width="66" height="142" rx="12" fill="#e6f2fb" stroke="#1265a5" stroke-width="8"/><path d="M82 96h66M82 195h66" stroke="#1265a5" stroke-width="7"/><rect x="165" y="104" width="55" height="114" rx="11" fill="#ffd66b" stroke="#b87818" stroke-width="8"/><path d="M165 123h55M165 195h55" stroke="#b87818" stroke-width="7"/><path d="M101 130h28M101 151h28M181 153h22" stroke="#168be2" stroke-width="7" stroke-linecap="round"/>',
     plastic: '<path d="M105 66h52v27l15 19v104q0 13-13 13h-57q-13 0-13-13V112l16-19Z" fill="#d9f2ff" stroke="#0878bd" stroke-width="8" stroke-linejoin="round"/><path d="M111 66V48h40v18M93 145h78M107 169h50" fill="none" stroke="#0878bd" stroke-width="8" stroke-linecap="round"/><path d="m185 94 22 8-11 18M203 104q25 31-1 59M78 191l-21-7 9-19M58 183q-25-30 1-58" fill="none" stroke="#18a66a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -47,6 +47,9 @@ function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tr
     bricks: '<path d="M55 100h88v42H55Z M157 100h88v42h-88Z M105 151h88v42h-88Z M55 202h88v42H55Z M157 202h88v42h-88Z" fill="#c96e43" stroke="#8b4328" stroke-width="7" stroke-linejoin="round"/><path d="M55 121h88M157 121h88M105 172h88M55 223h88M157 223h88" stroke="#f3b18d" stroke-width="6"/>',
     gravel: '<path d="M38 220q24-58 60-70 19-45 49-28 31-49 59-14 33-5 55 48l17 64Z" fill="#c6a77b" stroke="#8c765a" stroke-width="7" stroke-linejoin="round"/><g fill="#e8d5b7" stroke="#9c8769" stroke-width="4"><ellipse cx="76" cy="205" rx="17" ry="12"/><ellipse cx="111" cy="181" rx="15" ry="11"/><ellipse cx="145" cy="211" rx="19" ry="13"/><ellipse cx="181" cy="175" rx="17" ry="12"/><ellipse cx="216" cy="210" rx="18" ry="13"/><ellipse cx="156" cy="151" rx="13" ry="10"/><ellipse cx="91" cy="224" rx="12" ry="9"/></g>',
     pipes: '<g stroke="#356783" stroke-width="8"><path d="M55 104h160v46H55Z" fill="#9ec6df"/><ellipse cx="55" cy="127" rx="18" ry="23" fill="#dff2ff"/><ellipse cx="215" cy="127" rx="18" ry="23" fill="#6f9db9"/><path d="M84 174h145v46H84Z" fill="#b7d7e9"/><ellipse cx="84" cy="197" rx="18" ry="23" fill="#eaf7ff"/><ellipse cx="229" cy="197" rx="18" ry="23" fill="#6f9db9"/></g><g fill="none" stroke="#fff" stroke-width="6"><ellipse cx="55" cy="127" rx="8" ry="13"/><ellipse cx="84" cy="197" rx="8" ry="13"/></g>',
+    boxes: '<path d="M42 137 102 104l61 33-61 34Z" fill="#f1d29d" stroke="#9a6b32" stroke-width="7" stroke-linejoin="round"/><path d="M42 137v69l60 35v-70Z" fill="#d8a968" stroke="#9a6b32" stroke-width="7" stroke-linejoin="round"/><path d="M102 171v70l61-35v-69Z" fill="#c58c4c" stroke="#9a6b32" stroke-width="7" stroke-linejoin="round"/><path d="m102 104 20-11 61 33-20 11M183 126v66l-20 14" fill="#f7dfb7" stroke="#9a6b32" stroke-width="7" stroke-linejoin="round"/><path d="m102 171 20-12 61 33-20 12Z" fill="#e6bd82" stroke="#9a6b32" stroke-width="6" stroke-linejoin="round"/>',
+    special: '<rect x="56" y="105" width="188" height="112" rx="13" fill="#e5f3fb" stroke="#356783" stroke-width="8"/><path d="M56 142h188M94 105v112M206 105v112" stroke="#356783" stroke-width="7"/><path d="m150 139 10 20 22 3-16 15 4 22-20-11-20 11 4-22-16-15 22-3Z" fill="#ffd24a" stroke="#9b6c0d" stroke-width="5" stroke-linejoin="round"/><path d="M72 88h156" stroke="#168be2" stroke-width="8" stroke-linecap="round"/>',
+    generator: '<rect x="62" y="105" width="176" height="116" rx="13" fill="#dce9f2" stroke="#34566e" stroke-width="8"/><path d="M62 135h176M82 158h76v42H82Z" fill="#8fb1c7" stroke="#34566e" stroke-width="6"/><circle cx="188" cy="178" r="17" fill="#ffd24a" stroke="#34566e" stroke-width="6"/><path d="M91 105V83h118v22M92 221v16M208 221v16" stroke="#34566e" stroke-width="8" stroke-linecap="round"/><path d="M100 169h38M100 184h38" stroke="#eaf6ff" stroke-width="5" stroke-linecap="round"/>',
   };
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 280"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eff8ff"/><stop offset="1" stop-color="#dceeff"/></linearGradient></defs><rect width="300" height="280" rx="24" fill="url(#bg)"/><circle cx="244" cy="48" r="20" fill="#fff" opacity=".65"/><path d="M0 238q75-26 150 0t150 0v42H0Z" fill="#c5e2f5"/>' + drawings[kind] + '</svg>';
   return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
@@ -413,10 +416,10 @@ export default function App() {
     "معدات الحفر":categoryArtwork("excavator"),
     "المعدات الفلاحية":categoryArtwork("tractor"),
     "الأنابيب والمعادن":categoryArtwork("pipes"),
-    "المولدات":"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
+    "المولدات":categoryArtwork("generator"),
     "الحمولات الضخمة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
-    "بضائع متنوعة":"https://images.unsplash.com/photo-1607082349566-187342175e2f?auto=format&fit=crop&w=500&q=80",
-    "شحنات خاصة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80"
+    "بضائع متنوعة":categoryArtwork("boxes"),
+    "شحنات خاصة":categoryArtwork("special")
   };
   return <div className="app-shell">
     <header className="topbar home-topbar services-topbar approved-services-topbar">
