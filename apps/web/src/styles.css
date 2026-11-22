@@ -611,3 +611,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   .approved-entry-brand b{font-size:14px;line-height:1.55}
   .approved-entry-vehicles{height:40%;gap:6px}
 }
+
+/* Desktop visual guard: keep the Morocco map card on the left and brand copy on the right. */
+@media(min-width:901px){
+  .approved-entry-map{left:3%;right:auto;top:3%;max-width:40%}
+  .approved-entry-brand{align-self:flex-end;justify-items:end;max-width:58%;padding:25px 28px 0;text-align:right}
+  .approved-entry-brand b{max-width:100%;line-height:1.45;overflow-wrap:anywhere}
+}
