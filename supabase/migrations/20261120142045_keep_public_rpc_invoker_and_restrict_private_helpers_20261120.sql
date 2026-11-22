@@ -1,0 +1,3 @@
+-- History marker only: this migration is already recorded in the live Supabase
+-- project (version 20261120142045). Its SQL was applied to production before
+-- this repository snapshot; do not replay archived SQL against the live project.
