@@ -24,8 +24,32 @@ BEGIN
   IF has_table_privilege('authenticated','public.cargos','UPDATE') THEN
     RAISE EXCEPTION 'authenticated must not update cargo state directly';
   END IF;
+  IF has_column_privilege('authenticated','public.profiles','role','UPDATE') THEN
+    RAISE EXCEPTION 'authenticated must not update profile roles';
+  END IF;
+  IF NOT has_column_privilege('authenticated','public.profiles','phone','UPDATE') THEN
+    RAISE EXCEPTION 'authenticated must be able to update its contact phone';
+  END IF;
 END
 $test$;
+
+-- Cargo publishing is allowed for an approved owner only in the open state.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);
+INSERT INTO public.cargos(title,origin_city,destination_city,goods_type,truck_type,owner_id,status)
+VALUES ('Published through allowed columns','Agadir','Marrakech','General','Large truck','11111111-1111-4111-8111-111111111111','open');
+DO $test$
+BEGIN
+  BEGIN
+    INSERT INTO public.cargos(title,origin_city,destination_city,goods_type,truck_type,owner_id,status)
+    VALUES ('Invalid matched cargo','Agadir','Marrakech','General','Large truck','11111111-1111-4111-8111-111111111111','matched');
+    RAISE EXCEPTION 'direct matched cargo publication unexpectedly succeeded';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='direct matched cargo publication unexpectedly succeeded' THEN RAISE; END IF;
+  END;
+END
+$test$;
+RESET ROLE;
 
 -- A verified driver can publish an offer through the RPC, but not through table INSERT.
 SET ROLE authenticated;
