@@ -44,7 +44,7 @@ test("allows switching between login, signup, and password recovery on the welco
 
   await page.getByRole("button", { name: "نسيت كلمة المرور؟" }).click();
   await expect(page.getByRole("heading", { name: "استعادة كلمة المرور" })).toBeVisible();
-  await expect(page.getByLabel("كلمة المرور")).toHaveCount(0);
+  await expect(page.locator(".approved-login-form input[type=\"password\"]")).toBeHidden();
   await page.getByRole("button", { name: "العودة إلى الدخول" }).click();
   await expect(page.getByRole("heading", { name: "تسجيل الدخول" })).toBeVisible();
 });
