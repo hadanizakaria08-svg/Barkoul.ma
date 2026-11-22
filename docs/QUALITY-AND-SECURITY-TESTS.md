@@ -31,8 +31,8 @@ CI must confirm these package names are absent and that a full dependency audit 
 
 ## Known exclusions — not yet passed
 
-- No live Supabase integration test or role-by-role RLS negative test has been run.
-- No authenticated end-to-end workflow, cargo negotiation, trip lifecycle, payment, commission, document upload, or admin journey is implemented and covered end to end.
+- No live Supabase integration test or authenticated browser end-to-end test with separate owner/driver/admin Auth accounts has been run. The PostgreSQL fixture validates database logic against a minimal compatible schema, not the complete Supabase Auth/Storage/PostgREST stack.
+- No full browser journey currently exercises sign-up, role approval, cargo publication, negotiation, trip lifecycle, commission collection, document upload, and administrator review against a real Supabase project.
 - No manual WCAG keyboard/screen-reader audit, mobile-device matrix, iOS/macOS build, Android APK device test, or Windows desktop build test has been completed.
 - Service-worker installation, release-update behavior, and offline fallback have not yet been covered by automated browser tests or verified on physical devices.
 - No external penetration test, DAST against a deployed environment, load test, backup-restore drill, or independent ISO/OWASP certification has been performed.
