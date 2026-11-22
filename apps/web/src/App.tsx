@@ -311,6 +311,23 @@ export default function App() {
         </nav>
       </header>
       <main className="approved-entry-main">
+        <section className="approved-entry-role-choice" aria-labelledby="entry-role-title">
+          <div className="category-heading">
+            <p className="eyebrow">ابدأ رحلتك مع Barkoul.ma</p>
+            <h2 id="entry-role-title">كيف تريد استخدام المنصة؟</h2>
+            <p>اختر الصفة المناسبة لك للانتقال مباشرة إلى الخدمات التي تحتاجها.</p>
+          </div>
+          <div className="hero-actions approved-role-actions">
+            <a className="button button-primary approved-role-card" href="?page=services&role=driver">
+              <strong>أنا سائق شاحنة</strong>
+              <span>أبحث عن شحنات وفرص نقل مناسبة</span>
+            </a>
+            <a className="button button-light approved-role-card" href="?page=publish&role=owner#publish-account">
+              <strong>أنا صاحب بضاعة</strong>
+              <span>أنشر شحنتي وأبحث عن سائق لنقلها</span>
+            </a>
+          </div>
+        </section>
         <section className="approved-entry-hero" aria-labelledby="entry-title">
           <div className="approved-entry-visual">
             <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب</span></div>
@@ -394,6 +411,24 @@ export default function App() {
       <section className="approved-services-hero">
         <div className="approved-services-hero-copy"><p className="home-kicker">منصتكم للنقل والشحن في المغرب</p><h1>Barkoul.ma</h1><h2>ربط أصحاب البضائع بسائقي الشاحنات</h2><div className="hero-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#search">أبحث عن شحنة</a></div></div>
         <div className="approved-services-hero-photo"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/><img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=700&q=85" alt="حافلة نقل" /></div>
+      </section>
+      <section className="driver-onboarding-panel" aria-labelledby="driver-onboarding-title">
+        <div>
+          <p className="eyebrow">مسار السائقين</p>
+          <h2 id="driver-onboarding-title">هل تريد العمل كسائق على Barkoul.ma؟</h2>
+          <p>أنشئ حسابك واطلب تفعيل صفة السائق لتتمكن من تقديم عروض النقل بعد استكمال التحقق المطلوب.</p>
+        </div>
+        <div className="driver-onboarding-action">
+          {!user ? <a className="button button-primary" href="?page=publish#publish-account">الدخول أو إنشاء حساب</a> :
+           profileLoading ? <span className="muted" role="status">جارٍ التحقق من الحساب…</span> :
+           profileError ? <button type="button" className="button button-light" onClick={()=>void refreshProfileRole()}>إعادة التحقق من الحساب</button> :
+           profileRole === "driver" ? <span className="driver-onboarding-status" role="status">حسابك مفعّل كسائق</span> :
+           profileRole === "user" ? roleRequest?.status === "pending" && roleRequest.requested_role === "driver" ?
+             <span className="driver-onboarding-status" role="status">طلب تفعيل السائق قيد المراجعة</span> :
+             <button type="button" className="button button-primary" disabled={busy} onClick={()=>void submitRoleRequest("driver")}>طلب تفعيل حساب سائق</button> :
+           <span className="muted">هذا المسار مخصص لحسابات السائقين.</span>}
+          {roleRequestMessage && <p className="form-message" role="status">{roleRequestMessage}</p>}
+        </div>
       </section>
       <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع الشاحنة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}</select></label><button className="button button-primary" onClick={()=>document.getElementById("available-cargos")?.scrollIntoView({behavior:"smooth"})}>بحث الآن</button></div></section>
       <section className="approved-categories" id="categories" aria-label="جميع أنواع الشحنات"><div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>جميع أنواع الشحنات والبضائع</h2><p>اختر السلعة لعرض الشحنات المطابقة، أو استخدم «شحنات أخرى» إذا لم تجد نوع بضاعتك.</p></div><div className="approved-category-grid">{cargoCategories.map(([name])=><a key={name} href="#available-cargos" onClick={()=>setSelectedGoods(name)}><img src={categoryImages[name] || categoryImages["بضائع متنوعة"]} alt={name} loading="lazy"/><strong>{name}</strong></a>)}</div><div className="approved-other-note"><strong>شحنات أخرى</strong><span>لم تجد السلعة؟ يمكنك كتابة اسمها وإضافة صورتها عند نشر الشحنة.</span><a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أضف شحنة أخرى</a></div></section>
