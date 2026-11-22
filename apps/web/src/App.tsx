@@ -311,6 +311,23 @@ export default function App() {
         </nav>
       </header>
       <main className="approved-entry-main">
+        <section className="approved-entry-role-choice" aria-labelledby="entry-role-title">
+          <div className="category-heading">
+            <p className="eyebrow">ابدأ رحلتك مع Barkoul.ma</p>
+            <h2 id="entry-role-title">كيف تريد استخدام المنصة؟</h2>
+            <p>اختر الصفة المناسبة لك للانتقال مباشرة إلى الخدمات التي تحتاجها.</p>
+          </div>
+          <div className="hero-actions approved-role-actions">
+            <a className="button button-primary approved-role-card" href="?page=services&role=driver">
+              <strong>أنا سائق شاحنة</strong>
+              <span>أبحث عن شحنات وفرص نقل مناسبة</span>
+            </a>
+            <a className="button button-light approved-role-card" href="?page=publish&role=owner#publish-account">
+              <strong>أنا صاحب بضاعة</strong>
+              <span>أنشر شحنتي وأبحث عن سائق لنقلها</span>
+            </a>
+          </div>
+        </section>
         <section className="approved-entry-hero" aria-labelledby="entry-title">
           <div className="approved-entry-visual">
             <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب</span></div>
