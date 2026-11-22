@@ -5,6 +5,7 @@ import {
   canProposeNegotiation,
   canPublishCargo,
   filterCargos,
+  matchesGoodsCategory,
   normalizeCargoDraft,
   validateCargoDraft,
   type Cargo,
@@ -121,6 +122,16 @@ describe("cargo domain rules", () => {
     });
   });
 
+  it("matches broad Arabic catalogue categories against common free-text cargo labels", () => {
+    assert.equal(matchesGoodsCategory("خضر طازجة", "الخضر والفواكه"), true);
+    assert.equal(matchesGoodsCategory("فواكه موسمية", "الخضر والفواكه"), true);
+    assert.equal(matchesGoodsCategory("إسمنت وحديد", "الإسمنت"), true);
+    assert.equal(matchesGoodsCategory("قمح", "الحبوب والدقيق"), true);
+    assert.equal(matchesGoodsCategory("معدات حفر", "معدات الحفر"), true);
+    assert.equal(matchesGoodsCategory("أجهزة إلكترونية", "الإلكترونيات"), true);
+    assert.equal(matchesGoodsCategory("أثاث مكتبي", "الأثاث"), true);
+    assert.equal(matchesGoodsCategory("", "الخضر والفواكه"), false);
+  });
   it("filters truck categories after trimming search input", () => {
     assert.deepEqual(filterCargos(cargos,"","","  شاحنة كبيرة  ").map(c=>c.id), [1,2]);
   });
