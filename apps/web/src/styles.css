@@ -540,3 +540,93 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 
 /* Keep the approved blue-and-white brand accent readable on the blue header. */
 .approved-entry-topbar .home-brand .brand-word>span{color:#9ed5ff}
+
+
+/* Mobile entry hero repair: keep the Morocco card, brand, and vehicle photos in separate rows. */
+@media(max-width:900px){
+  .approved-entry-visual{
+    min-height:500px;
+    justify-content:flex-start;
+    gap:0;
+  }
+  .approved-entry-map{
+    position:relative;
+    inset:auto;
+    align-self:flex-end;
+    width:max-content;
+    max-width:calc(100% - 28px);
+    margin:14px 14px 0;
+    padding:7px 10px;
+    gap:8px;
+  }
+  .approved-entry-map .morocco-mark{
+    width:48px;
+    height:82px;
+    flex:0 0 auto;
+  }
+  .approved-entry-map span{
+    max-width:150px;
+    font-size:12px;
+    line-height:1.5;
+  }
+  .approved-entry-brand{
+    align-self:flex-start;
+    width:100%;
+    padding:12px 18px 0;
+    gap:8px;
+  }
+  .approved-entry-brand strong{
+    font-size:clamp(38px,9vw,52px);
+    line-height:1.12;
+    letter-spacing:-1px;
+  }
+  .approved-entry-brand b{
+    max-width:100%;
+    font-size:clamp(14px,3.8vw,18px);
+    line-height:1.6;
+    overflow-wrap:anywhere;
+  }
+  .approved-entry-vehicles{
+    height:42%;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+    padding:0 8px 8px;
+  }
+  .approved-entry-vehicles img,
+  .approved-entry-vehicles img+img{
+    width:100%;
+    height:100%;
+    max-height:230px;
+    min-width:0;
+    object-fit:cover;
+  }
+}
+@media(max-width:600px){
+  .approved-entry-visual{min-height:500px}
+  .approved-entry-map{margin:12px 12px 0;max-width:calc(100% - 24px)}
+  .approved-entry-map .morocco-mark{width:42px;height:72px}
+  .approved-entry-map span{font-size:11px}
+  .approved-entry-brand{padding:10px 15px 0}
+  .approved-entry-brand strong{font-size:clamp(36px,10vw,44px)}
+  .approved-entry-brand b{font-size:14px;line-height:1.55}
+  .approved-entry-vehicles{height:40%;gap:6px}
+}
+
+/* Desktop/tablet landscape: use two non-overlapping columns inside the hero. */
+@media(min-width:901px){
+  .approved-entry-map{
+    left:3%;right:auto;top:5%;
+    width:40%;max-width:40%;
+    padding:8px 10px;gap:7px;
+  }
+  .approved-entry-map .morocco-mark{width:clamp(52px,6vw,76px);height:clamp(88px,10vw,124px)}
+  .approved-entry-map span{max-width:clamp(80px,11vw,118px);font-size:clamp(10px,1.05vw,13px);line-height:1.45}
+  .approved-entry-brand{
+    position:absolute;top:6%;right:3%;left:auto;
+    width:52%;max-width:52%;
+    padding:12px 10px 0;
+    justify-items:end;text-align:right;
+  }
+  .approved-entry-brand strong{font-size:clamp(32px,4.2vw,58px);line-height:1.08;letter-spacing:-1.5px}
+  .approved-entry-brand b{max-width:100%;font-size:clamp(13px,1.45vw,18px);line-height:1.5;overflow-wrap:anywhere}
+}
