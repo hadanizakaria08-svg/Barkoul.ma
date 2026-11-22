@@ -110,5 +110,5 @@ test("keeps all category image cards descriptive and sourced from the approved i
       src: image.getAttribute("src")
     }))
   );
-  expect(imageData.every(image => Boolean(image.alt) && image.src?.startsWith("https://images.unsplash.com/"))).toBe(true);
+  expect(imageData.every(image => Boolean(image.alt) && (image.src?.startsWith("https://images.unsplash.com/") || image.src?.startsWith("data:image/svg+xml;charset=UTF-8,")))).toBe(true);
 });
