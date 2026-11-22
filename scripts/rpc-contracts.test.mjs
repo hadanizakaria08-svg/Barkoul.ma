@@ -82,7 +82,7 @@ describe("frontend-to-database RPC contracts", () => {
       );
       assert.match(
         declaration.header,
-        /SET\s+search_path\s+(?:=|TO)\s*''/i,
+        /SET\s+search_path\s*(?:=|TO)\s*''/i,
         `${call.name} must pin an empty search_path`
       );
     }
