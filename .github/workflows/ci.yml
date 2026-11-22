@@ -27,3 +27,33 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run browser, responsive and WCAG 2.2 AA checks
         run: npm run test:e2e
+
+  postgres-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: barkoul_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d barkoul_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - name: Run isolated PostgreSQL security integration tests
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGDATABASE: barkoul_test
+        run: psql -v ON_ERROR_STOP=1 -f scripts/postgres-security-smoke.sql
