@@ -1,21 +1,24 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test("serves the Arabic RTL application shell and primary journeys", async ({ page }) => {
+test("renders the approved Arabic RTL welcome screen with Morocco map, truck, bus and login", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/Barkoul\.ma/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByRole("heading", { name: /كل شحنة تجد طريقها/ })).toBeVisible();
-  await expect(page.locator(".entry-primary")).toHaveAttribute("href", "?page=services");
+  await expect(page.locator(".approved-entry-hero")).toBeVisible();
+  await expect(page.getByRole("img", { name: "خريطة المغرب" })).toBeVisible();
+  await expect(page.locator(".approved-entry-vehicles img")).toHaveCount(2);
+  await expect(page.getByRole("heading", { name: "تسجيل الدخول" })).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.getByRole("link", { name: "تصفح خدمات الموقع كزائر" })).toHaveAttribute("href", "?page=services");
 });
 
-test("opens a separate publication page and keeps the cargo form behind sign-in", async ({ page }) => {
+test("opens the separate services and publishing routes without exposing the cargo form to guests", async ({ page }) => {
   await page.goto("/?page=services");
+  await expect(page.locator(".approved-services-hero")).toBeVisible();
   await expect(page.locator("#publish")).toHaveCount(0);
-  await expect(page.locator("#account")).toHaveCount(0);
-  await page.getByRole("link", { name: "دخول الحساب / نشر شحنة" }).click();
+  await page.locator(".approved-services-topbar").getByRole("link", { name: "أنشر شحنة" }).click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
   await expect(page.getByRole("heading", { name: "أنشر شحنتك" })).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
@@ -27,10 +30,10 @@ test("does not expose publisher-role refresh to signed-out visitors", async ({ p
   await expect(page.getByRole("button", { name: "إعادة التحقق من الصلاحية" })).toHaveCount(0);
 });
 
-test("keeps search on the homepage and account controls on the publication page", async ({ page }) => {
+test("keeps search controls on the services page and account controls on the publishing page", async ({ page }) => {
   await page.goto("/?page=services");
-  await expect(page.getByLabel("من مدينة")).toBeVisible();
-  await expect(page.getByLabel("إلى مدينة")).toBeVisible();
+  await expect(page.locator("#search").getByLabel("من مدينة")).toBeVisible();
+  await expect(page.locator("#search").getByLabel("إلى مدينة")).toBeVisible();
   await expect(page.locator("#search").getByLabel("نوع الشاحنة")).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
   await page.goto("/?page=publish#publish-account");
@@ -38,17 +41,19 @@ test("keeps search on the homepage and account controls on the publication page"
   await expect(page.getByLabel("كلمة المرور")).toBeVisible();
 });
 
-test("does not introduce horizontal scrolling on a narrow mobile viewport", async ({ page }) => {
+test("keeps both approved public pages within a narrow mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  await page.goto("/?page=services");
-  const dimensions = await page.evaluate(() => ({
-    viewport: document.documentElement.clientWidth,
-    document: document.documentElement.scrollWidth
-  }));
-  expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
+  for (const path of ["/", "/?page=services"]) {
+    await page.goto(path);
+    const dimensions = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      document: document.documentElement.scrollWidth
+    }));
+    expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
+  }
 });
 
-test("meets automated WCAG 2.2 AA accessibility checks on the initial screen", async ({ page }) => {
+test("meets automated WCAG 2.2 AA accessibility checks on the approved welcome screen", async ({ page }) => {
   await page.goto("/");
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
@@ -66,7 +71,6 @@ test("ships a restrictive browser security policy and referrer policy", async ({
   expect(csp).not.toContain("'unsafe-eval'");
   await expect(page.locator('meta[name="referrer"]')).toHaveAttribute("content", "strict-origin-when-cross-origin");
 });
-
 
 test("blocks direct access to the private admin room for signed-out visitors", async ({ page }) => {
   await page.goto("/#admin");

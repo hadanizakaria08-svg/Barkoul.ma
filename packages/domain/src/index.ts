@@ -89,6 +89,55 @@ export function normalizeSearch(value: string): string {
   return value.trim().toLocaleLowerCase("ar");
 }
 
+const GOODS_CATEGORY_TERMS: Record<string, string[]> = {
+  "الخضر والفواكه": ["خضر", "خضروات", "فواكه", "فاكهة", "منتجات فلاحية"],
+  "الحبوب والدقيق": ["حبوب", "قمح", "شعير", "دقيق", "طحين"],
+  "الألبان ومشتقاتها": ["ألبان", "حليب", "لبن", "جبن", "زبدة"],
+  "المواد المجمدة": ["مجمد", "مجمدات", "تجميد"],
+  "الإسمنت": ["إسمنت", "اسمنت"],
+  "الآجر والطوب": ["آجر", "اجر", "طوب", "طابوق"],
+  "الحديد والمعادن": ["حديد", "معادن", "معدن", "صلب"],
+  "الرمل والحصى": ["رمل", "حصى", "زلط"],
+  "السيراميك": ["سيراميك", "زليج", "بلاط"],
+  "الخشب": ["خشب", "أخشاب"],
+  "الأثاث": ["أثاث", "اثاث", "موبيليا"],
+  "الأجهزة المنزلية": ["أجهزة منزلية", "ثلاجة", "غسالة", "فرن"],
+  "التجهيز والديكور": ["ديكور", "تجهيز", "أثاث مكتبي"],
+  "السلع المعلبة": ["معلبات", "سلع معلبة", "مصبرات"],
+  "الآلات الصناعية": ["آلات صناعية", "معدات صناعية", "آلة صناعية"],
+  "الأقمشة والملابس": ["أقمشة", "ملابس", "ثياب", "نسيج"],
+  "البلاستيك": ["بلاستيك", "لدائن"],
+  "الورق والكرتون": ["ورق", "كرتون", "ورق مقوى"],
+  "الإلكترونيات": ["إلكترونيات", "الكترونيات", "أجهزة إلكترونية"],
+  "السيارات": ["سيارات", "سيارة", "مركبات"],
+  "معدات الحفر": ["حفر", "حفارة", "معدات حفر", "جرافة"],
+  "المعدات الفلاحية": ["معدات فلاحية", "جرار", "آلة فلاحية"],
+  "الأنابيب والمعادن": ["أنابيب", "انابيب", "قنوات", "مواسير"],
+  "المولدات": ["مولد", "مولدات", "مولد كهربائي"],
+  "الحمولات الضخمة": ["حمولات ضخمة", "حمولة ضخمة", "معدات ثقيلة"]
+};
+
+function normalizeGoodsText(value: string): string {
+  return normalizeSearch(value)
+    .replace(/[أإآ]/g, "ا")
+    .replace(/[ى]/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
+/** Match a cargo free-text goods type against a selectable catalogue category. */
+export function matchesGoodsCategory(goodsType: string, category: string): boolean {
+  const goods = normalizeGoodsText(goodsType);
+  if (!goods || !category.trim()) return false;
+  const terms = [category, ...(GOODS_CATEGORY_TERMS[category] ?? [])];
+  return terms.some((term) => {
+    const normalized = normalizeGoodsText(term);
+    return normalized.length > 0 && (goods === normalized || goods.includes(normalized));
+  });
+}
+
 export function normalizeCargoDraft(draft: CargoDraft): CargoDraft {
   return {
     ...draft,

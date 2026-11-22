@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { canPublishCargo, filterCargos, normalizeCargoDraft, TRUCK_TYPES, validateCargoDraft, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
+import { canPublishCargo, filterCargos, matchesGoodsCategory, normalizeCargoDraft, TRUCK_TYPES, validateCargoDraft, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
 import { getCurrentProfileRole, getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
 import AdminRoom from "./AdminRoom";
 import Workspace from "./Workspace";
@@ -163,7 +163,7 @@ export default function App() {
   }
 
   const [selectedGoods, setSelectedGoods] = useState("");
-  const visible = useMemo(() => filterCargos(cargos, origin, destination, truck).filter(c => !selectedGoods || c.goods_type.toLocaleLowerCase().includes(selectedGoods.toLocaleLowerCase())), [cargos, origin, destination, truck, selectedGoods]);
+  const visible = useMemo(() => filterCargos(cargos, origin, destination, truck).filter(c => !selectedGoods || matchesGoodsCategory(c.goods_type, selectedGoods)), [cargos, origin, destination, truck, selectedGoods]);
 
   async function submitAuth(event: FormEvent) {
     event.preventDefault(); if (!db) return;
