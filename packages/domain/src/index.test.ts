@@ -5,6 +5,7 @@ import {
   canProposeNegotiation,
   canPublishCargo,
   filterCargos,
+  filterCargosWithoutPendingOffers,
   normalizeCargoDraft,
   validateCargoDraft,
   validateDriverDocumentFile,
@@ -126,6 +127,19 @@ describe("cargo domain rules", () => {
 
   it("filters truck categories after trimming search input", () => {
     assert.deepEqual(filterCargos(cargos,"","","  شاحنة كبيرة  ").map(c=>c.id), [1,2]);
+  });
+
+  it("hides cargos with pending or accepted offers but allows retry after rejection", () => {
+    const active = filterCargosWithoutPendingOffers(cargos, [
+      { cargo_id: 1, status: "pending" },
+      { cargo_id: 2, status: "accepted" }
+    ]);
+    assert.deepEqual(active, []);
+
+    const afterRejection = filterCargosWithoutPendingOffers(cargos, [
+      { cargo_id: 1, status: "rejected" }
+    ]);
+    assert.deepEqual(afterRejection.map((cargo) => cargo.id), [1, 2]);
   });
 });
 
