@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProfileRole } from "@barkoul/domain";
 import { getSupabase } from "@barkoul/data";
 
@@ -23,7 +23,8 @@ interface RoleRequest {
   created_at: string;
 }
 
-
+const SIGNED_DOCUMENT_URL_TTL_MS = 5 * 60 * 1000;
+const SIGNED_DOCUMENT_URL_CLEAR_MS = SIGNED_DOCUMENT_URL_TTL_MS - 5000;
 
 export default function AdminRoom({
   user, profileRole, profileLoading, profileError, onRefreshRole, onSignOut
@@ -42,24 +43,37 @@ export default function AdminRoom({
   const [charges,setCharges]=useState<CommissionCharge[]>([]);
   const [paymentReference,setPaymentReference]=useState("");
   const [adminDataError,setAdminDataError]=useState("");
+  const documentLinkTimers = useRef<Record<number, number>>({});
+  const adminSessionVersion = useRef(0);
   const homeLink = <a className="button button-light" href="#">العودة إلى المنصة</a>;
+  const clearDocumentLinkTimers = useCallback(() => {
+    for (const timer of Object.values(documentLinkTimers.current)) window.clearTimeout(timer);
+    documentLinkTimers.current = {};
+  }, []);
+
   const loadRequests = useCallback(async () => {
     const db = getSupabase();
     if (!db) return;
+    const sessionVersion = adminSessionVersion.current;
     setLoadingRequests(true); setRequestError("");
     try {
       const { data, error } = await db.from("profile_role_requests")
         .select("id,user_id,requested_role,status,created_at")
         .eq("status", "pending").order("created_at", { ascending: true });
       if (error) throw error;
-      setRequests((data ?? []) as RoleRequest[]);
+      if (sessionVersion === adminSessionVersion.current) setRequests((data ?? []) as RoleRequest[]);
     } catch {
-      setRequestError("تعذر تحميل الطلبات. تحقق من الاتصال وصلاحيات قاعدة البيانات.");
-    } finally { setLoadingRequests(false); }
+      if (sessionVersion === adminSessionVersion.current) {
+        setRequestError("تعذر تحميل الطلبات. تحقق من الاتصال وصلاحيات قاعدة البيانات.");
+      }
+    } finally {
+      if (sessionVersion === adminSessionVersion.current) setLoadingRequests(false);
+    }
   }, []);
 
   const loadAdminData = useCallback(async () => {
     const db=getSupabase(); if(!db||profileRole!=="admin")return;
+    const sessionVersion = adminSessionVersion.current;
     setAdminDataError("");
     try {
       const [docsRes,auditRes,cargoRes,chargesRes]=await Promise.all([
@@ -69,25 +83,47 @@ export default function AdminRoom({
         db.from("commission_charges").select("id,trip_id,payer_id,payer_role,amount_mad,status,payment_method,payment_reference,created_at").order("created_at",{ascending:false}).limit(100)
       ]);
       if(docsRes.error||auditRes.error||cargoRes.error||chargesRes.error)throw new Error("Admin data read failed");
+      if (sessionVersion !== adminSessionVersion.current) return;
+      clearDocumentLinkTimers();
       setDocuments((docsRes.data??[]) as DriverDocument[]);
       setDocumentLinks({});
       setDocumentLinkErrors({});
       setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);setCharges((chargesRes.data??[]) as CommissionCharge[]);
-    } catch {setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");}
-  },[profileRole]);
+    } catch {
+      if (sessionVersion === adminSessionVersion.current) setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");
+    }
+  },[profileRole, clearDocumentLinkTimers]);
 
   async function createDocumentLink(id:number,path:string){
-    const db=getSupabase();if(!db||profileRole!=="admin")return;
+    const db=getSupabase();if(!db||profileRole!=="admin"||!user)return;
+    const sessionVersion = adminSessionVersion.current;
     setOpeningDocumentId(id);
     setDocumentLinkErrors(old=>({...old,[id]:""}));
     try{
       const {data,error}=await db.storage.from("driver-documents").createSignedUrl(path,300);
       if(error||!data?.signedUrl)throw new Error("Signed URL unavailable");
+      if (sessionVersion !== adminSessionVersion.current) return;
+      const previousTimer = documentLinkTimers.current[id];
+      if (previousTimer !== undefined) window.clearTimeout(previousTimer);
       setDocumentLinks(old=>({...old,[id]:data.signedUrl}));
+      documentLinkTimers.current[id] = window.setTimeout(() => {
+        delete documentLinkTimers.current[id];
+        setDocumentLinks(old=>{
+          if (old[id] !== data.signedUrl) return old;
+          const next={...old};delete next[id];return next;
+        });
+        if (sessionVersion === adminSessionVersion.current) {
+          setDocumentLinkErrors(old=>({...old,[id]:"انتهت صلاحية الرابط المؤقت. أنشئ رابطاً جديداً."}));
+        }
+      }, SIGNED_DOCUMENT_URL_CLEAR_MS);
     }catch{
-      setDocumentLinks(old=>{const next={...old};delete next[id];return next;});
-      setDocumentLinkErrors(old=>({...old,[id]:"تعذر إنشاء رابط مؤقت. تحقق من صلاحية الوثيقة ثم أعد المحاولة."}));
-    }finally{setOpeningDocumentId(null);}
+      if (sessionVersion === adminSessionVersion.current) {
+        setDocumentLinks(old=>{const next={...old};delete next[id];return next;});
+        setDocumentLinkErrors(old=>({...old,[id]:"تعذر إنشاء رابط مؤقت. تحقق من صلاحية الوثيقة ثم أعد المحاولة."}));
+      }
+    }finally{
+      if (sessionVersion === adminSessionVersion.current) setOpeningDocumentId(null);
+    }
   }
 
   async function recordCommission(id:number,method:"cash"|"electronic"){
@@ -108,8 +144,34 @@ export default function AdminRoom({
   }
 
   useEffect(() => {
-    if (user && profileRole === "admin") { void loadRequests(); void loadAdminData(); }
-  }, [user?.id, profileRole, loadRequests, loadAdminData]);
+    adminSessionVersion.current += 1;
+    const sessionVersion = adminSessionVersion.current;
+    clearDocumentLinkTimers();
+    setDocumentLinks({});
+    setDocumentLinkErrors({});
+    setOpeningDocumentId(null);
+    setRequests([]);
+    setDocuments([]);
+    setAudit([]);
+    setAdminCargos([]);
+    setCharges([]);
+    setPaymentReference("");
+    setRequestError("");
+    setAdminDataError("");
+    setActionMessage("");
+
+    if (user && profileRole === "admin") {
+      void loadRequests();
+      void loadAdminData();
+    } else {
+      setLoadingRequests(false);
+    }
+
+    return () => {
+      if (adminSessionVersion.current === sessionVersion) adminSessionVersion.current += 1;
+      clearDocumentLinkTimers();
+    };
+  }, [user?.id, profileRole, loadRequests, loadAdminData, clearDocumentLinkTimers]);
 
   async function reviewRequest(id: number, approve: boolean) {
     const db = getSupabase();
