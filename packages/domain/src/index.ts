@@ -162,6 +162,22 @@ export function filterCargos(
   );
 }
 
+/**
+ * Avoid showing a driver cargos that already have an active offer from them.
+ * Rejected offers may be retried; pending and accepted offers must not be duplicated.
+ */
+export function filterCargosWithoutPendingOffers(
+  cargos: readonly Cargo[],
+  offers: readonly { cargo_id: number; status: string }[]
+): Cargo[] {
+  const activeCargoIds = new Set(
+    offers
+      .filter((offer) => offer.status === "pending" || offer.status === "accepted")
+      .map((offer) => offer.cargo_id)
+  );
+  return cargos.filter((cargo) => !activeCargoIds.has(cargo.id));
+}
+
 export const DRIVER_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024;
 export const DRIVER_DOCUMENT_MIME_TYPES = [
   "application/pdf",
