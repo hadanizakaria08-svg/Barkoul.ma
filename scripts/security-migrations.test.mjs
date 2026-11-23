@@ -245,6 +245,7 @@ describe("driver cargo availability synchronization", () => {
     assert.ok(workspace.includes("if (accept) await onRefreshCargos()"));
     assert.ok(workspace.includes('status === "cancelled" || status === "delivered"'));
     assert.ok(app.includes("onRefreshCargos={refresh}"));
-    assert.ok(workspace.includes("Promise.all([load(),onRefreshCargos()])"));
+    assert.ok(workspace.includes('Promise.all([load(),onRefreshCargos()]).catch(()=>setMessage("تعذر تحديث بيانات الحساب والشحنات. حاول مجدداً."))'));
+    assert.ok(workspace.includes('Promise.all([load(),onRefreshCargos()]).catch(()=>setMessage("تم إرسال العرض، لكن تعذر تحديث قائمة الشحنات."))'));
   });
 });
