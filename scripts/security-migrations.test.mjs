@@ -231,3 +231,19 @@ describe("administrator session and signed document link lifecycle", () => {
     assert.ok(adminRoom.includes("sessionVersion !== adminSessionVersion.current"));
   });
 });
+
+
+describe("driver cargo availability synchronization", () => {
+  it("filters cargos with pending or accepted offers from the driver's offer form", () => {
+    assert.ok(workspace.includes("filterCargosWithoutPendingOffers(openCargos, offers)"));
+    assert.ok(workspace.includes("availableCargos.map(c=><OfferCard"));
+    assert.ok(workspace.includes("لا توجد شحنات جديدة متاحة لك حالياً"));
+  });
+
+  it("refreshes the public cargo list after offer acceptance, cancellation, or trip completion", () => {
+    assert.ok(workspace.includes("if (accept) await onRefreshCargos()"));
+    assert.ok(workspace.includes('status === "cancelled" || status === "delivered"'));
+    assert.ok(workspace.includes("onRefreshCargos={refresh}"));
+    assert.ok(workspace.includes("Promise.all([load(),onRefreshCargos()])"));
+  });
+});
