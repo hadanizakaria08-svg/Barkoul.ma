@@ -207,3 +207,27 @@ describe("administrator document review access", () => {
     assert.ok(adminRoom.includes('referrerPolicy="no-referrer"'));
   });
 });
+
+
+describe("administrator session and signed document link lifecycle", () => {
+  it("expires temporary document URLs before their five-minute server lifetime", () => {
+    assert.ok(adminRoom.includes("SIGNED_DOCUMENT_URL_TTL_MS = 5 * 60 * 1000"));
+    assert.ok(adminRoom.includes("SIGNED_DOCUMENT_URL_CLEAR_MS = SIGNED_DOCUMENT_URL_TTL_MS - 5000"));
+    assert.ok(adminRoom.includes("window.setTimeout"));
+    assert.ok(adminRoom.includes("window.clearTimeout"));
+    assert.ok(adminRoom.includes("انتهت صلاحية الرابط المؤقت"));
+    assert.ok(adminRoom.includes("old[id] !== data.signedUrl"));
+  });
+
+  it("clears administrator-only data and pending links when the account or role changes", () => {
+    assert.ok(adminRoom.includes("adminSessionVersion.current += 1"));
+    assert.ok(adminRoom.includes("clearDocumentLinkTimers()"));
+    assert.ok(adminRoom.includes("setDocumentLinks({})"));
+    assert.ok(adminRoom.includes("setRequests([])"));
+    assert.ok(adminRoom.includes("setDocuments([])"));
+    assert.ok(adminRoom.includes("setAudit([])"));
+    assert.ok(adminRoom.includes("setAdminCargos([])"));
+    assert.ok(adminRoom.includes("setCharges([])"));
+    assert.ok(adminRoom.includes("sessionVersion !== adminSessionVersion.current"));
+  });
+});
