@@ -7,6 +7,7 @@ const migration = await readFile(
   "utf8"
 );
 const workspace = await readFile(new URL("../apps/web/src/Workspace.tsx", import.meta.url), "utf8");
+const app = await readFile(new URL("../apps/web/src/App.tsx", import.meta.url), "utf8");
 const rpcValidationMigration = await readFile(
   new URL("../supabase/migrations/20261120149500_validate_rpc_arguments.sql", import.meta.url),
   "utf8"
@@ -243,7 +244,7 @@ describe("driver cargo availability synchronization", () => {
   it("refreshes the public cargo list after offer acceptance, cancellation, or trip completion", () => {
     assert.ok(workspace.includes("if (accept) await onRefreshCargos()"));
     assert.ok(workspace.includes('status === "cancelled" || status === "delivered"'));
-    assert.ok(workspace.includes("onRefreshCargos={refresh}"));
+    assert.ok(app.includes("onRefreshCargos={refresh}"));
     assert.ok(workspace.includes("Promise.all([load(),onRefreshCargos()])"));
   });
 });
