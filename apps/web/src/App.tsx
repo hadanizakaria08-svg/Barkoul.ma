@@ -63,7 +63,7 @@ export default function App() {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [user, setUser] = useState<{id:string; email?:string} | null>(null);
+  const [user, setUser] = useState<{id:string} | null>(null);
   const [profileRole, setProfileRole] = useState<ProfileRole | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState("");
@@ -121,7 +121,7 @@ export default function App() {
         setAuthMessage("تعذر التحقق من جلسة الدخول. حاول تحديث الصفحة.");
         return;
       }
-      setUser(data.session?.user ? {id:data.session.user.id,email:data.session.user.email} : null);
+      setUser(data.session?.user ? {id:data.session.user.id} : null);
     }).catch(() => {
       if (alive) setAuthMessage("تعذر الاتصال بخدمة تسجيل الدخول. تحقق من الاتصال ثم أعد المحاولة.");
     });
@@ -130,7 +130,7 @@ export default function App() {
       setProfileRole(null);
       setProfileError("");
       setProfileLoading(Boolean(session?.user));
-      setUser(session?.user ? {id:session.user.id,email:session.user.email} : null);
+      setUser(session?.user ? {id:session.user.id} : null);
     });
     refresh();
     return () => { alive = false; subscription.unsubscribe(); };
