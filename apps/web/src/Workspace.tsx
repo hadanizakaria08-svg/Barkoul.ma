@@ -125,7 +125,7 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
   }
 
   return <section className="section" id="workspace">
-    <div className="section-heading"><div><p className="eyebrow">حسابك</p><h2>مساحة العمل</h2></div><button className="button button-outline" onClick={()=>void Promise.all([load(),onRefreshCargos()])} disabled={busy}>تحديث البيانات</button></div>
+    <div className="section-heading"><div><p className="eyebrow">حسابك</p><h2>مساحة العمل</h2></div><button className="button button-outline" onClick={()=>void Promise.all([load(),onRefreshCargos()]).catch(()=>setMessage("تعذر تحديث بيانات الحساب والشحنات. حاول مجدداً."))} disabled={busy}>تحديث البيانات</button></div>
     {role==="owner"&&<div className="workspace-block"><h3>شحناتي وعروض السائقين</h3>
       {cargos.length===0?<p className="empty">لم تنشر شحنات بعد.</p>:cargos.map(c=><article className="cargo-card" key={c.id}>
         <h3>{c.title}</h3><p>{c.origin_city} ← {c.destination_city} · الحالة: {c.status}</p>
@@ -137,7 +137,7 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
       </article>)}
     </div>}
     {role==="driver"&&<div className="workspace-block"><h3>الشحنات المتاحة لتقديم العروض</h3>
-      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:availableCargos.length===0?<p className="empty">لا توجد شحنات جديدة متاحة لك حالياً. حدّث البيانات بعد مراجعة عروضك.</p>:availableCargos.map(c=><OfferCard key={c.id} cargo={c} onSent={()=>void Promise.all([load(),onRefreshCargos()])}/>)}
+      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:availableCargos.length===0?<p className="empty">لا توجد شحنات جديدة متاحة لك حالياً. حدّث البيانات بعد مراجعة عروضك.</p>:availableCargos.map(c=><OfferCard key={c.id} cargo={c} onSent={()=>void Promise.all([load(),onRefreshCargos()]).catch(()=>setMessage("تم إرسال العرض، لكن تعذر تحديث قائمة الشحنات."))}/>)}
       <h3>عروضي</h3>{offers.length===0?<p className="empty">لم ترسل عروضاً بعد.</p>:offers.map(o=><article className="cargo-card" key={o.id}><strong>{Number(o.proposed_price_mad).toLocaleString("ar-MA")} درهم</strong><p>الشحنة #{o.cargo_id} · {o.status}</p><p className="muted">{o.message}</p></article>)}
       <h3>وثائق التحقق</h3><form className="form-card" onSubmit={e=>{e.preventDefault();void sendDocument();}}>
         <label>نوع الوثيقة<select value={docType} onChange={e=>setDocType(e.target.value)}><option>رخصة السياقة</option><option>البطاقة الوطنية</option><option>وثيقة المركبة</option><option>وثيقة أخرى</option></select></label>
