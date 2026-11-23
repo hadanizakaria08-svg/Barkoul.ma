@@ -7,6 +7,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const web = path.join(root, "apps", "web");
 const dist = path.join(web, "dist");
 
+export function getSourceMapMode(watch) {
+  return watch ? "inline" : false;
+}
+
 async function readRootEnv() {
   const values = { ...process.env };
   let source = "";
@@ -45,7 +49,7 @@ export async function buildApp({ watch = false } = {}) {
     format: "esm",
     target: ["es2022"],
     jsx: "automatic",
-    sourcemap: watch ? "inline" : true,
+    sourcemap: getSourceMapMode(watch),
     minify: !watch,
     define: {
       "import.meta.env": JSON.stringify({
