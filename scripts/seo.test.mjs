@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const base = "https://hadanizakaria08-svg.github.io/Barkoul.ma/";
+const accountSpecificHost = "hadanizakaria08-svg.github.io";
 const [html, robots, sitemap, manifest] = await Promise.all([
   readFile(new URL("../apps/web/index.html", import.meta.url), "utf8"),
   readFile(new URL("../apps/web/public/robots.txt", import.meta.url), "utf8"),
@@ -10,29 +10,31 @@ const [html, robots, sitemap, manifest] = await Promise.all([
   readFile(new URL("../apps/web/public/manifest.webmanifest", import.meta.url), "utf8")
 ]);
 
-test("SEO metadata declares the exact public GitHub Pages canonical URL", () => {
-  assert.ok(html.includes('<link rel="canonical" href="' + base + '" />'));
-  assert.match(html, /<meta\s+name="description"\s+content="[^"]{60,}"/);
-  assert.match(html, /<meta\s+property="og:title"/);
-  assert.match(html, /<meta\s+property="og:description"/);
-  assert.match(html, /<meta\s+property="og:url"/);
-  assert.doesNotMatch(html, /<meta\s+name="robots"\s+content="[^"]*noindex/i);
+test("SEO metadata avoids publishing the temporary account-specific host", () => {
+  assert.match(html, /<meta\\s+name="description"\\s+content="[^"]{60,}"/);
+  assert.match(html, /<meta\\s+property="og:title"/);
+  assert.match(html, /<meta\\s+property="og:description"/);
+  assert.doesNotMatch(html, /<link\\s+rel="canonical"/i);
+  assert.doesNotMatch(html, /<meta\\s+property="og:url"/i);
+  assert.doesNotMatch(html, new RegExp(accountSpecificHost.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&"), "i"));
+  assert.doesNotMatch(html, /<meta\\s+name="robots"\\s+content="[^"]*noindex/i);
 });
 
-test("robots.txt allows crawling and points to the published sitemap", () => {
-  assert.match(robots, /^User-agent:\s*\*\s*\nAllow:\s*\//m);
-  assert.ok(robots.includes("Sitemap: " + base + "sitemap.xml"));
+test("robots.txt keeps the public site crawlable without exposing the temporary host", () => {
+  assert.match(robots, /^User-agent:\\s*\\*\\s*\\nAllow:\\s*\\//m);
+  assert.doesNotMatch(robots, /sitemap:/i);
+  assert.doesNotMatch(robots, new RegExp(accountSpecificHost, "i"));
 });
 
-test("sitemap is valid XML-shaped content and lists only the canonical homepage", () => {
-  assert.match(sitemap, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
-  assert.match(sitemap, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
-  assert.equal((sitemap.match(/<url>/g) ?? []).length, 1);
-  assert.ok(sitemap.includes("<loc>" + base + "</loc>"));
-  assert.match(sitemap, /<\/urlset>\s*$/);
+test("sitemap remains valid XML and contains no temporary account-specific URL", () => {
+  assert.match(sitemap, /^<\\?xml version="1\\.0" encoding="UTF-8"\\?>/);
+  assert.match(sitemap, /<urlset xmlns="http:\\/\\/www\\.sitemaps\\.org\\/schemas\\/sitemap\\/0\\.9">/);
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 0);
+  assert.match(sitemap, /<\\/urlset>\\s*$/);
+  assert.doesNotMatch(sitemap, new RegExp(accountSpecificHost, "i"));
 });
 
-test("web app manifest stays scoped to the GitHub Pages project path", () => {
+test("web app manifest remains Arabic RTL and scoped to the project root", () => {
   const data = JSON.parse(manifest);
   assert.equal(data.lang, "ar");
   assert.equal(data.dir, "rtl");
