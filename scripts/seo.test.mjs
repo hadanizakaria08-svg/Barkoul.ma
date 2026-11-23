@@ -11,26 +11,26 @@ const [html, robots, sitemap, manifest] = await Promise.all([
 ]);
 
 test("SEO metadata avoids publishing the temporary account-specific host", () => {
-  assert.match(html, /<meta\\s+name="description"\\s+content="[^"]{60,}"/);
-  assert.match(html, /<meta\\s+property="og:title"/);
-  assert.match(html, /<meta\\s+property="og:description"/);
-  assert.doesNotMatch(html, /<link\\s+rel="canonical"/i);
-  assert.doesNotMatch(html, /<meta\\s+property="og:url"/i);
-  assert.doesNotMatch(html, new RegExp(accountSpecificHost.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&"), "i"));
-  assert.doesNotMatch(html, /<meta\\s+name="robots"\\s+content="[^"]*noindex/i);
+  assert.match(html, /<meta\s+name="description"\s+content="[^"]{60,}"/);
+  assert.match(html, /<meta\s+property="og:title"/);
+  assert.match(html, /<meta\s+property="og:description"/);
+  assert.doesNotMatch(html, /<link\s+rel="canonical"/i);
+  assert.doesNotMatch(html, /<meta\s+property="og:url"/i);
+  assert.doesNotMatch(html, new RegExp(accountSpecificHost, "i"));
+  assert.doesNotMatch(html, /<meta\s+name="robots"\s+content="[^"]*noindex/i);
 });
 
 test("robots.txt keeps the public site crawlable without exposing the temporary host", () => {
-  assert.match(robots, /^User-agent:\\s*\\*\\s*\\nAllow:\\s*\\//m);
+  assert.match(robots, /^User-agent:\s*\*\s*\nAllow:\s*\//m);
   assert.doesNotMatch(robots, /sitemap:/i);
   assert.doesNotMatch(robots, new RegExp(accountSpecificHost, "i"));
 });
 
 test("sitemap remains valid XML and contains no temporary account-specific URL", () => {
-  assert.match(sitemap, /^<\\?xml version="1\\.0" encoding="UTF-8"\\?>/);
-  assert.match(sitemap, /<urlset xmlns="http:\\/\\/www\\.sitemaps\\.org\\/schemas\\/sitemap\\/0\\.9">/);
+  assert.match(sitemap, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(sitemap, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
   assert.equal((sitemap.match(/<url>/g) ?? []).length, 0);
-  assert.match(sitemap, /<\\/urlset>\\s*$/);
+  assert.match(sitemap, /<\/urlset>\s*$/);
   assert.doesNotMatch(sitemap, new RegExp(accountSpecificHost, "i"));
 });
 
