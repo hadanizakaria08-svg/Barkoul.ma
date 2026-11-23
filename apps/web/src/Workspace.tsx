@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { getSupabase } from "@barkoul/data";
-import { validateDriverDocumentFile, validateDriverDocumentFileContent, type Cargo, type ProfileRole } from "@barkoul/domain";
+import { filterCargosWithoutPendingOffers, validateDriverDocumentFile, validateDriverDocumentFileContent, type Cargo, type ProfileRole } from "@barkoul/domain";
 
 type Row = Record<string, any>;
-interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; }
+interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; onRefreshCargos: () => Promise<void>; }
 const tripLabels: Record<string,string> = { agreed:"تم الاتفاق", loading:"جاري التحميل", in_transit:"في الطريق", delivered:"تم التسليم", cancelled:"ملغاة" };
 
 function OfferCard({cargo,onSent}:{cargo:Cargo;onSent:()=>void}) {
@@ -25,7 +25,7 @@ function OfferCard({cargo,onSent}:{cargo:Cargo;onSent:()=>void}) {
     {message&&<p className="form-message" role="status">{message}</p>}</form>;
 }
 
-export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
+export default function Workspace({userId,role,openCargos,onRefreshCargos}:WorkspaceProps) {
   const [cargos,setCargos]=useState<Row[]>([]); const [offers,setOffers]=useState<Row[]>([]);
   const [incoming,setIncoming]=useState<Row[]>([]); const [trips,setTrips]=useState<Row[]>([]);
   const [documents,setDocuments]=useState<Row[]>([]); const [charges,setCharges]=useState<Row[]>([]);
@@ -34,6 +34,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
   const [busy,setBusy]=useState(false); const [message,setMessage]=useState("");
   const [docType,setDocType]=useState("رخصة السياقة"); const [file,setFile]=useState<File|null>(null);
   const db=getSupabase();
+  const availableCargos = filterCargosWithoutPendingOffers(openCargos, offers);
 
   const load=useCallback(async()=>{
     if(!db)return;
@@ -62,7 +63,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
     try{
       const {error}=await db.rpc("cancel_open_cargo",{p_cargo_id:id});
       if(error)throw error;
-      setMessage("تم إلغاء الشحنة المفتوحة.");await load();
+      setMessage("تم إلغاء الشحنة المفتوحة.");await Promise.all([load(),onRefreshCargos()]);
     }catch{setMessage("تعذر إلغاء الشحنة؛ ربما تم قبول عرض أو تغيرت حالتها.");}finally{setBusy(false);}
   }
 
@@ -87,7 +88,9 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
   async function decideOffer(id:number,accept:boolean){
     if(!db)return; setBusy(true); setMessage("");
     try{const {data,error}=await db.rpc("respond_to_negotiation",{p_negotiation_id:id,p_accept:accept}); if(error)throw error;
-      setMessage(accept?"تم قبول العرض وإنشاء الرحلة رقم "+data+".":"تم رفض العرض."); await load();
+      setMessage(accept?"تم قبول العرض وإنشاء الرحلة رقم "+data+".":"تم رفض العرض.");
+      await load();
+      if (accept) await onRefreshCargos();
     }catch{setMessage("تعذر معالجة العرض؛ ربما انتهت صلاحيته أو لا تملك صلاحية اتخاذ القرار.");}finally{setBusy(false);}
   }
 
@@ -116,11 +119,12 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
       if(withGps){const position=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000}));latitude=position.coords.latitude;longitude=position.coords.longitude;}
       const {error}=await db.rpc("update_trip_progress",{p_trip_id:trip.id,p_status:status,p_latitude:latitude,p_longitude:longitude});
       if(error)throw error; setMessage("تم تحديث حالة الرحلة."); await load();
+      if (status === "cancelled" || status === "delivered") await onRefreshCargos();
     }catch{setMessage(withGps?"تعذر تحديث الموقع. تحقق من إذن الموقع والاتصال.":"تعذر تحديث الرحلة؛ تحقق من الحالة الحالية وصلاحياتك.");}finally{setBusy(false);}
   }
 
   return <section className="section" id="workspace">
-    <div className="section-heading"><div><p className="eyebrow">حسابك</p><h2>مساحة العمل</h2></div><button className="button button-outline" onClick={()=>void load()} disabled={busy}>تحديث البيانات</button></div>
+    <div className="section-heading"><div><p className="eyebrow">حسابك</p><h2>مساحة العمل</h2></div><button className="button button-outline" onClick={()=>void Promise.all([load(),onRefreshCargos()])} disabled={busy}>تحديث البيانات</button></div>
     {role==="owner"&&<div className="workspace-block"><h3>شحناتي وعروض السائقين</h3>
       {cargos.length===0?<p className="empty">لم تنشر شحنات بعد.</p>:cargos.map(c=><article className="cargo-card" key={c.id}>
         <h3>{c.title}</h3><p>{c.origin_city} ← {c.destination_city} · الحالة: {c.status}</p>
@@ -132,7 +136,7 @@ export default function Workspace({userId,role,openCargos}:WorkspaceProps) {
       </article>)}
     </div>}
     {role==="driver"&&<div className="workspace-block"><h3>الشحنات المتاحة لتقديم العروض</h3>
-      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:openCargos.length===0?<p className="empty">لا توجد شحنات مفتوحة حالياً.</p>:openCargos.map(c=><OfferCard key={c.id} cargo={c} onSent={()=>void load()}/>)}
+      {!documents.some(d=>d.review_status==="verified")?<p className="notice notice-warn">لن تتمكن من تقديم العروض قبل رفع وثيقة السائق واعتمادها من الإدارة.</p>:availableCargos.length===0?<p className="empty">لا توجد شحنات جديدة متاحة لك حالياً. حدّث البيانات بعد مراجعة عروضك.</p>:availableCargos.map(c=><OfferCard key={c.id} cargo={c} onSent={()=>void Promise.all([load(),onRefreshCargos()])}/>)}
       <h3>عروضي</h3>{offers.length===0?<p className="empty">لم ترسل عروضاً بعد.</p>:offers.map(o=><article className="cargo-card" key={o.id}><strong>{Number(o.proposed_price_mad).toLocaleString("ar-MA")} درهم</strong><p>الشحنة #{o.cargo_id} · {o.status}</p><p className="muted">{o.message}</p></article>)}
       <h3>وثائق التحقق</h3><form className="form-card" onSubmit={e=>{e.preventDefault();void sendDocument();}}>
         <label>نوع الوثيقة<select value={docType} onChange={e=>setDocType(e.target.value)}><option>رخصة السياقة</option><option>البطاقة الوطنية</option><option>وثيقة المركبة</option><option>وثيقة أخرى</option></select></label>
