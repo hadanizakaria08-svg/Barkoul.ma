@@ -4,6 +4,7 @@ import { getSupabase } from "@barkoul/data";
 import { filterCargosWithoutPendingOffers, validateDriverDocumentFile, validateDriverDocumentFileContent, type Cargo, type ProfileRole } from "@barkoul/domain";
 
 type Row = Record<string, any>;
+type OfferRow = Row & { cargo_id: number; status: string };
 interface WorkspaceProps { userId: string; role: ProfileRole; openCargos: Cargo[]; onRefreshCargos: () => Promise<void>; }
 const tripLabels: Record<string,string> = { agreed:"تم الاتفاق", loading:"جاري التحميل", in_transit:"في الطريق", delivered:"تم التسليم", cancelled:"ملغاة" };
 
@@ -26,7 +27,7 @@ function OfferCard({cargo,onSent}:{cargo:Cargo;onSent:()=>void}) {
 }
 
 export default function Workspace({userId,role,openCargos,onRefreshCargos}:WorkspaceProps) {
-  const [cargos,setCargos]=useState<Row[]>([]); const [offers,setOffers]=useState<Row[]>([]);
+  const [cargos,setCargos]=useState<Row[]>([]); const [offers,setOffers]=useState<OfferRow[]>([]);
   const [incoming,setIncoming]=useState<Row[]>([]); const [trips,setTrips]=useState<Row[]>([]);
   const [documents,setDocuments]=useState<Row[]>([]); const [charges,setCharges]=useState<Row[]>([]);
   const [profile,setProfile]=useState({full_name:"",phone:""});
