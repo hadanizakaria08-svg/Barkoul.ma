@@ -404,6 +404,34 @@ END
 $test$;
 RESET ROLE;
 
+-- Trip contact data is available to participants only after agreement.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);
+DO $test$
+BEGIN
+  IF (SELECT count(*) FROM public.get_trip_contact(
+      (SELECT id FROM public.trips WHERE cargo_id=1)
+  )) <> 1 THEN
+    RAISE EXCEPTION 'trip owner cannot reveal the assigned driver contact';
+  END IF;
+END
+$test$;
+RESET ROLE;
+
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','44444444-4444-4444-8444-444444444444',false);
+DO $test$
+BEGIN
+  BEGIN
+    PERFORM * FROM public.get_trip_contact((SELECT id FROM public.trips WHERE cargo_id=1));
+    RAISE EXCEPTION 'unrelated account unexpectedly revealed trip contact';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='unrelated account unexpectedly revealed trip contact' THEN RAISE; END IF;
+  END;
+END
+$test$;
+RESET ROLE;
+
 -- Role activation is a single audited admin action; users cannot self-approve or resubmit.
 SET ROLE authenticated;
 SELECT set_config('request.jwt.claim.sub','44444444-4444-4444-8444-444444444444',false);
@@ -457,6 +485,26 @@ BEGIN
   EXCEPTION WHEN OTHERS THEN
     IF SQLERRM='activated driver unexpectedly requested a second role' THEN RAISE; END IF;
   END;
+END
+$test$;
+RESET ROLE;
+
+-- Even an activated driver cannot change their own role through a direct profile update.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','44444444-4444-4444-8444-444444444444',false);
+DO $test$
+BEGIN
+  BEGIN
+    UPDATE public.profiles SET role='admin'
+    WHERE id='44444444-4444-4444-8444-444444444444';
+    RAISE EXCEPTION 'ordinary account unexpectedly escalated its profile role';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='ordinary account unexpectedly escalated its profile role' THEN RAISE; END IF;
+  END;
+  IF (SELECT role FROM public.profiles
+      WHERE id='44444444-4444-4444-8444-444444444444') <> 'driver' THEN
+    RAISE EXCEPTION 'failed role escalation changed the stored role';
+  END IF;
 END
 $test$;
 RESET ROLE;
