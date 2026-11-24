@@ -6,7 +6,7 @@ import {
   ShieldEvidenceLedger
 } from "./inspection-engine.mjs";
 
-test("ordinary Arabic freight search is observed without a finding", () => {
+test("ordinary Arabic freight search and benign online parameter are not flagged", () => {
   const result = inspectShieldRequest({
     method: "GET",
     path: "/cargo/search?origin=Casablanca&destination=Marrakech"
@@ -15,6 +15,7 @@ test("ordinary Arabic freight search is observed without a finding", () => {
   assert.equal(result.severity, "normal");
   assert.deepEqual(result.findings, []);
   assert.equal(result.action, "observe-only");
+  assert.deepEqual(inspectShieldRequest({ path: "/?status=online" }).findings, []);
 });
 
 test("SQL injection probe is detected without blocking", () => {
@@ -41,11 +42,11 @@ test("script and command injection probes are classified", () => {
   assert.ok(command.findings.some(item => item.ruleId === "SX-CMD-001"));
 });
 
-test("raw body is represented only by length and digest", () => {
+test("raw body is represented only by its length and never by content or digest", () => {
   const secretFixture = "synthetic-password=never-store-this";
   const result = inspectShieldRequest({ method: "POST", path: "/login", body: secretFixture });
   assert.equal(result.bodyLength, secretFixture.length);
-  assert.equal(typeof result.bodyDigest, "string");
+  assert.equal("bodyDigest" in result, false);
   assert.equal(JSON.stringify(result).includes(secretFixture), false);
 });
 
