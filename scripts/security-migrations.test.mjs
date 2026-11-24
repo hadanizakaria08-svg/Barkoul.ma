@@ -147,8 +147,6 @@ describe("database mutation boundaries", () => {
 });
 
 const adminRoom = await readFile(new URL("../apps/web/src/AdminRoom.tsx", import.meta.url), "utf8");
-const workspace = await readFile(new URL("../apps/web/src/Workspace.tsx", import.meta.url), "utf8");
-const app = await readFile(new URL("../apps/web/src/App.tsx", import.meta.url), "utf8");
 
 const driverUploadGuardMigration = await readFile(
   new URL("../supabase/migrations/20261121082000_restrict_driver_document_upload_role.sql", import.meta.url),
