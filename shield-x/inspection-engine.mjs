@@ -6,7 +6,7 @@ const MAX_FINDINGS = 12;
 
 const RULES = [
   { id: "SX-SQL-001", category: "sql-injection-probe", severity: "high", pattern: /(?:\bunion\s+(?:all\s+)?select\b|\binformation_schema\b|(?:['"]\s*)(?:or|and)\s+\d+\s*=\s*\d+)/i },
-  { id: "SX-XSS-001", category: "script-injection-probe", severity: "high", pattern: /(?:<\s*script\b|javascript\s*:|\bon[a-z]{3,}\s*=)/i },
+  { id: "SX-XSS-001", category: "script-injection-probe", severity: "high", pattern: /(?:<\s*script\b|javascript\s*:|\bon(?:error|load|click|focus|mouseover)\s*=)/i },
   { id: "SX-PATH-001", category: "path-traversal-probe", severity: "high", pattern: /(?:\.\.[/\\]|%2e%2e(?:%2f|%5c)|\/etc\/passwd)/i },
   { id: "SX-CMD-001", category: "command-injection-probe", severity: "high", pattern: /(?:;\s*(?:id|whoami|uname|cat)\b|\|\s*(?:sh|bash)\b|\$\([^)]{1,80}\))/i }
 ];
@@ -75,7 +75,6 @@ export function inspectShieldRequest(input = {}) {
     method: /^[A-Z]{1,16}$/.test(method) ? method : "UNKNOWN",
     routeFingerprint: sha256(pathname).slice(0, 16),
     bodyLength: rawBody.length,
-    bodyDigest: rawBody ? sha256(rawBody) : null,
     truncated,
     findings: Object.freeze(findings),
     severity,
