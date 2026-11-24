@@ -175,6 +175,9 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cargos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.negotiations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
+CREATE POLICY trips_read_parties ON public.trips
+  FOR SELECT TO authenticated
+  USING (owner_id=(SELECT auth.uid()) OR driver_id=(SELECT auth.uid()));
 ALTER TABLE public.driver_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profile_role_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
