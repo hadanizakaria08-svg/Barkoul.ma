@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 test("renders the approved Arabic RTL welcome screen with Morocco map, truck, bus and login", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(/Barkoul\\.ma/);
+  await expect(page).toHaveTitle(/Barkoul\.ma/);
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.locator(".approved-entry-hero")).toBeVisible();
