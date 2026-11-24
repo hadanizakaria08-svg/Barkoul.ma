@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { getSupabase } from "@barkoul/data";
 import { filterCargosWithoutPendingOffers, validateDriverDocumentFile, validateDriverDocumentFileContent, type Cargo, type ProfileRole } from "@barkoul/domain";
@@ -35,9 +35,11 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
   const [busy,setBusy]=useState(false); const [message,setMessage]=useState("");
   const [docType,setDocType]=useState("رخصة السياقة"); const [file,setFile]=useState<File|null>(null);
   const db=getSupabase();
+  const loadVersion = useRef(0);
   const availableCargos = filterCargosWithoutPendingOffers(openCargos, offers);
 
   const load=useCallback(async()=>{
+    const requestVersion = ++loadVersion.current;
     if(!db)return;
     const [cargoRes,offerRes,tripRes,docRes,profileRes,chargeRes]=await Promise.all([
       role==="owner" ? db.from("cargos").select("id,title,origin_city,destination_city,status,loading_date,offered_price_mad").eq("owner_id",userId).order("created_at",{ascending:false}) : Promise.resolve({data:[],error:null}),
@@ -47,17 +49,41 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
       db.from("profiles").select("full_name,phone").eq("id",userId).maybeSingle(),
       db.from("commission_charges").select("id,trip_id,payer_role,amount_mad,status,payment_method,created_at").eq("payer_id",userId).order("created_at",{ascending:false})
     ]);
+    if (requestVersion !== loadVersion.current) return;
     if(cargoRes.error||offerRes.error||tripRes.error||docRes.error||profileRes.error||chargeRes.error)throw new Error("تعذر تحميل بعض بيانات الحساب.");
     const mine=cargoRes.data??[]; setCargos(mine); setOffers(offerRes.data??[]);
     setTrips(tripRes.data??[]); setDocuments(docRes.data??[]); setCharges(chargeRes.data??[]);
     setProfile({full_name:profileRes.data?.full_name??"",phone:profileRes.data?.phone??""});
     if(mine.length){
       const inc=await db.from("negotiations").select("id,cargo_id,proposer_id,proposed_price_mad,message,status,created_at").in("cargo_id",mine.map((x:any)=>x.id)).order("created_at",{ascending:false});
-      if(inc.error)throw inc.error; setIncoming(inc.data??[]);
+      if(inc.error)throw inc.error;
+      if (requestVersion !== loadVersion.current) return;
+      setIncoming(inc.data??[]);
     } else setIncoming([]);
   },[db,userId,role]);
 
-  useEffect(()=>{void load().catch(()=>setMessage("تعذر تحميل مساحة حسابك. حاول تحديث الصفحة."));},[load]);
+  useEffect(()=>{
+    let active = true;
+    // Never leave the previous account's private workspace visible while the next
+    // account's requests are loading.
+    setCargos([]);
+    setOffers([]);
+    setIncoming([]);
+    setTrips([]);
+    setDocuments([]);
+    setCharges([]);
+    setProfile({full_name:"",phone:""});
+    setContacts({});
+    setFile(null);
+    setMessage("");
+    void load().catch(()=>{
+      if(active) setMessage("تعذر تحميل مساحة حسابك. حاول تحديث الصفحة.");
+    });
+    return ()=>{
+      active = false;
+      loadVersion.current += 1;
+    };
+  },[load]);
 
   async function refreshAfterMutation(successMessage:string,refreshFailureMessage:string,refreshPublicCargos=false){
     setMessage(successMessage);
