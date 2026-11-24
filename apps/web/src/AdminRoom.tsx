@@ -135,7 +135,11 @@ export default function AdminRoom({
     return <main className="admin-gate" dir="rtl"><section className="admin-gate-card" role="alert">
       <div className="admin-lock" aria-hidden="true">⛔</div><p className="eyebrow">وصول مرفوض</p>
       <h1>هذه الغرفة للمدير فقط</h1><p>حسابك لا يحمل صلاحية المدير. لم يتم تحميل أي بيانات إدارية.</p>
-      <div className="admin-gate-actions">{homeLink}</div>
+      <p>الحساب الحالي ليس الحساب الإداري المعتمد. سجّل الخروج ثم ادخل بالبريد الممنوح صلاحية المدير.</p>
+      <div className="admin-gate-actions">
+        <button className="button button-primary" onClick={onSignOut}>تسجيل الخروج وتبديل الحساب</button>
+        {homeLink}
+      </div>
     </section></main>;
   }
 
