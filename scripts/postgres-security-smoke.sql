@@ -282,19 +282,19 @@ RESET ROLE;
 
 DO $test$
 BEGIN
-  IF (SELECT status FROM public.trips WHERE id=:accepted_trip) <> 'delivered' THEN
+  IF (SELECT status FROM public.trips WHERE id=(SELECT id FROM public.trips WHERE cargo_id=1)) <> 'delivered' THEN
     RAISE EXCEPTION 'trip did not reach delivered state';
   END IF;
-  IF (SELECT count(*) FROM public.commission_charges WHERE trip_id=:accepted_trip) <> 2 THEN
+  IF (SELECT count(*) FROM public.commission_charges WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1)) <> 2 THEN
     RAISE EXCEPTION 'delivery must create exactly two commission charges';
   END IF;
   IF NOT EXISTS (
     SELECT 1 FROM public.commission_charges
-    WHERE trip_id=:accepted_trip AND payer_id='11111111-1111-4111-8111-111111111111'
+    WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1) AND payer_id='11111111-1111-4111-8111-111111111111'
       AND payer_role='owner' AND amount_mad=10 AND status='due'
   ) OR NOT EXISTS (
     SELECT 1 FROM public.commission_charges
-    WHERE trip_id=:accepted_trip AND payer_id='22222222-2222-4222-8222-222222222222'
+    WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1) AND payer_id='22222222-2222-4222-8222-222222222222'
       AND payer_role='driver' AND amount_mad=20 AND status='due'
   ) THEN
     RAISE EXCEPTION 'commission amounts or payers do not match the business rules';
@@ -354,9 +354,9 @@ DO $test$
 DECLARE owner_charge bigint; driver_charge bigint;
 BEGIN
   SELECT id INTO owner_charge FROM public.commission_charges
-  WHERE trip_id=:accepted_trip AND payer_role='owner';
+  WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1) AND payer_role='owner';
   SELECT id INTO driver_charge FROM public.commission_charges
-  WHERE trip_id=:accepted_trip AND payer_role='driver';
+  WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1) AND payer_role='driver';
 
   BEGIN
     PERFORM public.admin_record_commission_payment(driver_charge,'electronic',NULL);
@@ -424,12 +424,12 @@ BEGIN
       WHERE id='44444444-4444-4444-8444-444444444444') <> 'driver' THEN
     RAISE EXCEPTION 'approved role request did not activate the requested role';
   END IF;
-  IF (SELECT status FROM public.profile_role_requests WHERE id=:role_request_id) <> 'approved' THEN
+  IF (SELECT status FROM public.profile_role_requests WHERE id=(SELECT max(id) FROM public.profile_role_requests WHERE user_id='44444444-4444-4444-8444-444444444444')) <> 'approved' THEN
     RAISE EXCEPTION 'role request was not marked approved';
   END IF;
   IF NOT EXISTS (
     SELECT 1 FROM public.admin_audit_log
-    WHERE action='role_request_approved' AND target_id=:'role_request_id'
+    WHERE action='role_request_approved' AND target_id=(SELECT max(id)::text FROM public.profile_role_requests WHERE user_id='44444444-4444-4444-8444-444444444444')
   ) THEN
     RAISE EXCEPTION 'role request approval was not audited';
   END IF;
