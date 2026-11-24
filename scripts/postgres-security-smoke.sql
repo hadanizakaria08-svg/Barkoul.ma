@@ -3,6 +3,16 @@
 
 \i scripts/postgres-security-bootstrap.sql
 
+-- Apply the complete development migration chain to the synthetic Supabase fixture.
+\i supabase/migrations/20261120140000_security_storage_and_schema_alignment.sql
+\i supabase/migrations/20261120141000_secure_negotiation_trip_admin_workflows.sql
+\i supabase/migrations/20261120142000_profile_role_requests_and_admin_review.sql
+\i supabase/migrations/20261120143000_move_privileged_workflows_to_private_schema.sql
+\i supabase/migrations/20261120144000_index_role_request_reviewer_fk.sql
+\i supabase/migrations/20261120145000_audited_document_review_and_unique_offers.sql
+\i supabase/migrations/20261120146000_contact_reveal_and_commission_ledger.sql
+\i supabase/migrations/20261120147000_require_verified_driver_for_offers.sql
+\i supabase/migrations/20261120148000_close_offers_when_cargo_cancelled.sql
 \i supabase/migrations/20261120149000_lock_direct_mutations_and_atomic_cargo_cancel.sql
 \i supabase/migrations/20261120149500_validate_rpc_arguments.sql
 \i supabase/migrations/20261120149700_atomic_negotiation_and_document_binding.sql
