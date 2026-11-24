@@ -363,10 +363,13 @@ SELECT set_config('request.jwt.claim.sub','55555555-5555-4555-8555-555555555555'
 DO $test$
 DECLARE owner_charge bigint; driver_charge bigint;
 BEGIN
+  IF (SELECT count(*) FROM public.commission_charges) <> 2 THEN
+    RAISE EXCEPTION 'administrator cannot read both commission charges';
+  END IF;
   SELECT id INTO owner_charge FROM public.commission_charges
-  WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1) AND payer_role='owner';
+  WHERE payer_role='owner' ORDER BY id DESC LIMIT 1;
   SELECT id INTO driver_charge FROM public.commission_charges
-  WHERE trip_id=(SELECT id FROM public.trips WHERE cargo_id=1) AND payer_role='driver';
+  WHERE payer_role='driver' ORDER BY id DESC LIMIT 1;
 
   BEGIN
     PERFORM public.admin_record_commission_payment(driver_charge,'electronic',NULL);
