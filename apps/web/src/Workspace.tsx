@@ -59,12 +59,23 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
 
   useEffect(()=>{void load().catch(()=>setMessage("تعذر تحميل مساحة حسابك. حاول تحديث الصفحة."));},[load]);
 
+  async function refreshAfterMutation(successMessage:string,refreshFailureMessage:string,refreshPublicCargos=false){
+    setMessage(successMessage);
+    try{
+      await load();
+      if(refreshPublicCargos)await onRefreshCargos();
+    }catch{
+      setMessage(refreshFailureMessage);
+    }
+  }
+
+
   async function cancelCargo(id:number){
     if(!db)return;setBusy(true);setMessage("");
     try{
       const {error}=await db.rpc("cancel_open_cargo",{p_cargo_id:id});
       if(error)throw error;
-      setMessage("تم إلغاء الشحنة المفتوحة.");await Promise.all([load(),onRefreshCargos()]);
+      await refreshAfterMutation("تم إلغاء الشحنة المفتوحة.","تم إلغاء الشحنة، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.",true);
     }catch{setMessage("تعذر إلغاء الشحنة؛ ربما تم قبول عرض أو تغيرت حالتها.");}finally{setBusy(false);}
   }
 
@@ -88,10 +99,12 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
 
   async function decideOffer(id:number,accept:boolean){
     if(!db)return; setBusy(true); setMessage("");
-    try{const {data,error}=await db.rpc("respond_to_negotiation",{p_negotiation_id:id,p_accept:accept}); if(error)throw error;
-      setMessage(accept?"تم قبول العرض وإنشاء الرحلة رقم "+data+".":"تم رفض العرض.");
-      await load();
-      if (accept) await onRefreshCargos();
+    try{
+      const {data,error}=await db.rpc("respond_to_negotiation",{p_negotiation_id:id,p_accept:accept});
+      if(error)throw error;
+      const successMessage=accept?"تم قبول العرض وإنشاء الرحلة رقم "+data+".":"تم رفض العرض.";
+      const refreshFailureMessage=accept?"تم قبول العرض وإنشاء الرحلة، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.":"تم رفض العرض، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.";
+      await refreshAfterMutation(successMessage,refreshFailureMessage,accept);
     }catch{setMessage("تعذر معالجة العرض؛ ربما انتهت صلاحيته أو لا تملك صلاحية اتخاذ القرار.");}finally{setBusy(false);}
   }
 
@@ -109,7 +122,8 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
       if(uploadError)throw uploadError;
       const {error:rowError}=await db.from("driver_documents").insert({driver_id:userId,document_type:docType,storage_path:path,review_status:"pending"});
       if(rowError){await db.storage.from("driver-documents").remove([path]);throw rowError;}
-      setFile(null); setMessage("تم رفع الوثيقة الخاصة وإرسالها للمراجعة."); await load();
+      setFile(null);
+      await refreshAfterMutation("تم رفع الوثيقة الخاصة وإرسالها للمراجعة.","تم رفع الوثيقة وإرسالها للمراجعة، لكن تعذر تحديث قائمة الوثائق. اضغط تحديث البيانات.");
     }catch{setMessage("تعذر رفع الوثيقة. تأكد من سلامة الملف ونوعه وحجمه (10 ميغابايت كحد أقصى).");}finally{setBusy(false);}
   }
 
@@ -119,8 +133,8 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
       let latitude:number|null=null,longitude:number|null=null;
       if(withGps){const position=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000}));latitude=position.coords.latitude;longitude=position.coords.longitude;}
       const {error}=await db.rpc("update_trip_progress",{p_trip_id:trip.id,p_status:status,p_latitude:latitude,p_longitude:longitude});
-      if(error)throw error; setMessage("تم تحديث حالة الرحلة."); await load();
-      if (status === "cancelled" || status === "delivered") await onRefreshCargos();
+      if(error)throw error;
+      await refreshAfterMutation("تم تحديث حالة الرحلة.","تم تحديث حالة الرحلة، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.",status==="cancelled"||status==="delivered");
     }catch{setMessage(withGps?"تعذر تحديث الموقع. تحقق من إذن الموقع والاتصال.":"تعذر تحديث الرحلة؛ تحقق من الحالة الحالية وصلاحياتك.");}finally{setBusy(false);}
   }
 
