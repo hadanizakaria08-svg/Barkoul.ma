@@ -134,7 +134,7 @@ export default function Workspace({userId,role,openCargos,onRefreshCargos}:Works
       if(withGps){const position=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000}));latitude=position.coords.latitude;longitude=position.coords.longitude;}
       const {error}=await db.rpc("update_trip_progress",{p_trip_id:trip.id,p_status:status,p_latitude:latitude,p_longitude:longitude});
       if(error)throw error;
-      await refreshAfterMutation("تم تحديث حالة الرحلة.","تم تحديث حالة الرحلة، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.",status==="cancelled"||status==="delivered");
+      await refreshAfterMutation("تم تحديث حالة الرحلة.","تم تحديث حالة الرحلة، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.", status === "cancelled" || status === "delivered");
     }catch{setMessage(withGps?"تعذر تحديث الموقع. تحقق من إذن الموقع والاتصال.":"تعذر تحديث الرحلة؛ تحقق من الحالة الحالية وصلاحياتك.");}finally{setBusy(false);}
   }
 
