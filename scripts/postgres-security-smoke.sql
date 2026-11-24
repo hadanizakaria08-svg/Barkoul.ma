@@ -268,4 +268,187 @@ END
 $test$;
 RESET ROLE;
 
+-- Complete a real trip lifecycle and verify the commission ledger is created exactly once.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);
+SELECT public.update_trip_progress(:accepted_trip,'loading',NULL,NULL);
+RESET ROLE;
+
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',false);
+SELECT public.update_trip_progress(:accepted_trip,'in_transit',NULL,NULL);
+SELECT public.update_trip_progress(:accepted_trip,'delivered',NULL,NULL);
+RESET ROLE;
+
+DO $test$
+BEGIN
+  IF (SELECT status FROM public.trips WHERE id=:accepted_trip) <> 'delivered' THEN
+    RAISE EXCEPTION 'trip did not reach delivered state';
+  END IF;
+  IF (SELECT count(*) FROM public.commission_charges WHERE trip_id=:accepted_trip) <> 2 THEN
+    RAISE EXCEPTION 'delivery must create exactly two commission charges';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.commission_charges
+    WHERE trip_id=:accepted_trip AND payer_id='11111111-1111-4111-8111-111111111111'
+      AND payer_role='owner' AND amount_mad=10 AND status='due'
+  ) OR NOT EXISTS (
+    SELECT 1 FROM public.commission_charges
+    WHERE trip_id=:accepted_trip AND payer_id='22222222-2222-4222-8222-222222222222'
+      AND payer_role='driver' AND amount_mad=20 AND status='due'
+  ) THEN
+    RAISE EXCEPTION 'commission amounts or payers do not match the business rules';
+  END IF;
+END
+$test$;
+
+-- Each party can read only its own charge; an unrelated account sees neither.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false);
+DO $test$
+BEGIN
+  IF (SELECT count(*) FROM public.commission_charges) <> 1
+     OR EXISTS (SELECT 1 FROM public.commission_charges WHERE payer_role='driver') THEN
+    RAISE EXCEPTION 'cargo owner commission visibility is not isolated';
+  END IF;
+END
+$test$;
+RESET ROLE;
+
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',false);
+DO $test$
+BEGIN
+  IF (SELECT count(*) FROM public.commission_charges) <> 1
+     OR EXISTS (SELECT 1 FROM public.commission_charges WHERE payer_role='owner') THEN
+    RAISE EXCEPTION 'driver commission visibility is not isolated';
+  END IF;
+END
+$test$;
+RESET ROLE;
+
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','44444444-4444-4444-8444-444444444444',false);
+DO $test$
+BEGIN
+  IF (SELECT count(*) FROM public.commission_charges) <> 0 THEN
+    RAISE EXCEPTION 'unrelated account can read commission charges';
+  END IF;
+  BEGIN
+    PERFORM public.admin_record_commission_payment(
+      (SELECT id FROM public.commission_charges WHERE payer_role='owner' LIMIT 1),
+      'cash',NULL
+    );
+    RAISE EXCEPTION 'ordinary user unexpectedly recorded commission payment';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='ordinary user unexpectedly recorded commission payment' THEN RAISE; END IF;
+  END;
+END
+$test$;
+RESET ROLE;
+
+-- An administrator can record a verified cash/electronic payment once, with an audit event.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','55555555-5555-4555-8555-555555555555',false);
+DO $test$
+DECLARE owner_charge bigint; driver_charge bigint;
+BEGIN
+  SELECT id INTO owner_charge FROM public.commission_charges
+  WHERE trip_id=:accepted_trip AND payer_role='owner';
+  SELECT id INTO driver_charge FROM public.commission_charges
+  WHERE trip_id=:accepted_trip AND payer_role='driver';
+
+  BEGIN
+    PERFORM public.admin_record_commission_payment(driver_charge,'electronic',NULL);
+    RAISE EXCEPTION 'electronic payment without a reference unexpectedly succeeded';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='electronic payment without a reference unexpectedly succeeded' THEN RAISE; END IF;
+  END;
+
+  PERFORM public.admin_record_commission_payment(owner_charge,'cash',NULL);
+  PERFORM public.admin_record_commission_payment(driver_charge,'electronic','BANK-TEST-123');
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.commission_charges
+    WHERE id=owner_charge AND status='paid' AND payment_method='cash'
+  ) OR NOT EXISTS (
+    SELECT 1 FROM public.commission_charges
+    WHERE id=driver_charge AND status='paid'
+      AND payment_method='electronic' AND payment_reference='BANK-TEST-123'
+  ) THEN
+    RAISE EXCEPTION 'commission payment details were not persisted';
+  END IF;
+  IF (SELECT count(*) FROM public.admin_audit_log
+      WHERE action='commission_payment_recorded'
+        AND target_table='commission_charges') < 2 THEN
+    RAISE EXCEPTION 'commission payment audit entries are missing';
+  END IF;
+
+  BEGIN
+    PERFORM public.admin_record_commission_payment(owner_charge,'cash',NULL);
+    RAISE EXCEPTION 'a commission charge was paid twice';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='a commission charge was paid twice' THEN RAISE; END IF;
+  END;
+END
+$test$;
+RESET ROLE;
+
+-- Role activation is a single audited admin action; users cannot self-approve or resubmit.
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','44444444-4444-4444-8444-444444444444',false);
+INSERT INTO public.profile_role_requests(user_id,requested_role,status)
+VALUES ('44444444-4444-4444-8444-444444444444','driver','pending')
+RETURNING id AS role_request_id \gset
+DO $test$
+BEGIN
+  BEGIN
+    INSERT INTO public.profile_role_requests(user_id,requested_role,status)
+    VALUES ('44444444-4444-4444-8444-444444444444','owner','pending');
+    RAISE EXCEPTION 'duplicate pending role request unexpectedly succeeded';
+  EXCEPTION WHEN unique_violation THEN
+    NULL;
+  END;
+END
+$test$;
+RESET ROLE;
+
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','55555555-5555-4555-8555-555555555555',false);
+SELECT public.admin_review_role_request(:role_request_id,true);
+RESET ROLE;
+
+DO $test$
+BEGIN
+  IF (SELECT role FROM public.profiles
+      WHERE id='44444444-4444-4444-8444-444444444444') <> 'driver' THEN
+    RAISE EXCEPTION 'approved role request did not activate the requested role';
+  END IF;
+  IF (SELECT status FROM public.profile_role_requests WHERE id=:role_request_id) <> 'approved' THEN
+    RAISE EXCEPTION 'role request was not marked approved';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.admin_audit_log
+    WHERE action='role_request_approved' AND target_id=:'role_request_id'
+  ) THEN
+    RAISE EXCEPTION 'role request approval was not audited';
+  END IF;
+END
+$test$;
+
+SET ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','44444444-4444-4444-8444-444444444444',false);
+DO $test$
+BEGIN
+  BEGIN
+    INSERT INTO public.profile_role_requests(user_id,requested_role,status)
+    VALUES ('44444444-4444-4444-8444-444444444444','owner','pending');
+    RAISE EXCEPTION 'activated driver unexpectedly requested a second role';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM='activated driver unexpectedly requested a second role' THEN RAISE; END IF;
+  END;
+END
+$test$;
+RESET ROLE;
+
 \echo 'PostgreSQL security integration smoke tests passed.'
