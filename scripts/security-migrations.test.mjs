@@ -249,3 +249,15 @@ describe("driver cargo availability synchronization", () => {
     assert.ok(workspace.includes('Promise.all([load(),onRefreshCargos()]).catch(()=>setMessage("تم إرسال العرض، لكن تعذر تحديث قائمة الشحنات."))'));
   });
 });
+
+
+describe("workspace mutation confirmation survives refresh failures", () => {
+  it("keeps successful writes distinct from post-write refresh errors", () => {
+    assert.ok(workspace.includes("async function refreshAfterMutation("));
+    assert.ok(workspace.includes('await refreshAfterMutation("تم إلغاء الشحنة المفتوحة.","تم إلغاء الشحنة، لكن تعذر تحديث البيانات. اضغط تحديث البيانات.",true)'));
+    assert.ok(workspace.includes('const successMessage=accept?"تم قبول العرض وإنشاء الرحلة رقم "+data+".":"تم رفض العرض."'));
+    assert.ok(workspace.includes('await refreshAfterMutation(successMessage,refreshFailureMessage,accept)'));
+    assert.ok(workspace.includes('تم رفع الوثيقة وإرسالها للمراجعة، لكن تعذر تحديث قائمة الوثائق.'));
+    assert.ok(workspace.includes('تم تحديث حالة الرحلة، لكن تعذر تحديث البيانات.'));
+  });
+});
