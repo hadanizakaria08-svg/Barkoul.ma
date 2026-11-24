@@ -147,6 +147,8 @@ describe("database mutation boundaries", () => {
 });
 
 const adminRoom = await readFile(new URL("../apps/web/src/AdminRoom.tsx", import.meta.url), "utf8");
+const workspace = await readFile(new URL("../apps/web/src/Workspace.tsx", import.meta.url), "utf8");
+const app = await readFile(new URL("../apps/web/src/App.tsx", import.meta.url), "utf8");
 
 const driverUploadGuardMigration = await readFile(
   new URL("../supabase/migrations/20261121082000_restrict_driver_document_upload_role.sql", import.meta.url),
@@ -259,5 +261,23 @@ describe("workspace mutation confirmation survives refresh failures", () => {
     assert.ok(workspace.includes('await refreshAfterMutation(successMessage,refreshFailureMessage,accept)'));
     assert.ok(workspace.includes('تم رفع الوثيقة وإرسالها للمراجعة، لكن تعذر تحديث قائمة الوثائق.'));
     assert.ok(workspace.includes('تم تحديث حالة الرحلة، لكن تعذر تحديث البيانات.'));
+  });
+});
+
+
+describe("workspace account isolation", () => {
+  it("remounts private workspace state when the authenticated user changes", () => {
+    assert.ok(app.includes('<Workspace key={user.id} userId={user.id}'));
+  });
+
+  it("clears prior account data and invalidates older in-flight workspace reads", () => {
+    assert.ok(workspace.includes("const loadVersion = useRef(0)"));
+    assert.ok(workspace.includes("const requestVersion = ++loadVersion.current"));
+    assert.ok(workspace.includes("requestVersion !== loadVersion.current"));
+    assert.ok(workspace.includes("loadVersion.current += 1"));
+    assert.ok(workspace.includes("setDocuments([])"));
+    assert.ok(workspace.includes("setCharges([])"));
+    assert.ok(workspace.includes("setContacts({})"));
+    assert.ok(workspace.includes("setProfile({full_name:\"\",phone:\"\"})"));
   });
 });
