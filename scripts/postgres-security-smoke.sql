@@ -366,6 +366,8 @@ BEGIN
   IF (SELECT count(*) FROM public.commission_charges) <> 2 THEN
     RAISE EXCEPTION 'administrator cannot read both commission charges';
   END IF;
+  -- The admin role is not a trip participant, so trips RLS intentionally hides trip rows.
+  -- Read the two admin-visible ledger entries directly instead of resolving trip_id via trips.
   SELECT id INTO owner_charge FROM public.commission_charges
   WHERE payer_role='owner' ORDER BY id DESC LIMIT 1;
   SELECT id INTO driver_charge FROM public.commission_charges
