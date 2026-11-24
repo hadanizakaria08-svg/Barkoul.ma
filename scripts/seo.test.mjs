@@ -3,11 +3,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const accountSpecificHost = "hadanizakaria08-svg.github.io";
-const [html, robots, sitemap, manifest] = await Promise.all([
+const [html, robots, sitemap, manifest, readme] = await Promise.all([
   readFile(new URL("../apps/web/index.html", import.meta.url), "utf8"),
   readFile(new URL("../apps/web/public/robots.txt", import.meta.url), "utf8"),
   readFile(new URL("../apps/web/public/sitemap.xml", import.meta.url), "utf8"),
-  readFile(new URL("../apps/web/public/manifest.webmanifest", import.meta.url), "utf8")
+  readFile(new URL("../apps/web/public/manifest.webmanifest", import.meta.url), "utf8"),
+  readFile(new URL("../README.md", import.meta.url), "utf8")
 ]);
 
 test("SEO metadata avoids publishing the temporary account-specific host", () => {
@@ -40,4 +41,8 @@ test("web app manifest remains Arabic RTL and scoped to the project root", () =>
   assert.equal(data.dir, "rtl");
   assert.equal(data.start_url, "./");
   assert.equal(data.scope, "./");
+});
+
+test("project documentation does not publish the temporary account-specific host", () => {
+  assert.doesNotMatch(readme, new RegExp(accountSpecificHost, "i"));
 });
