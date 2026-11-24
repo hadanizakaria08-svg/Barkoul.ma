@@ -242,7 +242,7 @@ describe("driver cargo availability synchronization", () => {
   });
 
   it("refreshes the public cargo list after offer acceptance, cancellation, or trip completion", () => {
-    assert.ok(workspace.includes("if (accept) await onRefreshCargos()"));
+    assert.ok(workspace.includes("await refreshAfterMutation(successMessage,refreshFailureMessage,accept)"));
     assert.ok(workspace.includes('status === "cancelled" || status === "delivered"'));
     assert.ok(app.includes("onRefreshCargos={refresh}"));
     assert.ok(workspace.includes('Promise.all([load(),onRefreshCargos()]).catch(()=>setMessage("تعذر تحديث بيانات الحساب والشحنات. حاول مجدداً."))'));
