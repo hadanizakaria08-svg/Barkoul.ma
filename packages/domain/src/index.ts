@@ -31,6 +31,17 @@ export const TRUCK_TYPES = [
   "شاحنة تبريد"
 ] as const;
 
+export const BUS_TYPES = [
+  "حافلة سياحية",
+  "حافلة بين المدن",
+  "حافلة النقل الحضري",
+  "حافلة مدرسية",
+  "حافلة نقل العمال",
+  "حافلة صغيرة (ميني باص)"
+] as const;
+
+export const VEHICLE_TYPES = [...TRUCK_TYPES, ...BUS_TYPES] as const;
+
 export interface Cargo {
   id: number;
   title: string;
@@ -165,9 +176,9 @@ export function validateCargoDraft(draft: CargoDraft, today: string): string[] {
   if (!draft.destination_city.trim()) errors.push("مدينة الوصول مطلوبة.");
   if (!draft.goods_type.trim()) errors.push("نوع البضاعة مطلوب.");
   if (!draft.truck_type.trim()) {
-    errors.push("نوع الشاحنة مطلوب.");
-  } else if (!(TRUCK_TYPES as readonly string[]).includes(draft.truck_type.trim())) {
-    errors.push("نوع الشاحنة غير مدعوم.");
+    errors.push("نوع المركبة مطلوب.");
+  } else if (!(VEHICLE_TYPES as readonly string[]).includes(draft.truck_type.trim())) {
+    errors.push("نوع المركبة غير مدعوم.");
   }
   if (!draft.loading_date) {
     errors.push("تاريخ النقل مطلوب.");
