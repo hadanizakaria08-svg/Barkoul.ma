@@ -12,7 +12,8 @@ CREATE SCHEMA private;
 GRANT USAGE ON SCHEMA public, auth, storage, private TO anon, authenticated, service_role;
 
 CREATE TABLE auth.users (
-  id uuid PRIMARY KEY
+  id uuid PRIMARY KEY,
+  raw_user_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb
 );
 
 CREATE FUNCTION auth.uid()
@@ -23,6 +24,21 @@ AS $function$
   SELECT NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid
 $function$;
 GRANT EXECUTE ON FUNCTION auth.uid() TO anon, authenticated, service_role;
+
+CREATE FUNCTION auth.jwt()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+AS $function$
+  SELECT jsonb_build_object(
+    'role',
+    CASE
+      WHEN NULLIF(current_setting('request.jwt.claim.sub', true), '') IS NOT NULL THEN 'authenticated'
+      ELSE current_user
+    END
+  )
+$function$;
+GRANT EXECUTE ON FUNCTION auth.jwt() TO anon, authenticated, service_role;
 
 CREATE FUNCTION storage.foldername(p_name text)
 RETURNS text[]
@@ -234,29 +250,9 @@ BEGIN
 END
 $function$;
 
-CREATE FUNCTION private.respond_to_negotiation_impl(bigint,boolean)
-RETURNS bigint LANGUAGE sql SECURITY DEFINER SET search_path=''
-AS $function$ SELECT NULL::bigint $function$;
-
-CREATE FUNCTION private.update_trip_progress_impl(bigint,text,double precision,double precision)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
-AS $function$ BEGIN RETURN; END $function$;
-
-CREATE FUNCTION private.admin_set_profile_role_impl(uuid,text)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
-AS $function$ BEGIN RETURN; END $function$;
-
-CREATE FUNCTION private.admin_review_role_request_impl(bigint,boolean)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
-AS $function$ BEGIN RETURN; END $function$;
-
-CREATE FUNCTION private.admin_review_driver_document_impl(bigint,text)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
-AS $function$ BEGIN RETURN; END $function$;
-
-CREATE FUNCTION private.admin_record_commission_payment_impl(bigint,text,text)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
-AS $function$ BEGIN RETURN; END $function$;
+CREATE TRIGGER protect_profile_role
+BEFORE UPDATE OF role ON public.profiles
+FOR EACH ROW EXECUTE FUNCTION public.prevent_profile_role_escalation();
 
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA private TO authenticated;
 GRANT EXECUTE ON FUNCTION private.is_admin() TO authenticated;
