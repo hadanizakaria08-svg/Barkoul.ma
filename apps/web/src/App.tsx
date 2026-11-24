@@ -349,6 +349,9 @@ export default function App() {
             </a>
           </div>
         </section>
+        <div className="hero-actions" style={{justifyContent:"center",marginTop:12}}>
+          <a className="button button-outline" href="#admin">🔐 غرفة المدير</a>
+        </div>
         <section className="approved-entry-hero" aria-labelledby="entry-title">
           <div className="approved-entry-visual">
             <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب</span></div>
@@ -426,7 +429,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar home-topbar services-topbar approved-services-topbar">
       <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الرئيسية</a><a className="home-nav-link" href="#search">أبحث عن شحنة</a><a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="home-nav-link" href="#categories">خدماتنا</a><a className="home-nav-link" href="#footer">الدعم والمساعدة</a></nav>
+      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الرئيسية</a><a className="home-nav-link" href="#search">أبحث عن شحنة</a><a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="home-nav-link" href="#categories">خدماتنا</a><a className="home-nav-link" href="#footer">الدعم والمساعدة</a><a className="account-entry" href="#admin">غرفة المدير</a></nav>
     </header>
     <main>
       <section className="approved-services-hero">
