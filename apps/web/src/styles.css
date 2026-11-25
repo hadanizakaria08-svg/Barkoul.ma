@@ -749,3 +749,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   .approved-map-routes{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}
   .approved-map-credit{font-size:9px;margin:2px 10px 7px}
 }
+
+
+/* Vehicle subtype thumbnails: keep each real vehicle photo small, clear and beside its label. */
+.vehicle-subtype-card{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:11px;min-height:94px;text-align:right}
+.vehicle-subtype-card img{display:block;flex:none;width:112px!important;height:76px!important;max-width:100%;object-fit:cover;border-radius:10px}
+.vehicle-subtype-card strong{min-width:0;line-height:1.55}
+@media(max-width:640px){.vehicle-subtype-card{grid-template-columns:88px minmax(0,1fr);gap:8px;min-height:82px}.vehicle-subtype-card img{width:88px!important;height:64px!important}.vehicle-subtype-card strong{font-size:11px}}
