@@ -93,10 +93,12 @@ test("keeps the welcome screen focused on direct sign-in and preserves the map a
   await expect(page.locator(".approved-entry-role-choice")).toHaveCount(0);
   await expect(page.getByRole("link", { name: /غرفة المدير/ })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "تسجيل الدخول" })).toBeVisible();
-  await expect(page.locator(".approved-map-credit")).toContainText("Vegeta228");
-  await expect(page.getByRole("link", { name: "CC BY-SA 4.0" })).toHaveAttribute("href", "https://creativecommons.org/licenses/by-sa/4.0/");
-  await expect(page.locator(".approved-map-routes circle")).toHaveCount(11);
+  await expect(page.locator(".approved-map-attribution")).toContainText("Vegeta228");
+  await expect(page.locator(".approved-map-attribution")).toContainText("CC BY-SA 4.0");
+  await expect(page.locator(".approved-map-attribution a").last()).toHaveAttribute("href", "https://creativecommons.org/licenses/by-sa/4.0/");
+  await expect(page.locator(".approved-map-routes")).toHaveCount(0);
   await expect(page.locator(".approved-entry-map .morocco-mark")).toHaveAttribute("loading", "eager");
+  await expect(page.locator(".approved-map-attribution")).toBeVisible();
 });
 
 test("vehicle subtype choices always include a visible photo and update the route filter", async ({ page }) => {
@@ -125,21 +127,27 @@ test("services screen passes automated WCAG 2.2 AA checks", async ({ page }) => 
   expect(results.violations).toEqual([]);
 });
 
-test("keeps the route overlay aligned with the full Morocco map on desktop and mobile", async ({ page }) => {
+test("keeps the complete Morocco map contained and attribution outside the map on desktop and mobile", async ({ page }) => {
   for (const width of [390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     const dimensions = await page.evaluate(() => {
+      const art = document.querySelector(".approved-map-art")?.getBoundingClientRect();
       const map = document.querySelector(".approved-entry-map .morocco-mark")?.getBoundingClientRect();
-      const routes = document.querySelector(".approved-map-routes")?.getBoundingClientRect();
-      return map && routes ? {
+      const credit = document.querySelector(".approved-map-attribution")?.getBoundingClientRect();
+      return art && map && credit ? {
+        artWidth: art.width, artHeight: art.height,
         mapWidth: map.width, mapHeight: map.height,
-        routeWidth: routes.width, routeHeight: routes.height
+        mapInsideArt: map.left >= art.left - 1 && map.right <= art.right + 1 &&
+          map.top >= art.top - 1 && map.bottom <= art.bottom + 1,
+        creditBelowMap: credit.top >= map.bottom - 1
       } : null;
     });
     expect(dimensions).not.toBeNull();
-    expect(Math.abs(dimensions!.mapWidth - dimensions!.routeWidth)).toBeLessThanOrEqual(1);
-    expect(Math.abs(dimensions!.mapHeight - dimensions!.routeHeight)).toBeLessThanOrEqual(1);
+    expect(dimensions!.mapInsideArt).toBe(true);
+    expect(dimensions!.creditBelowMap).toBe(true);
+    expect(dimensions!.mapWidth).toBeGreaterThan(0);
+    expect(dimensions!.mapHeight).toBeGreaterThan(0);
   }
 });
 
