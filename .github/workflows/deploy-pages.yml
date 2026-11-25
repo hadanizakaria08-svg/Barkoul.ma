@@ -42,7 +42,7 @@ jobs:
         run: npm run build
         env:
           VITE_SUPABASE_URL: https://ajvpinnumhazuyziphwn.supabase.co
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn' }}
+          VITE_SUPABASE_ANON_KEY: sb_publishable_kuEvoxEh2a0AAt8IMS5CWg_5oEO6gKn
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
