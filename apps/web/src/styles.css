@@ -692,3 +692,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .cargo-details>div{padding:8px 2px 0;color:var(--muted);font-size:13px;line-height:1.8}
 .cargo-details p{margin:4px 0}
 @media(max-width:760px){.cargo-grid{grid-template-columns:1fr}.cargo-card{padding:15px}.filters{grid-template-columns:1fr}}
+
+
+/* One-field search: keep the inner shipment page easy on small screens. */
+.simple-cargo-search{display:flex;align-items:end;gap:12px;margin:16px 0 22px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#f5faff}
+.simple-cargo-search label{flex:1;min-width:0}
+.simple-cargo-search input{min-height:52px;font-size:16px}
+.simple-search-hint{margin:8px 0 0;font-size:13px}
+@media(max-width:600px){.simple-cargo-search{align-items:stretch;flex-direction:column}.simple-cargo-search .text-button{align-self:flex-start}}
