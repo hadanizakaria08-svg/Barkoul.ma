@@ -93,7 +93,9 @@ function MoroccoMark() {
     className="morocco-mark"
     src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Morocco_full_map.svg"
     alt="خريطة المغرب كاملة"
-    loading="lazy"
+    loading="eager"
+    decoding="async"
+    fetchPriority="high"
   />;
 }
 
@@ -246,18 +248,36 @@ export default function App() {
     [cargos, origin, destination, truck, selectedGoods]
   );
 
-  async function submitAuth(event: FormEvent) {    event.preventDefault(); if (!db) return;    setBusy(true); setAuthMessage("");
+  async function submitAuth(event: FormEvent) {
+    event.preventDefault();
+    if (!db) return;
+    setBusy(true);
+    setAuthMessage("");
     try {
       const result = authMode === "login"
-        ? await db.auth.signInWithPassword({email:email.trim(),password})
-        : await db.auth.signUp({email:email.trim(),password,options:{data:{full_name:fullName.trim()}}});
+        ? await db.auth.signInWithPassword({ email: email.trim(), password })
+        : await db.auth.signUp({ email: email.trim(), password, options: { data: { full_name: fullName.trim() } } });
       if (result.error) throw result.error;
       setPassword("");
-      setAuthMessage(authMode === "signup" && !result.data.session
-        ? "تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك."
-        : "تمت العملية بنجاح.");
-    } catch (error) { setAuthMessage(authErrorMessage(error)); }
-    finally { setBusy(false); }
+      const authenticatedUser = result.data.session?.user;
+      if (authenticatedUser) {
+        setUser({ id: authenticatedUser.id });
+        let role: ProfileRole | null = null;
+        try {
+          role = await getCurrentProfileRole(authenticatedUser.id);
+          setProfileRole(role);
+        } catch {
+          // A confirmed session is sufficient to enter the public services area.
+        }
+        window.location.assign(role === "owner" ? "?page=publish#publish" : "?page=services");
+        return;
+      }
+      setAuthMessage("تم إنشاء الحساب. تحقق من بريدك الإلكتروني لإكمال التسجيل والدخول.");
+    } catch (error) {
+      setAuthMessage(authErrorMessage(error));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function signInWithPasskey() {
@@ -436,29 +456,26 @@ export default function App() {
         </nav>
       </header>
       <main className="approved-entry-main">
-        <section className="approved-entry-role-choice" aria-labelledby="entry-role-title">
-          <div className="category-heading">
-            <p className="eyebrow">ابدأ رحلتك مع Barkoul.ma</p>
-            <h2 id="entry-role-title">كيف تريد استخدام المنصة؟</h2>
-            <p>اختر الصفة المناسبة لك للانتقال مباشرة إلى الخدمات التي تحتاجها.</p>
-          </div>
-          <div className="hero-actions approved-role-actions">
-            <a className="button button-primary approved-role-card" href="?page=services&role=driver">
-              <strong>أنا سائق شاحنة</strong>
-              <span>أبحث عن شحنات وفرص نقل مناسبة</span>
-            </a>
-            <a className="button button-light approved-role-card" href="?page=publish&role=owner#publish-account">
-              <strong>أنا صاحب بضاعة</strong>
-              <span>أنشر شحنتي وأبحث عن سائق لنقلها</span>
-            </a>
-          </div>
-        </section>
-        <div className="hero-actions" style={{justifyContent:"center",marginTop:12}}>
-          <a className="button button-outline" href="#admin">🔐 غرفة المدير</a>
-        </div>
         <section className="approved-entry-hero" aria-labelledby="entry-title">
           <div className="approved-entry-visual">
-            <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب<small><a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">الخريطة: Vegeta228 · CC BY-SA 4.0</a></small></span></div>
+            <div className="approved-entry-map">
+              <MoroccoMark/>
+              <svg className="approved-map-routes" viewBox="0 0 100 180" aria-hidden="true" focusable="false">
+                <g fill="none" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" opacity=".95">
+                  <path d="M61 20 54 37 48 54 43 73 36 92 32 111 27 132 22 153"/>
+                  <path d="M54 37 72 49 43 73 65 91 36 92 53 119 27 132"/>
+                  <path d="M48 54 26 61 43 73 19 88 36 92"/>
+                </g>
+                <g fill="#ffd24a" stroke="#ffffff" strokeWidth="1.8">
+                  <circle cx="61" cy="20" r="3.5"/><circle cx="54" cy="37" r="3.5"/><circle cx="48" cy="54" r="3.5"/>
+                  <circle cx="43" cy="73" r="3.5"/><circle cx="36" cy="92" r="3.5"/><circle cx="32" cy="111" r="3.5"/>
+                  <circle cx="27" cy="132" r="3.5"/><circle cx="22" cy="153" r="3.5"/><circle cx="72" cy="49" r="3.5"/>
+                  <circle cx="65" cy="91" r="3.5"/><circle cx="53" cy="119" r="3.5"/>
+                </g>
+              </svg>
+              <span>شبكة نقل تربط مدن المغرب</span>
+            </div>
+            <small className="approved-map-credit"><a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">مصدر الخريطة: Vegeta228 · CC BY-SA 4.0</a></small>
             <div className="approved-entry-vehicles">
               <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/>
               <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=850&q=90" alt="حافلة نقل ركاب" fetchPriority="high"/>
