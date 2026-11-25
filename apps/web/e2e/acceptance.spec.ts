@@ -138,3 +138,12 @@ test("keeps the route overlay aligned with the full Morocco map on desktop and m
     expect(Math.abs(dimensions!.mapHeight - dimensions!.routeHeight)).toBeLessThanOrEqual(1);
   }
 });
+
+test("uses real photo assets for all three main vehicle groups", async ({ page }) => {
+  await page.goto("/?page=services");
+  const images = page.locator("#vehicle-categories .vehicle-category-card img");
+  await expect(images).toHaveCount(3);
+  for (let index = 0; index < 3; index += 1) {
+    await expect(images.nth(index)).toHaveAttribute("src", /^https:\/\/images\.unsplash\.com\//);
+  }
+});
