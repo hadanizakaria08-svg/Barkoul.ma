@@ -69,17 +69,21 @@ export default function App() {
   useEffect(() => {
     if (!db) { setLoading(false); return; }
     let alive = true;
+    // If an auth event arrives while the initial session lookup is pending,
+    // the event is newer and must not be overwritten by the stale lookup.
+    let authEventReceived = false;
     db.auth.getSession().then(({data, error: sessionError}) => {
-      if (!alive) return;
+      if (!alive || authEventReceived) return;
       if (sessionError) {
         setAuthMessage("تعذر التحقق من جلسة الدخول. حاول تحديث الصفحة.");
         return;
       }
       setUser(data.session?.user ? {id:data.session.user.id,email:data.session.user.email} : null);
     }).catch(() => {
-      if (alive) setAuthMessage("تعذر الاتصال بخدمة تسجيل الدخول. تحقق من الاتصال ثم أعد المحاولة.");
+      if (alive && !authEventReceived) setAuthMessage("تعذر الاتصال بخدمة تسجيل الدخول. تحقق من الاتصال ثم أعد المحاولة.");
     });
     const {data:{subscription}} = db.auth.onAuthStateChange((_event, session) => {
+      authEventReceived = true;
       // Clear any previous account's role before rendering the next auth state.
       setProfileRole(null);
       setProfileError("");
