@@ -446,7 +446,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .approved-entry-hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.8fr);gap:clamp(14px,2vw,24px);max-width:1380px;margin:auto;align-items:stretch}
 .approved-entry-visual{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:570px;overflow:hidden;border:5px solid #fff;border-radius:24px;background:linear-gradient(145deg,#bfe4ff,#fff 52%,#c9e6fb);box-shadow:0 14px 38px #0a3c7022}
 .approved-entry-map{position:absolute;top:3%;right:3%;display:flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid #ffffffd9;border-radius:16px;background:#ffffffd9;box-shadow:0 7px 22px #063c7b20;z-index:2}
-.approved-entry-map .morocco-mark{position:static;width:88px;height:145px;filter:drop-shadow(0 4px 5px #073f9140)}
+.approved-entry-map .morocco-mark{position:static;width:88px;height:145px;object-fit:contain;filter:drop-shadow(0 4px 5px #073f9140)}
+.approved-entry-map small{display:block;margin-top:5px;font-size:9px;font-weight:700;line-height:1.4}.approved-entry-map small a{color:#27628f;text-decoration:underline}
 .approved-entry-map span{max-width:130px;color:#0c4683;font-size:13px;font-weight:900}
 .approved-entry-brand{position:relative;z-index:2;display:grid;justify-items:start;gap:5px;padding:25px 28px 0;color:#063b80}
 .approved-entry-brand svg{width:88px;height:54px}
