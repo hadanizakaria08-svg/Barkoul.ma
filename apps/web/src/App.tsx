@@ -14,7 +14,7 @@ const initialDraft: CargoDraft = {
 // شحنات أخرى remain available through the free-text goods field, without another homepage card.
 const VEHICLE_GROUPS = [
   { key: "large", title: "الشاحنات الكبيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة كبيرة", "شاحنة متوسطة", "جرار ومقطورة", "شاحنة تبريد", "شاحنة مسطحة", "شاحنة مغطاة", "شاحنة بصندوق مغلق", "شاحنة قلاب", "شاحنة صهريج"] },
-  { key: "small", title: "الشاحنات الصغيرة", image: categoryArtwork("smallTruck"), types: ["شاحنة صغيرة", "شاحنة صغيرة بصندوق مغلق", "شاحنة صغيرة سطحة", "شاحنة صغيرة مغطاة", "شاحنة صغيرة مبردة", "بيك أب", "شاحنة صغيرة قلاب"] },
+  { key: "small", title: "الشاحنات الصغيرة", image: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=85", types: ["شاحنة صغيرة", "شاحنة صغيرة بصندوق مغلق", "شاحنة صغيرة سطحة", "شاحنة صغيرة مغطاة", "شاحنة صغيرة مبردة", "بيك أب", "شاحنة صغيرة قلاب"] },
   { key: "bus", title: "الحافلات", image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=900&q=85", types: [...BUS_TYPES] }
 ] as const;
 
