@@ -756,3 +756,21 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .vehicle-subtype-card img{display:block;flex:none;width:112px!important;height:76px!important;max-width:100%;object-fit:cover;border-radius:10px}
 .vehicle-subtype-card strong{min-width:0;line-height:1.55}
 @media(max-width:640px){.vehicle-subtype-card{grid-template-columns:88px minmax(0,1fr);gap:8px;min-height:82px}.vehicle-subtype-card img{width:88px!important;height:64px!important}.vehicle-subtype-card strong{font-size:11px}}
+
+
+/* Map presentation repair: keep the complete map clear; keep legal attribution in the footer. */
+.approved-entry-map{position:absolute;top:2%;right:2%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:2}
+.approved-map-art{position:relative;display:block;flex:0 0 auto;width:clamp(120px,15vw,180px);height:clamp(205px,28vw,300px)}
+.approved-map-art .morocco-mark{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;object-position:center;filter:brightness(0) saturate(100%) invert(18%) sepia(94%) saturate(6041%) hue-rotate(352deg) brightness(93%) contrast(112%) drop-shadow(0 5px 7px #6f101044)}
+.approved-entry-map>span{max-width:180px;padding:7px 10px;border:1px solid #ffffffd9;border-radius:12px;background:#ffffffed;box-shadow:0 7px 22px #063c7b20;color:#0c4683;font-size:12px;font-weight:900;text-align:center}
+.approved-map-attribution{display:block;flex-basis:100%;width:100%;margin-top:8px;color:#607286;font-size:10px;line-height:1.6;text-align:center}
+.approved-map-attribution a{color:#27628f;text-decoration:underline}
+@media(max-width:900px){
+ .approved-entry-map{position:relative!important;inset:auto!important;align-self:flex-end;flex:0 0 auto;margin:12px 12px 0!important}
+ .approved-map-art{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}
+ .approved-entry-map>span{font-size:11px}
+ .approved-map-attribution{font-size:9px}
+}
+@media(min-width:901px){
+ .approved-entry-map{left:3%;right:auto;top:4%;width:auto;max-width:45%}
+}
