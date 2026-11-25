@@ -445,10 +445,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .approved-entry-main{padding:clamp(12px,2vw,24px);background:linear-gradient(180deg,#eaf5ff,#fff)}
 .approved-entry-hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.8fr);gap:clamp(14px,2vw,24px);max-width:1380px;margin:auto;align-items:stretch}
 .approved-entry-visual{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:570px;overflow:hidden;border:5px solid #fff;border-radius:24px;background:linear-gradient(145deg,#bfe4ff,#fff 52%,#c9e6fb);box-shadow:0 14px 38px #0a3c7022}
-.approved-entry-map{position:absolute;top:3%;right:3%;display:flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid #ffffffd9;border-radius:16px;background:#ffffffd9;box-shadow:0 7px 22px #063c7b20;z-index:2}
-.approved-entry-map .morocco-mark{position:static;width:88px;height:145px;object-fit:contain;filter:drop-shadow(0 4px 5px #073f9140)}
+.approved-entry-map{position:absolute;top:2%;right:2%;display:flex;align-items:center;gap:10px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:2}
+.approved-entry-map .morocco-mark{position:static;width:clamp(145px,20vw,245px);height:clamp(245px,43vw,385px);flex:0 0 auto;object-fit:contain;filter:brightness(0) saturate(100%) invert(18%) sepia(94%) saturate(6041%) hue-rotate(352deg) brightness(93%) contrast(112%) drop-shadow(0 5px 7px #6f101044)}
 .approved-entry-map small{display:block;margin-top:5px;font-size:9px;font-weight:700;line-height:1.4}.approved-entry-map small a{color:#27628f;text-decoration:underline}
-.approved-entry-map span{max-width:130px;color:#0c4683;font-size:13px;font-weight:900}
+.approved-entry-map span{max-width:130px;padding:10px 12px;border:1px solid #ffffffd9;border-radius:14px;background:#ffffffed;box-shadow:0 7px 22px #063c7b20;color:#0c4683;font-size:13px;font-weight:900}
 .approved-entry-brand{position:relative;z-index:2;display:grid;justify-items:start;gap:5px;padding:25px 28px 0;color:#063b80}
 .approved-entry-brand svg{width:88px;height:54px}
 .approved-entry-brand strong{font-size:clamp(40px,6vw,76px);font-weight:1000;line-height:1;letter-spacing:-2px}
@@ -665,3 +665,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .approved-bus-categories .approved-category-grid a{border:1px solid var(--line);background:#fff}
 .approved-bus-categories .approved-category-grid img{object-fit:cover;aspect-ratio:16/10}
 .approved-bus-categories .approved-category-grid strong{display:block;padding:10px 8px;color:var(--navy);text-align:center}
+
+
+/* Keep the Morocco map prominent and restore its approved red appearance. */
+.approved-small-truck-category{margin-top:28px;padding-top:26px;border-top:1px solid var(--line)}
+.approved-small-truck-category .approved-category-grid a{border:1px solid var(--line);background:#fff}
+.approved-small-truck-category .approved-category-grid img{object-fit:cover;aspect-ratio:16/10}
+.approved-small-truck-category .approved-category-grid strong{display:block;padding:10px 8px;color:var(--navy);text-align:center}
+@media(max-width:640px){.approved-entry-map{top:2%;right:1%;gap:4px}.approved-entry-map .morocco-mark{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}.approved-entry-map span{max-width:105px;padding:7px 8px;font-size:11px}}
