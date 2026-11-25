@@ -3,6 +3,7 @@ import { canPublishCargo, filterCargos, matchesGoodsCategory, normalizeCargoDraf
 import { getCurrentProfileRole, getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
 import AdminRoom from "./AdminRoom";
 import Workspace from "./Workspace";
+import PasskeySettings from "./PasskeySettings";
 
 const initialDraft: CargoDraft = {
   title: "", origin_city: "", destination_city: "", goods_type: "",
@@ -226,6 +227,28 @@ export default function App() {
     finally { setBusy(false); }
   }
 
+  async function signInWithPasskey() {
+    if (!db || busy) return;
+    setBusy(true);
+    setAuthMessage("");
+    try {
+      const { error } = await db.auth.signInWithPasskey();
+      if (error) throw error;
+      setAuthMessage("تم تسجيل الدخول بمفتاح المرور بنجاح.");
+    } catch (error) {
+      const code = String((error as { code?: string })?.code ?? "").toLowerCase();
+      if (code.includes("not_supported") || !window.PublicKeyCredential) {
+        setAuthMessage("هذا المتصفح أو الجهاز لا يدعم مفاتيح المرور. استخدم كلمة المرور أو متصفحاً حديثاً على اتصال آمن HTTPS.");
+      } else if (code.includes("passkey_disabled")) {
+        setAuthMessage("ميزة الدخول بالبصمة والوجه لم تُفعّل على خادم المصادقة بعد. كلمة المرور ما زالت متاحة.");
+      } else {
+        setAuthMessage("لم يكتمل الدخول بمفتاح المرور. تأكد من تسجيل مفتاح لهذا الموقع، أو استخدم كلمة المرور.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function sendPasswordReset() {
     if (!db || !email.trim()) { setAuthMessage("أدخل بريدك الإلكتروني أولاً."); return; }
     setBusy(true); setAuthMessage("");
@@ -290,6 +313,7 @@ export default function App() {
               <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
               {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
               <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
+              {!resetMode && authMode === "login" && <button type="button" className="button button-light" disabled={busy || !db} onClick={()=>void signInWithPasskey()}>الدخول بالبصمة أو الوجه</button>}
               {!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
               <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
               {authMessage && <p className="form-message" role="status">{authMessage}</p>}
@@ -297,6 +321,7 @@ export default function App() {
           </section>
         ) : (
           <section className="section publish-form-section" id="publish">
+             <PasskeySettings />
             <div className="section-heading"><div><p className="eyebrow">أضف فرصة نقل</p><h2>تفاصيل الشحنة</h2></div></div>
             {profileRole === "user" && <div className="form-card publish-role-card">
               <h3>تفعيل نوع حسابك</h3>
@@ -475,6 +500,7 @@ export default function App() {
           <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
       </section>
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace key={user.id} userId={user.id} role={profileRole} openCargos={cargos}/>}
+    {user && <PasskeySettings />}
     </main>
     <footer className="reference-footer" id="footer"><div className="social-links" aria-label="روابط التواصل"><a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://youtube.com/" aria-label="يوتيوب">▶</a><a href="https://linkedin.com/" aria-label="لينكدإن">in</a><a href="https://x.com/" aria-label="X">𝕏</a></div><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong><p className="footer-contact"><span>فريق Barkoul.ma</span> · <span>سيتم إضافة بريد التواصل الرسمي بعد إنشائه</span></p></footer>
   </div>;
