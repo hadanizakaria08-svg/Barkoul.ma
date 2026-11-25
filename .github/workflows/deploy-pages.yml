@@ -58,7 +58,8 @@ jobs:
               "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
               | jq '[.artifacts[] | select(.name == "github-pages")] | length')
             if [ "$count" -ge 1 ]; then
-              echo "Pages artifact is visible (attempt $attempt)."
+              echo "Pages artifact is visible (attempt $attempt); waiting for the Pages deployment API to catch up."
+              sleep 10
               exit 0
             fi
             echo "Pages artifact not visible yet (attempt $attempt/6); retrying in 5 seconds."
