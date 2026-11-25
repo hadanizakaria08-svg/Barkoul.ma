@@ -13,10 +13,73 @@ const initialDraft: CargoDraft = {
 /* approved-category-grid is retired in favor of the simpler vehicle-category-grid. */
 // شحنات أخرى remain available through the free-text goods field, without another homepage card.
 const VEHICLE_GROUPS = [
-  { key: "large", title: "الشاحنات الكبيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة كبيرة", "شاحنة متوسطة", "جرار ومقطورة", "شاحنة تبريد", "شاحنة مسطحة", "شاحنة مغطاة", "شاحنة بصندوق مغلق", "شاحنة قلاب", "شاحنة صهريج"] },
-  { key: "small", title: "الشاحنات الصغيرة", image: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=85", types: ["شاحنة صغيرة", "شاحنة صغيرة بصندوق مغلق", "شاحنة صغيرة سطحة", "شاحنة صغيرة مغطاة", "شاحنة صغيرة مبردة", "بيك أب", "شاحنة صغيرة قلاب"] },
-  { key: "bus", title: "الحافلات", image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=900&q=85", types: [...BUS_TYPES] }
+  {
+    key: "large", title: "شاحنات كبيرة", subtitle: "للحمولات الثقيلة والمسافات الطويلة",
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85",
+    types: [
+      { name: "شاحنة كبيرة", detail: "حمولات كبيرة • نقل بين المدن" },
+      { name: "جرار ومقطورة", detail: "حمولات ثقيلة • مقطورة طويلة" },
+      { name: "شاحنة تبريد", detail: "مواد غذائية • تحكم في الحرارة" },
+      { name: "شاحنة مسطحة", detail: "حديد ومعدات • تحميل علوي" },
+      { name: "شاحنة مغطاة", detail: "بضائع محمية • غطاء مقاوم للعوامل" },
+      { name: "شاحنة بصندوق مغلق", detail: "بضائع متنوعة • صندوق محكم" },
+      { name: "شاحنة قلاب", detail: "رمل وحصى • تفريغ هيدروليكي" },
+      { name: "شاحنة صهريج", detail: "سوائل ومواد سائبة • خزان مخصص" }
+    ]
+  },
+  {
+    key: "truck", title: "شاحنات", subtitle: "للنقل المتوسط والتوصيل داخل المدن",
+    image: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=85",
+    types: [
+      { name: "شاحنة متوسطة", detail: "حمولة متوسطة • توزيع جهوي" },
+      { name: "شاحنة صغيرة", detail: "حمولات خفيفة • شوارع المدن" },
+      { name: "شاحنة صغيرة بصندوق مغلق", detail: "أثاث وطرود • حماية من المطر" },
+      { name: "شاحنة صغيرة سطحة", detail: "معدات ومواد • منصة مفتوحة" },
+      { name: "شاحنة صغيرة مغطاة", detail: "بضائع عامة • غطاء واقٍ" },
+      { name: "شاحنة صغيرة مبردة", detail: "مواد طازجة • تبريد أثناء النقل" },
+      { name: "بيك أب", detail: "نقل سريع • حمولة محدودة" },
+      { name: "شاحنة صغيرة قلاب", detail: "مواد البناء • تفريغ خلفي" }
+    ]
+  },
+  {
+    key: "bus", title: "الحافلات", subtitle: "لنقل الركاب بمختلف المسافات",
+    image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=900&q=85",
+    types: [
+      { name: "حافلة سياحية", detail: "رحلات سياحية • مقاعد مريحة" },
+      { name: "حافلة بين المدن", detail: "خطوط طويلة • نقل بين المدن" },
+      { name: "حافلة النقل الحضري", detail: "تنقل يومي • محطات متعددة" },
+      { name: "حافلة مدرسية", detail: "نقل التلاميذ • رحلات منظمة" },
+      { name: "حافلة نقل العمال", detail: "نقل جماعي • رحلات العمل" },
+      { name: "حافلة صغيرة (ميني باص)", detail: "مجموعات صغيرة • مرونة في التنقل" }
+    ]
+  }
 ] as const;
+
+function vehicleArtwork(type: string): string {
+  const bus = type.includes("حافلة");
+  const pickup = type === "بيك أب";
+  const tank = type.includes("صهريج");
+  const dump = type.includes("قلاب");
+  const flat = type.includes("مسطحة") || type.includes("سطحة");
+  const reefer = type.includes("تبريد");
+  const semi = type.includes("جرار");
+  const small = type.includes("صغيرة") || pickup || type.includes("ميني باص");
+  const body = bus
+    ? '<path d="M38 92Q38 68 62 68H224Q250 68 250 94V178H38Z" fill="#168be2" stroke="#124b80" stroke-width="8"/><path d="M54 83h31v48H54Zm42 0h34v48H96Zm45 0h34v48h-34Zm45 0h42v48h-42Z" fill="#dff3ff" stroke="#124b80" stroke-width="5"/><path d="M42 148h204" stroke="#ffd24a" stroke-width="9"/>'
+    : tank
+    ? '<path d="M83 91Q83 66 110 66H194Q221 66 221 91V158H83Z" fill="#d9eaf6" stroke="#155b91" stroke-width="8"/><path d="M100 84h104M100 140h104" stroke="#168be2" stroke-width="7"/><path d="M143 65V52h20v13" stroke="#155b91" stroke-width="7"/>'
+    : dump
+    ? '<path d="M65 91 221 65 232 145 75 171Z" fill="#f5c64a" stroke="#155b91" stroke-width="8" stroke-linejoin="round"/><path d="M76 111 224 87" stroke="#fff1b5" stroke-width="7"/>'
+    : flat
+    ? '<path d="M48 139h188v20H48Z" fill="#b7d0e3" stroke="#155b91" stroke-width="7"/><path d="M64 129v-20m150 20v-20" stroke="#155b91" stroke-width="7"/>'
+    : reefer
+    ? '<rect x="52" y="73" width="145" height="88" rx="8" fill="#e9f7ff" stroke="#155b91" stroke-width="8"/><path d="M125 91v52m-25-26h50m-42-18 34 36m0-36-34 36" stroke="#168be2" stroke-width="6" stroke-linecap="round"/>'
+    : semi
+    ? '<path d="M28 104h160v54H28Z" fill="#e9f4fb" stroke="#155b91" stroke-width="8"/><path d="M188 115h39l35 34v9h-74Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>'
+    : '<rect x="48" y="77" width="'+(small?105:164)+'" height="83" rx="7" fill="'+(pickup?"#e9f4fb":"#d9eaf6")+'" stroke="#155b91" stroke-width="8"/><path d="M'+(small?153:212)+' 113h32l28 34v13h-60Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>';
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 210"><defs><linearGradient id="vbg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3faff"/><stop offset="1" stop-color="#d9edfc"/></linearGradient></defs><rect width="290" height="210" rx="18" fill="url(#vbg)"/><path d="M18 176h254" stroke="#9abbd5" stroke-width="7" stroke-linecap="round"/>'+body+'<path d="M25 163h242" stroke="#155b91" stroke-width="7" stroke-linecap="round"/><circle cx="88" cy="166" r="18" fill="#233d55" stroke="#fff" stroke-width="6"/><circle cx="88" cy="166" r="6" fill="#d8e9f5"/><circle cx="216" cy="166" r="18" fill="#233d55" stroke="#fff" stroke-width="6"/><circle cx="216" cy="166" r="6" fill="#d8e9f5"/></svg>';
+  return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+}
 
 function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator" | "bricks" | "gravel" | "pipes" | "boxes" | "special" | "generator" | "frozen" | "cement" | "smallTruck") {
   const drawings: Record<typeof kind, string> = {
@@ -554,8 +617,8 @@ export default function App() {
       <section className="approved-categories" id="categories" aria-label="جميع أنواع الشحنات"><div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>جميع أنواع الشحنات والبضائع</h2><p>اختر السلعة لعرض الشحنات المطابقة، أو استخدم «شحنات أخرى» إذا لم تجد نوع بضاعتك.</p></div><div className="approved-category-grid">{cargoCategories.map(([name])=><a key={name} href="#available-cargos" onClick={()=>setSelectedGoods(name)}><img src={categoryImages[name] || categoryImages["بضائع متنوعة"]} alt={name} loading="lazy"/><strong>{name}</strong></a>)}</div><div className="approved-other-note"><strong>شحنات أخرى</strong><span>لم تجد السلعة؟ يمكنك كتابة اسمها وإضافة صورتها عند نشر الشحنة.</span><a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أضف شحنة أخرى</a></div></section>
       <section className="vehicle-category-section" id="vehicle-categories" aria-label="فئات المركبات">
         <div className="category-heading"><p className="eyebrow">اختر نوع المركبة</p><h2>الشاحنات والحافلات</h2><p>اختر فئة المركبة ثم النوع المطلوب لتصفية الشحنات.</p></div>
-        <div className="vehicle-category-grid">{VEHICLE_GROUPS.map(group=><button type="button" className={selectedVehicleCategory===group.key?"vehicle-category-card active":"vehicle-category-card"} key={group.key} onClick={()=>setSelectedVehicleCategory(selectedVehicleCategory===group.key?null:group.key)} aria-expanded={selectedVehicleCategory===group.key}><img src={group.image} alt={group.title} loading="lazy"/><span>{group.title}</span><b aria-hidden="true">›</b></button>)}</div>
-        {selectedVehicleCategory && <div className="vehicle-subtype-panel" aria-live="polite"><div className="vehicle-subtype-heading"><h3>{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.title}</h3><button type="button" className="text-button" onClick={()=>setSelectedVehicleCategory(null)}>العودة للفئات</button></div><div className="vehicle-subtype-grid">{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.types.map(type=>{const photo=type.includes("ميني باص")?"https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=360&q=80":type.includes("حافلة")?"https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=360&q=80":type.includes("صغيرة")||type==="بيك أب"?"https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=360&q=80":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=360&q=80";return <button type="button" className="vehicle-subtype-card" key={type} onClick={()=>{setTruck(type);document.getElementById("search")?.scrollIntoView({behavior:"smooth"});}}><img src={photo} alt="" loading="lazy" style={{width:"100%",height:"76px",objectFit:"cover",borderRadius:"10px"}}/><strong>{type}</strong></button>})}</div></div>}
+        <div className="vehicle-category-grid">{VEHICLE_GROUPS.map(group=><button type="button" className={selectedVehicleCategory===group.key?"vehicle-category-card active":"vehicle-category-card"} key={group.key} onClick={()=>setSelectedVehicleCategory(selectedVehicleCategory===group.key?null:group.key)} aria-expanded={selectedVehicleCategory===group.key}><img src={group.image} alt={group.title} loading="lazy"/><span>{group.title}</span><small>{group.subtitle}</small><b aria-hidden="true">›</b></button>)}</div>
+        {selectedVehicleCategory && <div className="vehicle-subtype-panel" aria-live="polite"><div className="vehicle-subtype-heading"><div><h3>{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.title}</h3><p>اختر النوع المناسب لشحنتك</p></div><button type="button" className="text-button" onClick={()=>setSelectedVehicleCategory(null)}>العودة للفئات</button></div><div className="vehicle-subtype-grid">{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.types.map(vehicle=> <button type="button" className="vehicle-subtype-card" key={vehicle.name} onClick={()=>{setTruck(vehicle.name);document.getElementById("search")?.scrollIntoView({behavior:"smooth"});}}><img src={vehicleArtwork(vehicle.name)} alt={vehicle.name} loading="lazy"/><span><strong>{vehicle.name}</strong><small>{vehicle.detail}</small></span></button>)}</div></div>}
       </section>
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
       <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
