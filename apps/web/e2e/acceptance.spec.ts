@@ -112,7 +112,7 @@ test("vehicle subtype choices always include a visible photo and update the rout
     const subtypeCount = await subtypeCards.count();
     await expect(subtypeCards.locator("img")).toHaveCount(subtypeCount);
     for (let index = 0; index < subtypeCount; index += 1) {
-      await expect(subtypeCards.nth(index).locator("img")).toHaveAttribute("src", /^https:\/\//);
+      await expect(subtypeCards.nth(index).locator("img")).toHaveAttribute("src", /^data:image\/svg\\+xml;charset=UTF-8,/);
     }
     await subtypeCards.first().click();
     await expect(page.locator("#search").getByLabel("نوع المركبة")).not.toHaveValue("");
