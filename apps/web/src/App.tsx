@@ -111,9 +111,7 @@ export default function App() {
   const [cargoSpace, setCargoSpace] = useState<"نصف الشاحنة"|"شاحنة كاملة"|"حمولة جزئية أخرى">("شاحنة كاملة");
   const [publishMessage, setPublishMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
-  const [truck, setTruck] = useState("");
+  const [cargoSearch, setCargoSearch] = useState("");
   const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
   const publishRoute = new URLSearchParams(window.location.search).get("page") === "publish";
   const servicesRoute = new URLSearchParams(window.location.search).get("page") === "services";
@@ -236,7 +234,13 @@ export default function App() {
   }
 
   const [selectedGoods, setSelectedGoods] = useState("");
-  const visible = useMemo(() => filterCargos(cargos, origin, destination, truck).filter(c => !selectedGoods || matchesGoodsCategory(c.goods_type, selectedGoods)), [cargos, origin, destination, truck, selectedGoods]);
+  const visible = useMemo(() => {
+    const term = cargoSearch.trim().toLocaleLowerCase("ar");
+    return filterCargos(cargos, "", "", "")
+      .filter(c => !selectedGoods || matchesGoodsCategory(c.goods_type, selectedGoods))
+      .filter(c => !term || [c.title,c.origin_city,c.destination_city,c.goods_type,c.truck_type,c.weight_text]
+        .some(value => String(value ?? "").toLocaleLowerCase("ar").includes(term)));
+  }, [cargos, cargoSearch, selectedGoods]);
 
   async function submitAuth(event: FormEvent) {    event.preventDefault(); if (!db) return;    setBusy(true); setAuthMessage("");
     try {
@@ -534,7 +538,7 @@ export default function App() {
           {roleRequestMessage && <p className="form-message" role="status">{roleRequestMessage}</p>}
         </div>
       </section>
-      <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع المركبة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}<optgroup label="الحافلات">{BUS_TYPES.map(t=><option key={t}>{t}</option>)}</optgroup></select></label><button className="button button-primary" onClick={()=>document.getElementById("available-cargos")?.scrollIntoView({behavior:"smooth"})}>بحث الآن</button></div></section>
+      <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><p className="muted simple-search-hint">اضغط على «أبحث عن شحنة» لرؤية الشحنات، أو اكتب ما تبحث عنه في خانة البحث.</p></section>
       <section className="approved-categories approved-small-truck-category" aria-label="الشاحنات الصغيرة">
         <div className="category-heading"><p className="eyebrow">فئة الشاحنات</p><h2>الشاحنات الصغيرة</h2><p>خيار مخصص للشاحنات الصغيرة لنقل البضائع والحمولات الخفيفة داخل المدن وبينها.</p></div>
         <div className="approved-category-grid"><a href="#available-cargos" onClick={()=>setTruck("شاحنة صغيرة")}><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=700&q=80" alt="شاحنة صغيرة لنقل البضائع" loading="lazy"/><strong>شاحنة صغيرة</strong></a></div>
@@ -547,7 +551,7 @@ export default function App() {
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
       <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
         {selectedGoods && <p className="selected-category">التصنيف المختار: {selectedGoods} <button className="text-button" onClick={()=>setSelectedGoods("")}>إلغاء التصفية</button></p>}
-        <div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع المركبة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}<optgroup label="الحافلات">{BUS_TYPES.map(t=><option key={t}>{t}</option>)}</optgroup></select></label></div>
+        <div className="simple-cargo-search"><label htmlFor="cargo-search">ابحث عن شحنة<input id="cargo-search" type="search" value={cargoSearch} onChange={e=>setCargoSearch(e.target.value)} placeholder="مدينة، بضاعة، أو نوع المركبة…"/></label>{cargoSearch&&<button type="button" className="text-button" onClick={()=>setCargoSearch("")}>مسح البحث</button>}</div>
         {loading ? <p className="muted">جاري تحميل الشحنات…</p> : error ? <p className="notice notice-warn">{error}</p> : visible.length === 0 ? <p className="empty">لا توجد شحنات مطابقة حالياً.</p> :
           <div className="cargo-grid">{visible.map(c=>{const space=c.notes?.split(String.fromCharCode(10)).find(note=>note.startsWith("المساحة المطلوبة:"))?.replace("المساحة المطلوبة:","").trim();const publicNotes=c.notes?.split(String.fromCharCode(10)).filter(note=>!note.startsWith("المساحة المطلوبة:")).join(" ").trim();return <article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><div className="cargo-facts"><span>{c.goods_type}</span>{c.weight_text&&<span>{c.weight_text}</span>}{space&&<span>{space}</span>}</div>{c.offered_price_mad!=null&&<strong className="price">{c.offered_price_mad} درهم</strong>}<details className="cargo-details"><summary>عرض التفاصيل</summary><div><p><b>نوع المركبة:</b> {c.truck_type}</p><p><b>تاريخ النقل:</b> {c.loading_date}</p>{publicNotes&&<p><b>ملاحظات:</b> {publicNotes}</p>}</div></details></article>})}</div>}
       </section>
