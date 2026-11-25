@@ -413,6 +413,7 @@ export default function App() {
                 <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="البريد الإلكتروني"/></label>
                 {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"} placeholder="كلمة المرور"/></label>}
                 <button className="button button-primary approved-login-submit" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"دخول":"إنشاء حساب"}</button>
+                {!resetMode && authMode === "login" && <button type="button" className="button button-light" disabled={busy || !db} onClick={()=>void signInWithPasskey()}>الدخول بالبصمة أو الوجه</button>}
                 {!resetMode && authMode==="login" && <button type="button" className="approved-reset-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
                 <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
                 {authMessage && <p className="form-message" role="status">{authMessage}</p>}
