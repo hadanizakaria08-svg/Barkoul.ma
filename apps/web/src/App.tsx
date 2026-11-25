@@ -315,6 +315,7 @@ export default function App() {
     }
     const normalizedDraft = normalizeCargoDraft({
       ...draft,
+      offered_price_mad: null,
       notes: [`المساحة المطلوبة: ${cargoSpace}`, draft.notes?.trim()].filter(Boolean).join("\n")
     });
     const errors = validateCargoDraft(normalizedDraft, todayLocal());
