@@ -10,6 +10,7 @@ const initialDraft: CargoDraft = {
 };
 
 
+/* approved-category-grid is retired in favor of the simpler vehicle-category-grid. */
 const VEHICLE_GROUPS = [
   { key: "large", title: "الشاحنات الكبيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة كبيرة", "شاحنة متوسطة", "جرار ومقطورة", "شاحنة تبريد", "شاحنة مسطحة", "شاحنة مغطاة", "شاحنة بصندوق مغلق", "شاحنة قلاب", "شاحنة صهريج"] },
   { key: "small", title: "الشاحنات الصغيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة صغيرة بصندوق مغلق", "شاحنة صغيرة سطحة", "شاحنة صغيرة مغطاة", "شاحنة صغيرة مبردة", "بيك أب", "شاحنة صغيرة قلاب"] },
