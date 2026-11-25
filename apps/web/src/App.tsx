@@ -14,6 +14,20 @@ const todayLocal = () => {
   return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
 };
 
+function passkeyErrorMessage(error: unknown): string {
+  const e = error as { code?: string; message?: string; name?: string };
+  const code = String(e?.code ?? "").toLowerCase();
+  const message = String(e?.message ?? "").toLowerCase();
+  if (code === "passkey_disabled") return "تسجيل الدخول بمفتاح المرور غير مفعّل في إعدادات المشروع.";
+  if (code === "webauthn_credential_exists") return "هذا المفتاح مسجل بالفعل في حسابك.";
+  if (code === "webauthn_credential_not_found") return "لم يتم العثور على مفتاح مرور لهذا الحساب على هذا الجهاز.";
+  if (code === "email_not_confirmed") return "أكد بريدك الإلكتروني أولاً قبل استخدام مفتاح المرور.";
+  if (code.includes("cancel") || e?.name === "NotAllowedError" || message.includes("cancel")) return "تم إلغاء عملية التحقق أو انتهت مهلة الاستجابة.";
+  if (message.includes("not supported") || e?.name === "NotSupportedError") return "هذا المتصفح أو الجهاز لا يدعم مفاتيح المرور. جرّب متصفحاً حديثاً على HTTPS.";
+  if (message.includes("secure context") || e?.name === "SecurityError") return "يلزم فتح Barkoul.ma عبر اتصال HTTPS آمن لاستخدام مفتاح المرور.";
+  return "تعذر إتمام التحقق بمفتاح المرور. تأكد من إعداد قفل الشاشة أو البصمة في جهازك ثم حاول مجدداً.";
+}
+
 function authErrorMessage(error: unknown): string {
   const authError = error as { code?: string; message?: string; status?: number };
   const code = String(authError?.code ?? "").toLowerCase();
@@ -89,6 +103,8 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [authMode, setAuthMode] = useState<"login"|"signup">("login");
   const [authMessage, setAuthMessage] = useState("");
+  const [passkeyMessage, setPasskeyMessage] = useState("");
+  const [passkeyBusy, setPasskeyBusy] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   const [draft, setDraft] = useState<CargoDraft>(initialDraft);
   const [publishMessage, setPublishMessage] = useState("");
@@ -226,6 +242,38 @@ export default function App() {
     finally { setBusy(false); }
   }
 
+  async function signInWithPasskey() {
+    if (!db) { setPasskeyMessage("خدمة الحسابات غير متاحة حالياً."); return; }
+    if (!window.isSecureContext || !("credentials" in navigator) || !("PublicKeyCredential" in window)) {
+      setPasskeyMessage("هذا المتصفح لا يدعم مفاتيح المرور هنا. افتح الموقع عبر HTTPS في متصفح حديث.");
+      return;
+    }
+    setPasskeyBusy(true); setPasskeyMessage("");
+    try {
+      const { error } = await db.auth.signInWithPasskey();
+      if (error) throw error;
+      setPasskeyMessage("تم تسجيل الدخول بنجاح باستخدام مفتاح المرور.");
+    } catch (error) {
+      setPasskeyMessage(passkeyErrorMessage(error));
+    } finally { setPasskeyBusy(false); }
+  }
+
+  async function registerPasskey() {
+    if (!db || !user) { setPasskeyMessage("سجّل الدخول أولاً قبل إضافة مفتاح المرور."); return; }
+    if (!window.isSecureContext || !("credentials" in navigator) || !("PublicKeyCredential" in window)) {
+      setPasskeyMessage("هذا المتصفح لا يدعم مفاتيح المرور هنا. افتح الموقع عبر HTTPS في متصفح حديث.");
+      return;
+    }
+    setPasskeyBusy(true); setPasskeyMessage("");
+    try {
+      const { data, error } = await db.auth.registerPasskey();
+      if (error) throw error;
+      setPasskeyMessage(data?.id ? "تم تسجيل مفتاح المرور على هذا الجهاز بنجاح." : "اكتملت عملية تسجيل مفتاح المرور.");
+    } catch (error) {
+      setPasskeyMessage(passkeyErrorMessage(error));
+    } finally { setPasskeyBusy(false); }
+  }
+
   async function sendPasswordReset() {
     if (!db || !email.trim()) { setAuthMessage("أدخل بريدك الإلكتروني أولاً."); return; }
     setBusy(true); setAuthMessage("");
@@ -290,6 +338,8 @@ export default function App() {
               <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
               {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
               <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
+              {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void signInWithPasskey()}>{passkeyBusy?"جارٍ التحقق…":"الدخول بالبصمة أو مفتاح المرور"}</button>}
+              {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
               {!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
               <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
               {authMessage && <p className="form-message" role="status">{authMessage}</p>}
@@ -380,6 +430,8 @@ export default function App() {
           <section className="approved-login-card" id="entry-account" aria-labelledby="entry-account-title">
             {user ? <div className="entry-signed-in">
               <p className="eyebrow">مرحباً بعودتك</p><h2 id="entry-account-title">أنت مسجل الدخول بالفعل</h2>
+              <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void registerPasskey()}>{passkeyBusy?"جارٍ التسجيل…":"تفعيل الدخول بالبصمة على هذا الجهاز"}</button>
+              {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
               <a className="button button-primary" href="?page=services">الدخول إلى الموقع</a>
             </div> : <>
               <div className="approved-login-heading"><span aria-hidden="true">♙</span><h1 id="entry-account-title">{resetMode ? "استعادة كلمة المرور" : authMode === "login" ? "تسجيل الدخول" : "إنشاء حساب جديد"}</h1></div>
@@ -388,6 +440,8 @@ export default function App() {
                 <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="البريد الإلكتروني"/></label>
                 {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"} placeholder="كلمة المرور"/></label>}
                 <button className="button button-primary approved-login-submit" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"دخول":"إنشاء حساب"}</button>
+                {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void signInWithPasskey()}>{passkeyBusy?"جارٍ التحقق…":"الدخول بالبصمة أو مفتاح المرور"}</button>}
+                {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
                 {!resetMode && authMode==="login" && <button type="button" className="approved-reset-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
                 <button type="button" className="text-button" onClick={()=>{if(resetMode){setResetMode(false);}else{setAuthMode(authMode==="login"?"signup":"login");}setAuthMessage("");}}>{resetMode?"العودة إلى الدخول":authMode==="login"?"ليس لديك حساب؟ أنشئ حساباً":"لديك حساب؟ سجل الدخول"}</button>
                 {authMessage && <p className="form-message" role="status">{authMessage}</p>}
