@@ -6,6 +6,6 @@
   "exports": { ".": "./src/index.ts" },
   "dependencies": {
     "@barkoul/domain": "file:../domain",
-    "@supabase/supabase-js": "^2.49.1"
+    "@supabase/supabase-js": "^2.109.0"
   }
 }
