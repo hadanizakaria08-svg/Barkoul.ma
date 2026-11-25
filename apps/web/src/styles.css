@@ -673,3 +673,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .approved-small-truck-category .approved-category-grid img{object-fit:cover;aspect-ratio:16/10}
 .approved-small-truck-category .approved-category-grid strong{display:block;padding:10px 8px;color:var(--navy);text-align:center}
 @media(max-width:640px){.approved-entry-map{top:2%;right:1%;gap:4px}.approved-entry-map .morocco-mark{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}.approved-entry-map span{max-width:105px;padding:7px 8px;font-size:11px}}
+
+
+.cargo-space-field{grid-column:1/-1;min-width:0;margin:0;padding:14px;border:1px solid var(--line);border-radius:14px}
+.cargo-space-field legend{padding:0 7px;font-weight:850;color:var(--navy)}
+.cargo-space-options{display:flex;flex-wrap:wrap;gap:10px 18px}
+.cargo-space-options label{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#f5faff;font-weight:750}
+.cargo-space-options input{accent-color:#0b5cc1;width:18px;height:18px}
