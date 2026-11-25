@@ -487,6 +487,41 @@ export default function App() {
     </div>;
   }
 
+  const cargoCategories = [
+    ["الخضر والفواكه","photo-1540420773420-3366772f4999"],["الحبوب والدقيق","photo-1574323347407-f5e1ad6d020b"],["الألبان ومشتقاتها","photo-1563636619-e9143da7973b"],["المواد المجمدة","photo-1518843875459-f738682238a6"],
+    ["الإسمنت","photo-1518709268805-4e9042af9f23"],["الآجر والطوب","photo-1581094794329-c8112a89af12"],["الحديد والمعادن","photo-1504917595217-d4dc5ebe6122"],["الرمل والحصى","photo-1518709268805-4e9042af9f23"],["السيراميك","photo-1600607687939-ce8a6c25118c"],["الخشب","photo-1530124566582-a618bc2615dc"],
+    ["الأثاث","photo-1555041469-a586c61ea9bc"],["الأجهزة المنزلية","photo-1555041469-a586c61ea9bc"],["التجهيز والديكور","photo-1600210492486-724fe5c67fb0"],
+    ["السلع المعلبة","photo-1607082349566-187342175e2f"],["الآلات الصناعية","photo-1581092335878-2d9ff86ca2bf"],["الأقمشة والملابس","photo- textile"],["البلاستيك","photo-1607082349566-187342175e2f"],["الورق والكرتون","photo-1607082349566-187342175e2f"],["الإلكترونيات","photo-1498049794561-7780e7231661"],
+    ["السيارات","photo-1492144534655-ae79c964c9d7"],["معدات الحفر","photo- excavator"],["المعدات الفلاحية","photo- tractor"],["الأنابيب والمعادن","photo-1504917595217-d4dc5ebe6122"],["المولدات","photo-1518709268805-4e9042af9f23"],["الحمولات الضخمة","photo-1601584115197-04ecc0da31d7"],
+    ["بضائع متنوعة","photo-1607082349566-187342175e2f"],["شحنات خاصة","photo-1601584115197-04ecc0da31d7"]
+  ];
+  const categoryImages: Record<string,string> = {    "الخضر والفواكه":"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80",
+    "الحبوب والدقيق":"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=500&q=80",    "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
+    "المواد المجمدة":categoryArtwork("frozen"),
+    "الإسمنت":categoryArtwork("cement"),
+    "الآجر والطوب":categoryArtwork("bricks"),
+    "الحديد والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
+    "الرمل والحصى":categoryArtwork("gravel"),
+    "السيراميك":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
+    "الخشب":"https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=500&q=80",
+    "الأثاث":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
+    "الأجهزة المنزلية":categoryArtwork("appliances"),
+    "التجهيز والديكور":"https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=500&q=80",
+    "السلع المعلبة":categoryArtwork("cans"),
+    "الآلات الصناعية":"https://images.unsplash.com/photo-1581092335878-2d9ff86ca2bf?auto=format&fit=crop&w=500&q=80",
+    "الأقمشة والملابس":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=500&q=80",
+    "البلاستيك":categoryArtwork("plastic"),
+    "الورق والكرتون":categoryArtwork("paper"),
+    "الإلكترونيات":"https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=500&q=80",
+    "السيارات":"https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=500&q=80",
+    "معدات الحفر":categoryArtwork("excavator"),
+    "المعدات الفلاحية":categoryArtwork("tractor"),
+    "الأنابيب والمعادن":categoryArtwork("pipes"),
+    "المولدات":categoryArtwork("generator"),
+    "الحمولات الضخمة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
+    "بضائع متنوعة":categoryArtwork("boxes"),
+    "شحنات خاصة":categoryArtwork("special")
+  };
   return <div className="app-shell">
     <header className="topbar home-topbar services-topbar approved-services-topbar">
       <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
