@@ -79,8 +79,9 @@ test("connects the welcome, services, search, category and publishing navigation
   await expect(page).toHaveURL(/[?]page=services#available-cargos$/);
   await expect(page.locator("#available-cargos")).toBeVisible();
 
-  await page.getByRole("link", { name: /الخضر والفواكه/ }).click();
-  await expect(page.locator(".selected-category")).toContainText("الخضر والفواكه");
+  await page.getByRole("button", { name: /الشاحنات الكبيرة/ }).click();
+  await page.getByRole("button", { name: "شاحنة تبريد" }).click();
+  await expect(page.getByLabel("ابحث عن شحنة")).toHaveValue("شاحنة تبريد");
 
   await page.locator(".approved-services-topbar").getByRole("link", { name: "أنشر شحنة" }).click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
