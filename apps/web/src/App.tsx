@@ -108,6 +108,7 @@ export default function App() {
   const [redirectAfterPasskey, setRedirectAfterPasskey] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   const [draft, setDraft] = useState<CargoDraft>(initialDraft);
+  const [cargoSpace, setCargoSpace] = useState<"نصف الشاحنة"|"شاحنة كاملة"|"حمولة جزئية أخرى">("شاحنة كاملة");
   const [publishMessage, setPublishMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [origin, setOrigin] = useState("");
@@ -302,7 +303,10 @@ export default function App() {
       setPublishMessage("هذا الحساب غير مفعّل لنشر الشحنات. يلزم تفعيل دور صاحب البضاعة من الإدارة.");
       return;
     }
-    const normalizedDraft = normalizeCargoDraft(draft);
+    const normalizedDraft = normalizeCargoDraft({
+      ...draft,
+      notes: [`المساحة المطلوبة: ${cargoSpace}`, draft.notes?.trim()].filter(Boolean).join("\\n")
+    });
     const errors = validateCargoDraft(normalizedDraft, todayLocal());
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
     setBusy(true);
@@ -375,7 +379,8 @@ export default function App() {
                 <label>مدينة الانطلاق<input required maxLength={100} value={draft.origin_city} onChange={e=>setDraft({...draft,origin_city:e.target.value})}/></label>
                 <label>مدينة الوصول<input required maxLength={100} value={draft.destination_city} onChange={e=>setDraft({...draft,destination_city:e.target.value})}/></label>
                 <label>نوع البضاعة<input required value={draft.goods_type} onChange={e=>setDraft({...draft,goods_type:e.target.value})} placeholder="خضر، فواكه، مواد بناء…"/></label>
-                <label>الوزن<input value={draft.weight_text ?? ""} onChange={e=>setDraft({...draft,weight_text:e.target.value || null})}/></label>
+                <label>وزن الحمولة التقريبي (كغ أو طن)<input inputMode="decimal" placeholder="مثلاً 1500 كغ أو 1.5 طن" value={draft.weight_text ?? ""} onChange={e=>setDraft({...draft,weight_text:e.target.value || null})}/><small className="muted">اكتب الوزن والوحدة بوضوح.</small></label>
+                <fieldset className="cargo-space-field"><legend>كم مساحة تحتاج من الشاحنة؟</legend><div className="cargo-space-options"><label><input type="radio" name="cargo-space" checked={cargoSpace==="نصف الشاحنة"} onChange={()=>setCargoSpace("نصف الشاحنة")}/> نصف الشاحنة</label><label><input type="radio" name="cargo-space" checked={cargoSpace==="شاحنة كاملة"} onChange={()=>setCargoSpace("شاحنة كاملة")}/> شاحنة كاملة</label><label><input type="radio" name="cargo-space" checked={cargoSpace==="حمولة جزئية أخرى"} onChange={()=>setCargoSpace("حمولة جزئية أخرى")}/> حمولة جزئية أخرى</label></div></fieldset>
                 <label>نوع المركبة<select required value={draft.truck_type} onChange={e=>setDraft({...draft,truck_type:e.target.value})}><option value="">اختر النوع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}<optgroup label="الحافلات">{BUS_TYPES.map(t=><option key={t}>{t}</option>)}</optgroup></select></label>
                 <label>تاريخ النقل<input type="date" required min={todayLocal()} value={draft.loading_date} onChange={e=>setDraft({...draft,loading_date:e.target.value})}/></label>
                 <label>السعر المقترح (درهم)<input type="number" min="0" step="0.01" value={draft.offered_price_mad ?? ""} onChange={e=>setDraft({...draft,offered_price_mad:e.target.value===""?null:Number(e.target.value)})}/></label>
@@ -544,7 +549,7 @@ export default function App() {
         {selectedGoods && <p className="selected-category">التصنيف المختار: {selectedGoods} <button className="text-button" onClick={()=>setSelectedGoods("")}>إلغاء التصفية</button></p>}
         <div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع المركبة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}<optgroup label="الحافلات">{BUS_TYPES.map(t=><option key={t}>{t}</option>)}</optgroup></select></label></div>
         {loading ? <p className="muted">جاري تحميل الشحنات…</p> : error ? <p className="notice notice-warn">{error}</p> : visible.length === 0 ? <p className="empty">لا توجد شحنات مطابقة حالياً.</p> :
-          <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
+          <div className="cargo-grid">{visible.map(c=><article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><p className="muted">{c.goods_type} {c.weight_text ? " · "+c.weight_text : ""} {c.notes?.match(/(?:^|\\n)المساحة المطلوبة: (نصف الشاحنة|شاحنة كاملة|حمولة جزئية أخرى)/)?.[1] ? " · "+c.notes.match(/(?:^|\\n)المساحة المطلوبة: (نصف الشاحنة|شاحنة كاملة|حمولة جزئية أخرى)/)?.[1] : ""}</p>{c.offered_price_mad != null && <strong className="price">{c.offered_price_mad} درهم</strong>}</article>)}</div>}
       </section>
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace key={user.id} userId={user.id} role={profileRole} openCargos={cargos}/>}
     </main>
