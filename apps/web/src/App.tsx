@@ -117,7 +117,8 @@ export default function App() {
   const [cargoSpace, setCargoSpace] = useState<"نصف الشاحنة"|"شاحنة كاملة"|"حمولة جزئية أخرى">("شاحنة كاملة");
   const [publishMessage, setPublishMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const [cargoSearch, setCargoSearch] = useState("");\n  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string | null>(null);
+  const [cargoSearch, setCargoSearch] = useState("");
+  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string | null>(null);
   const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
   const publishRoute = new URLSearchParams(window.location.search).get("page") === "publish";
   const servicesRoute = new URLSearchParams(window.location.search).get("page") === "services";
