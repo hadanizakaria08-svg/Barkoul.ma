@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  BUS_TYPES,
   buildCargoInsertPayload,
   canProposeNegotiation,
   canPublishCargo,
@@ -101,9 +102,12 @@ describe("cargo domain rules", () => {
       .includes("تاريخ النقل غير صالح."));
   });
 
-  it("rejects truck categories outside the supported list", () => {
+  it("accepts supported bus categories and rejects unknown vehicle categories", () => {
+    for (const busType of BUS_TYPES) {
+      assert.deepEqual(validateCargoDraft({...draft,truck_type:busType},"2026-11-18"), []);
+    }
     assert.ok(validateCargoDraft({...draft,truck_type:"سيارة خاصة"},"2026-11-18")
-      .includes("نوع الشاحنة غير مدعوم."));
+      .includes("نوع المركبة غير مدعوم."));
   });
 
   it("normalizes surrounding whitespace and empty optional values before saving", () => {

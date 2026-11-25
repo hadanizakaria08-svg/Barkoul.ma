@@ -57,18 +57,18 @@ test("keeps cargo publication fields private until a visitor signs in", async ({
   await expect(page.locator("#publish")).toHaveCount(0);
 });
 
-test("accepts Arabic route search and truck selection without navigation errors", async ({ page }) => {
+test("accepts Arabic route search and vehicle selection without navigation errors", async ({ page }) => {
   await page.goto("/?page=services");
   const search = page.locator("#search");
   const origin = search.getByLabel("من مدينة");
   const destination = search.getByLabel("إلى مدينة");
-  const truck = search.getByLabel("نوع الشاحنة");
+  const vehicle = search.getByLabel("نوع المركبة");
   await origin.fill("الدار البيضاء");
   await destination.fill("مراكش");
-  await truck.selectOption({ label: "شاحنة تبريد" });
+  await vehicle.selectOption({ label: "شاحنة تبريد" });
   await expect(origin).toHaveValue("الدار البيضاء");
   await expect(destination).toHaveValue("مراكش");
-  await expect(truck).toHaveValue("شاحنة تبريد");
+  await expect(vehicle).toHaveValue("شاحنة تبريد");
   await expect(page.getByRole("heading", { name: "الشحنات المتاحة" })).toBeVisible();
 });
 

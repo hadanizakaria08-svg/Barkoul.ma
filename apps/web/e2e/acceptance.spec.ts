@@ -34,7 +34,7 @@ test("keeps search controls on the services page and account controls on the pub
   await page.goto("/?page=services");
   await expect(page.locator("#search").getByLabel("من مدينة")).toBeVisible();
   await expect(page.locator("#search").getByLabel("إلى مدينة")).toBeVisible();
-  await expect(page.locator("#search").getByLabel("نوع الشاحنة")).toBeVisible();
+  await expect(page.locator("#search").getByLabel("نوع المركبة")).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
   await page.goto("/?page=publish#publish-account");
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
