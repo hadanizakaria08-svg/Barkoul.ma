@@ -740,10 +740,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .approved-map-credit{position:absolute;z-index:5;left:14px;top:36%;bottom:auto;max-width:calc(100% - 28px);padding:4px 8px;border-radius:7px;background:#ffffffdc;color:#365a78;font-size:10px;font-weight:700;line-height:1.5}
 .approved-map-credit a{color:#365a78;text-decoration:underline}
 @media(max-width:900px){
+  .approved-entry-map .morocco-mark{width:48px;height:82px}
   .approved-map-routes{width:48px;height:82px}
   .approved-map-credit{position:relative;left:auto;top:auto;bottom:auto;align-self:flex-start;margin:4px 12px 8px}
 }
 @media(max-width:640px){
+  .approved-entry-map .morocco-mark{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}
   .approved-map-routes{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}
   .approved-map-credit{font-size:9px;margin:2px 10px 7px}
 }
