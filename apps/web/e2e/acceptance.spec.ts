@@ -32,9 +32,10 @@ test("does not expose publisher-role refresh to signed-out visitors", async ({ p
 
 test("keeps search controls on the services page and account controls on the publishing page", async ({ page }) => {
   await page.goto("/?page=services");
-  await expect(page.locator("#search").getByLabel("من مدينة")).toBeVisible();
-  await expect(page.locator("#search").getByLabel("إلى مدينة")).toBeVisible();
-  await expect(page.locator("#search").getByLabel("نوع المركبة")).toBeVisible();
+  await expect(page.getByLabel("ابحث عن شحنة")).toBeVisible();
+  await expect(page.locator(".vehicle-category-card")).toHaveCount(3);
+  await expect(page.locator("#search").getByLabel("من مدينة")).toHaveCount(0);
+  await expect(page.locator("#search").getByLabel("إلى مدينة")).toHaveCount(0);
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
   await page.goto("/?page=publish#publish-account");
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
