@@ -39,8 +39,8 @@ test("preserves route filters, all cargo categories, vehicle groups and private 
   await expect(page.locator("#vehicle-categories .vehicle-category-card")).toHaveCount(3);
   await expect(page.getByText("شحنات أخرى", {exact:true})).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
-  await page.locator("#vehicle-categories").getByRole("button", { name: "الشاحنات الصغيرة" }).click();
-  await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة صغيرة", exact: true }).click();
+  await page.locator("#vehicle-categories .vehicle-category-card").nth(1).click();
+  await page.locator("#vehicle-categories .vehicle-subtype-card").nth(1).click();
   await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة صغيرة");
   await page.goto("/?page=publish#publish-account");
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
@@ -105,14 +105,15 @@ test("vehicle subtype choices always include a visible photo and update the rout
   await page.goto("/?page=services");
   const groups = page.locator("#vehicle-categories .vehicle-category-card");
   await expect(groups).toHaveCount(3);
-  for (const groupName of ["الشاحنات الكبيرة", "الشاحنات الصغيرة", "الحافلات"]) {
-    await page.locator("#vehicle-categories").getByRole("button", { name: new RegExp(groupName) }).click();
+  for (const [index, groupName] of ["شاحنات كبيرة", "شاحنات", "الحافلات"].entries()) {
+    await expect(groups.nth(index)).toContainText(groupName);
+    await groups.nth(index).click();
     const subtypeCards = page.locator(".vehicle-subtype-card");
     await expect(subtypeCards.first()).toBeVisible();
     const subtypeCount = await subtypeCards.count();
     await expect(subtypeCards.locator("img")).toHaveCount(subtypeCount);
     for (let index = 0; index < subtypeCount; index += 1) {
-      await expect(subtypeCards.nth(index).locator("img")).toHaveAttribute("src", /^https:\/\//);
+      await expect(subtypeCards.nth(index).locator("img")).toHaveAttribute("src", /^data:image\/svg\+xml;charset=UTF-8,/);
     }
     await subtypeCards.first().click();
     await expect(page.locator("#search").getByLabel("نوع المركبة")).not.toHaveValue("");
