@@ -3,7 +3,7 @@ import type { ProfileRole } from "@barkoul/domain";
 import { getSupabase } from "@barkoul/data";
 
 interface AdminRoomProps {
-  user: { id: string; email?: string } | null;
+  user: { id: string } | null;
   profileRole: ProfileRole | null;
   profileLoading: boolean;
   profileError: string;
@@ -135,7 +135,7 @@ export default function AdminRoom({
     return <main className="admin-gate" dir="rtl"><section className="admin-gate-card" role="alert">
       <div className="admin-lock" aria-hidden="true">⛔</div><p className="eyebrow">وصول مرفوض</p>
       <h1>هذه الغرفة للمدير فقط</h1><p>حسابك لا يحمل صلاحية المدير. لم يتم تحميل أي بيانات إدارية.</p>
-      <p>الحساب الحالي لا يملك صلاحية المدير أو لم يكتمل تحميل الدور. البريد المسجل في هذه الجلسة: <bdi>{user?.email || "غير متاح"}</bdi>. إذا كان هذا حساب المدير، اضغط إعادة التحقق؛ وإلا سجّل الخروج وبدّل الحساب.</p>
+      <p>الحساب الحالي لا يملك صلاحية المدير أو لم يكتمل تحميل الدور. لم يتم عرض بيانات الحساب الخاصة. إذا كان هذا حساب المدير، اضغط إعادة التحقق؛ وإلا سجّل الخروج وبدّل الحساب.</p>
       <div className="admin-gate-actions">
         <button className="button button-outline" onClick={onRefreshRole}>إعادة التحقق من الصلاحية</button>
         <button className="button button-primary" onClick={onSignOut}>تسجيل الخروج وتبديل الحساب</button>
