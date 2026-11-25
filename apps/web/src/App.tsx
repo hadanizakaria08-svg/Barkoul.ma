@@ -304,8 +304,8 @@ export default function App() {
         // The services page is safe for authenticated users even if role lookup is temporarily unavailable.
         setPasskeyMessage("تم التحقق من الدخول. تعذر تحميل صلاحيات الحساب؛ جارٍ فتح الخدمات.");
       }
-      // Passkey sign-in always lands on the services hub. Publishing remains
-      // available there through the existing role-aware publish entry point.
+      // Route only after resolving the authenticated account's role.
+      // Administrators return to the protected admin room; owners go to publishing.
       window.location.assign(role === "admin" ? "./#admin" : role === "owner" ? "?page=publish#publish" : "?page=services");
     } catch (error) {
       setPasskeyMessage(passkeyErrorMessage(error));
