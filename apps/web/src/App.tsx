@@ -32,7 +32,7 @@ function BrandTruck() {
 function MoroccoMark() {
   return <img
     className="morocco-mark"
-    src="https://commons.wikimedia.org/wiki/Special:FilePath/Morocco%20full%20map.svg"
+    src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Morocco_full_map.svg"
     alt="خريطة المغرب كاملة"
     loading="lazy"
   />;
