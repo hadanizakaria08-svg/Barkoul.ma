@@ -735,6 +735,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 
 /* Final entry-screen corrections: keep the approved direct login layout and map credit unobtrusive. */
 .approved-entry-role-choice{display:none!important}
+.approved-entry-map .morocco-mark{width:clamp(90px,8vw,112px);height:clamp(150px,13vw,185px)}
 .approved-map-routes{position:absolute;inset:0 0 auto auto;width:clamp(90px,8vw,112px);height:clamp(150px,13vw,185px);pointer-events:none;filter:drop-shadow(0 1px 2px #123b7070)}
 .approved-map-credit{position:absolute;z-index:5;left:14px;top:36%;bottom:auto;max-width:calc(100% - 28px);padding:4px 8px;border-radius:7px;background:#ffffffdc;color:#365a78;font-size:10px;font-weight:700;line-height:1.5}
 .approved-map-credit a{color:#365a78;text-decoration:underline}
