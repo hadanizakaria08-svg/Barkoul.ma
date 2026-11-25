@@ -105,6 +105,7 @@ export default function App() {
   const [authMessage, setAuthMessage] = useState("");
   const [passkeyMessage, setPasskeyMessage] = useState("");
   const [passkeyBusy, setPasskeyBusy] = useState(false);
+  const [redirectAfterPasskey, setRedirectAfterPasskey] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   const [draft, setDraft] = useState<CargoDraft>(initialDraft);
   const [publishMessage, setPublishMessage] = useState("");
@@ -207,6 +208,14 @@ export default function App() {
     return () => { active = false; };
   }, [db, user?.id]);
 
+  useEffect(() => {
+    if (!redirectAfterPasskey || !user || profileLoading || profileError) return;
+    // Route the authenticated account to its actual workspace after its role is loaded.
+    const destination = profileRole === "owner" ? "?page=publish#publish" : "?page=services";
+    window.location.assign(destination);
+    setRedirectAfterPasskey(false);
+  }, [redirectAfterPasskey, user?.id, profileLoading, profileError, profileRole]);
+
   async function submitRoleRequest(requestedRole:"driver"|"owner") {
     if (!db || !user || profileRole !== "user") return;
     setBusy(true); setRoleRequestMessage("");
@@ -253,6 +262,7 @@ export default function App() {
       const { error } = await db.auth.signInWithPasskey();
       if (error) throw error;
       setPasskeyMessage("تم تسجيل الدخول بنجاح باستخدام مفتاح المرور.");
+      setRedirectAfterPasskey(true);
     } catch (error) {
       setPasskeyMessage(passkeyErrorMessage(error));
     } finally { setPasskeyBusy(false); }
@@ -520,6 +530,10 @@ export default function App() {
         </div>
       </section>
       <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><div className="filters"><label>من مدينة<input value={origin} onChange={e=>setOrigin(e.target.value)} placeholder="مثلاً الدار البيضاء"/></label><label>إلى مدينة<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="مثلاً مراكش"/></label><label>نوع المركبة<select value={truck} onChange={e=>setTruck(e.target.value)}><option value="">جميع الأنواع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}<optgroup label="الحافلات">{BUS_TYPES.map(t=><option key={t}>{t}</option>)}</optgroup></select></label><button className="button button-primary" onClick={()=>document.getElementById("available-cargos")?.scrollIntoView({behavior:"smooth"})}>بحث الآن</button></div></section>
+      <section className="approved-categories approved-bus-categories" aria-label="الحافلات وخدمات نقل الركاب">
+        <div className="category-heading"><p className="eyebrow">قسم مستقل للحافلات</p><h2>الحافلات والنقل السياحي</h2><p>اختر نوع الحافلة لعرض طلبات النقل المناسبة، بما فيها النقل السياحي وبين المدن والنقل المدرسي ونقل العمال.</p></div>
+        <div className="approved-category-grid">{BUS_TYPES.map((type)=><a key={type} href="#available-cargos" onClick={()=>setTruck(type)}><img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=600&q=80" alt={type} loading="lazy"/><strong>{type}</strong></a>)}</div>
+      </section>
       <section className="approved-categories" id="categories" aria-label="جميع أنواع الشحنات"><div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>جميع أنواع الشحنات والبضائع</h2><p>اختر السلعة لعرض الشحنات المطابقة، أو استخدم «شحنات أخرى» إذا لم تجد نوع بضاعتك.</p></div><div className="approved-category-grid">{cargoCategories.map(([name])=><a key={name} href="#available-cargos" onClick={()=>setSelectedGoods(name)}><img src={categoryImages[name] || categoryImages["بضائع متنوعة"]} alt={name} loading="lazy"/><strong>{name}</strong></a>)}</div><div className="approved-other-note"><strong>شحنات أخرى</strong><span>لم تجد السلعة؟ يمكنك كتابة اسمها وإضافة صورتها عند نشر الشحنة.</span><a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أضف شحنة أخرى</a></div></section>
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
       <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
