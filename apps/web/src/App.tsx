@@ -492,25 +492,7 @@ export default function App() {
         <div className="approved-services-hero-copy"><p className="home-kicker">منصتكم للنقل والشحن في المغرب</p><h1>Barkoul.ma</h1><h2>ربط أصحاب البضائع بسائقي الشاحنات</h2><div className="hero-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#search">أبحث عن شحنة</a></div></div>
         <div className="approved-services-hero-photo"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/><img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=700&q=85" alt="حافلة نقل" /></div>
       </section>
-      <section className="driver-onboarding-panel" aria-labelledby="driver-onboarding-title">
-        <div>
-          <p className="eyebrow">مسار السائقين</p>
-          <h2 id="driver-onboarding-title">هل تريد العمل كسائق على Barkoul.ma؟</h2>
-          <p>أنشئ حسابك واطلب تفعيل صفة السائق لتتمكن من تقديم عروض النقل بعد استكمال التحقق المطلوب.</p>
-        </div>
-        <div className="driver-onboarding-action">
-          {!user ? <a className="button button-primary" href="?page=publish#publish-account">الدخول أو إنشاء حساب</a> :
-           profileLoading ? <span className="muted" role="status">جارٍ التحقق من الحساب…</span> :
-           profileError ? <button type="button" className="button button-light" onClick={()=>void refreshProfileRole()}>إعادة التحقق من الحساب</button> :
-           profileRole === "driver" ? <span className="driver-onboarding-status" role="status">حسابك مفعّل كسائق</span> :
-           profileRole === "user" ? roleRequest?.status === "pending" && roleRequest.requested_role === "driver" ?
-             <span className="driver-onboarding-status" role="status">طلب تفعيل السائق قيد المراجعة</span> :
-             <button type="button" className="button button-primary" disabled={busy} onClick={()=>void submitRoleRequest("driver")}>طلب تفعيل حساب سائق</button> :
-           <span className="muted">هذا المسار مخصص لحسابات السائقين.</span>}
-          {roleRequestMessage && <p className="form-message" role="status">{roleRequestMessage}</p>}
-        </div>
-      </section>
-      <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><p className="muted simple-search-hint">اضغط على «أبحث عن شحنة» لرؤية الشحنات، أو اكتب ما تبحث عنه في خانة البحث.</p></section>
+      <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><div className="simple-cargo-search"><label htmlFor="cargo-search-main">ابحث عن شحنة<input id="cargo-search-main" type="search" value={cargoSearch} onChange={e=>setCargoSearch(e.target.value)} placeholder="مدينة، بضاعة، أو نوع المركبة…"/></label>{cargoSearch&&<button type="button" className="text-button" onClick={()=>setCargoSearch("")}>مسح البحث</button>}</div></section>
       <section className="vehicle-category-section" id="categories" aria-label="فئات المركبات">
         <div className="category-heading"><p className="eyebrow">اختر نوع المركبة</p><h2>ماذا تبحث عنه؟</h2><p>اختر صورة واحدة لعرض الأنواع المتوفرة.</p></div>
         <div className="vehicle-category-grid">{VEHICLE_GROUPS.map(group=><button type="button" className={selectedVehicleCategory===group.key?"vehicle-category-card active":"vehicle-category-card"} key={group.key} onClick={()=>setSelectedVehicleCategory(selectedVehicleCategory===group.key?null:group.key)} aria-expanded={selectedVehicleCategory===group.key}><img src={group.image} alt="" loading="lazy"/><span>{group.title}</span><b aria-hidden="true">›</b></button>)}</div>
@@ -519,7 +501,7 @@ export default function App() {
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
       <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
         {selectedGoods && <p className="selected-category">التصنيف المختار: {selectedGoods} <button className="text-button" onClick={()=>setSelectedGoods("")}>إلغاء التصفية</button></p>}
-        <div className="simple-cargo-search"><label htmlFor="cargo-search">ابحث عن شحنة<input id="cargo-search" type="search" value={cargoSearch} onChange={e=>setCargoSearch(e.target.value)} placeholder="مدينة، بضاعة، أو نوع المركبة…"/></label>{cargoSearch&&<button type="button" className="text-button" onClick={()=>setCargoSearch("")}>مسح البحث</button>}</div>
+        
         {loading ? <p className="muted">جاري تحميل الشحنات…</p> : error ? <p className="notice notice-warn">{error}</p> : visible.length === 0 ? <p className="empty">لا توجد شحنات مطابقة حالياً.</p> :
           <div className="cargo-grid">{visible.map(c=>{const space=c.notes?.split(String.fromCharCode(10)).find(note=>note.startsWith("المساحة المطلوبة:"))?.replace("المساحة المطلوبة:","").trim();const publicNotes=c.notes?.split(String.fromCharCode(10)).filter(note=>!note.startsWith("المساحة المطلوبة:")).join(" ").trim();return <article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><div className="cargo-facts"><span>{c.goods_type}</span>{c.weight_text&&<span>{c.weight_text}</span>}{space&&<span>{space}</span>}</div><details className="cargo-details"><summary>عرض التفاصيل</summary><div><p><b>نوع المركبة:</b> {c.truck_type}</p><p><b>تاريخ النقل:</b> {c.loading_date}</p>{publicNotes&&<p><b>ملاحظات:</b> {publicNotes}</p>}</div></details></article>})}</div>}
       </section>
