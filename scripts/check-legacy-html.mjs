@@ -11,8 +11,16 @@ assert.match(shell, /\.\/assets\/app\.css/, "Built application styles must be lo
 assert.match(app, /approved-entry-hero/, "Approved truck, bus and Morocco-map welcome screen must be present");
 assert.match(app, /approved-login-card/, "Welcome screen login and password recovery must be present");
 assert.match(app, /approved-services-hero/, "Approved services screen hero must be present");
-assert.match(app, /approved-category-grid/, "Photo cargo category catalogue must be present");
-assert.match(app, /شحنات أخرى/, "Other cargo category must be present");
+assert.match(app, /VEHICLE_GROUPS/, "Three vehicle groups must be present");
+assert.match(app, /vehicle-category-card/, "Simplified vehicle category cards must be present");
+assert.match(app, /vehicle-subtype-card/, "Vehicle subtype selection must be present");
+assert.match(app, /approved-category-grid/, "Approved cargo catalogue cards must be present");
+assert.match(app, /شحنات أخرى/, "Other cargo category must remain available");
+assert.match(app, /من مدينة/, "Origin city filter must be present");
+assert.match(app, /إلى مدينة/, "Destination city filter must be present");
+assert.match(app, /نوع المركبة/, "Exact vehicle type filter must be present");
+const cargoCategoryCount = (app.match(/\["[^"]+","photo-/g) || []).length;
+assert.equal(cargoCategoryCount, 27, "All 27 approved cargo categories must remain present");
 assert.match(app, /أنشر شحنة/, "Publish action must be present");
 assert.match(app, /أبحث عن شحنة/, "Search action must be present");
 assert.match(app, /#admin/, "Protected admin route must be present");
@@ -27,4 +35,4 @@ assert.deepEqual(stillPresent, [], "Legacy standalone interfaces must be retired
 for (const [name, source] of [["apps/web/index.html", shell], ["apps/web/src/App.tsx", app], ["apps/web/src/AdminRoom.tsx", admin]]) {
   assert.doesNotMatch(source, /service_role|sb_secret_/i, name + " must not contain a server-side key");
 }
-console.log("Two-action photo homepage verified; legacy root interfaces retired; admin workflows preserved.");
+console.log("Approved 27-category cargo catalogue, route filters, three vehicle groups, legacy retirement and admin workflows verified.");

@@ -57,18 +57,17 @@ test("keeps cargo publication fields private until a visitor signs in", async ({
   await expect(page.locator("#publish")).toHaveCount(0);
 });
 
-test("accepts Arabic route search and vehicle selection without navigation errors", async ({ page }) => {
+test("accepts Arabic origin, destination and vehicle filters including bus types", async ({ page }) => {
   await page.goto("/?page=services");
   const search = page.locator("#search");
-  const origin = search.getByLabel("من مدينة");
-  const destination = search.getByLabel("إلى مدينة");
-  const vehicle = search.getByLabel("نوع المركبة");
-  await origin.fill("الدار البيضاء");
-  await destination.fill("مراكش");
-  await vehicle.selectOption({ label: "شاحنة تبريد" });
-  await expect(origin).toHaveValue("الدار البيضاء");
-  await expect(destination).toHaveValue("مراكش");
-  await expect(vehicle).toHaveValue("شاحنة تبريد");
+  await search.getByLabel("من مدينة").fill("الدار البيضاء");
+  await search.getByLabel("إلى مدينة").fill("مراكش");
+  await search.getByLabel("نوع المركبة").selectOption({label:"شاحنة تبريد"});
+  await expect(search.getByLabel("من مدينة")).toHaveValue("الدار البيضاء");
+  await expect(search.getByLabel("إلى مدينة")).toHaveValue("مراكش");
+  await expect(search.getByLabel("نوع المركبة")).toHaveValue("شاحنة تبريد");
+  await search.getByLabel("نوع المركبة").selectOption({label:"حافلة سياحية"});
+  await expect(search.getByLabel("نوع المركبة")).toHaveValue("حافلة سياحية");
   await expect(page.getByRole("heading", { name: "الشحنات المتاحة" })).toBeVisible();
 });
 
@@ -82,8 +81,9 @@ test("connects the welcome, services, search, category and publishing navigation
   await expect(page).toHaveURL(/[?]page=services#available-cargos$/);
   await expect(page.locator("#available-cargos")).toBeVisible();
 
-  await page.getByRole("link", { name: /الخضر والفواكه/ }).click();
-  await expect(page.locator(".selected-category")).toContainText("الخضر والفواكه");
+  await page.locator("#vehicle-categories").getByRole("button", { name: /الشاحنات الكبيرة/ }).click();
+  await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة تبريد" }).click();
+  await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة تبريد");
 
   await page.locator(".approved-services-topbar").getByRole("link", { name: "أنشر شحنة" }).click();
   await expect(page).toHaveURL(/[?]page=publish#publish-account$/);
@@ -102,8 +102,8 @@ test("meets automated WCAG 2.2 AA checks across both approved public pages", asy
 
 test("keeps all category image cards descriptive and sourced from the approved image host", async ({ page }) => {
   await page.goto("/?page=services");
-  const cards = page.locator(".approved-category-grid a");
-  await expect(cards).toHaveCount(27);
+  const cards = page.locator(".vehicle-category-card");
+  await expect(cards).toHaveCount(3);
   const imageData = await cards.locator("img").evaluateAll(images =>
     images.map(image => ({
       alt: image.getAttribute("alt"),

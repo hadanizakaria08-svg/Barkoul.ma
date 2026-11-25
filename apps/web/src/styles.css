@@ -445,10 +445,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .approved-entry-main{padding:clamp(12px,2vw,24px);background:linear-gradient(180deg,#eaf5ff,#fff)}
 .approved-entry-hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.8fr);gap:clamp(14px,2vw,24px);max-width:1380px;margin:auto;align-items:stretch}
 .approved-entry-visual{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:570px;overflow:hidden;border:5px solid #fff;border-radius:24px;background:linear-gradient(145deg,#bfe4ff,#fff 52%,#c9e6fb);box-shadow:0 14px 38px #0a3c7022}
-.approved-entry-map{position:absolute;top:3%;right:3%;display:flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid #ffffffd9;border-radius:16px;background:#ffffffd9;box-shadow:0 7px 22px #063c7b20;z-index:2}
-.approved-entry-map .morocco-mark{position:static;width:88px;height:145px;object-fit:contain;filter:drop-shadow(0 4px 5px #073f9140)}
+.approved-entry-map{position:absolute;top:2%;right:2%;display:flex;align-items:center;gap:10px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:2}
+.approved-entry-map .morocco-mark{position:static;width:clamp(145px,20vw,245px);height:clamp(245px,43vw,385px);flex:0 0 auto;object-fit:contain;filter:brightness(0) saturate(100%) invert(18%) sepia(94%) saturate(6041%) hue-rotate(352deg) brightness(93%) contrast(112%) drop-shadow(0 5px 7px #6f101044)}
 .approved-entry-map small{display:block;margin-top:5px;font-size:9px;font-weight:700;line-height:1.4}.approved-entry-map small a{color:#27628f;text-decoration:underline}
-.approved-entry-map span{max-width:130px;color:#0c4683;font-size:13px;font-weight:900}
+.approved-entry-map span{max-width:130px;padding:10px 12px;border:1px solid #ffffffd9;border-radius:14px;background:#ffffffed;box-shadow:0 7px 22px #063c7b20;color:#0c4683;font-size:13px;font-weight:900}
 .approved-entry-brand{position:relative;z-index:2;display:grid;justify-items:start;gap:5px;padding:25px 28px 0;color:#063b80}
 .approved-entry-brand svg{width:88px;height:54px}
 .approved-entry-brand strong{font-size:clamp(40px,6vw,76px);font-weight:1000;line-height:1;letter-spacing:-2px}
@@ -658,3 +658,76 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .passkey-list .offer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .passkey-list .offer-row .text-button { margin-inline-start: auto; }
 @media (max-width: 560px) { .passkey-list .offer-row { align-items: flex-start; flex-direction: column; } .passkey-list .offer-row .text-button { margin-inline-start: 0; } }
+
+
+/* Dedicated bus category cards; retain the approved blue/white design. */
+.approved-bus-categories{margin-top:28px;padding-top:26px;border-top:1px solid var(--line)}
+.approved-bus-categories .approved-category-grid a{border:1px solid var(--line);background:#fff}
+.approved-bus-categories .approved-category-grid img{object-fit:cover;aspect-ratio:16/10}
+.approved-bus-categories .approved-category-grid strong{display:block;padding:10px 8px;color:var(--navy);text-align:center}
+
+
+/* Keep the Morocco map prominent and restore its approved red appearance. */
+.approved-small-truck-category{margin-top:28px;padding-top:26px;border-top:1px solid var(--line)}
+.approved-small-truck-category .approved-category-grid a{border:1px solid var(--line);background:#fff}
+.approved-small-truck-category .approved-category-grid img{object-fit:cover;aspect-ratio:16/10}
+.approved-small-truck-category .approved-category-grid strong{display:block;padding:10px 8px;color:var(--navy);text-align:center}
+@media(max-width:640px){.approved-entry-map{top:2%;right:1%;gap:4px}.approved-entry-map .morocco-mark{width:clamp(112px,34vw,165px);height:clamp(205px,60vw,285px)}.approved-entry-map span{max-width:105px;padding:7px 8px;font-size:11px}}
+
+
+.cargo-space-field{grid-column:1/-1;min-width:0;margin:0;padding:14px;border:1px solid var(--line);border-radius:14px}
+.cargo-space-field legend{padding:0 7px;font-weight:850;color:var(--navy)}
+.cargo-space-options{display:flex;flex-wrap:wrap;gap:10px 18px}
+.cargo-space-options label{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#f5faff;font-weight:750}
+.cargo-space-options input{accent-color:#0b5cc1;width:18px;height:18px}
+
+
+/* Simple, readable cargo cards for the internal shipment-browsing experience. */
+.cargo-card{display:flex;flex-direction:column;gap:9px;background:#fff;box-shadow:0 5px 18px #0b4b8510}
+.cargo-card h3{margin:3px 0;color:var(--navy)}
+.cargo-facts{display:flex;flex-wrap:wrap;gap:7px}
+.cargo-facts span{padding:6px 9px;border-radius:8px;background:#edf6ff;color:#174b78;font-size:12px;font-weight:800}
+.cargo-details{margin-top:auto;padding-top:9px;border-top:1px solid var(--line)}
+.cargo-details summary{width:max-content;cursor:pointer;color:var(--blue);font-size:13px;font-weight:900}
+.cargo-details>div{padding:8px 2px 0;color:var(--muted);font-size:13px;line-height:1.8}
+.cargo-details p{margin:4px 0}
+@media(max-width:760px){.cargo-grid{grid-template-columns:1fr}.cargo-card{padding:15px}.filters{grid-template-columns:1fr}}
+
+
+/* One-field search: keep the inner shipment page easy on small screens. */
+.simple-cargo-search{display:flex;align-items:end;gap:12px;margin:16px 0 22px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#f5faff}
+.simple-cargo-search label{flex:1;min-width:0}
+.simple-cargo-search input{min-height:52px;font-size:16px}
+.simple-search-hint{margin:8px 0 0;font-size:13px}
+@media(max-width:600px){.simple-cargo-search{align-items:stretch;flex-direction:column}.simple-cargo-search .text-button{align-self:flex-start}}
+
+
+/* Simplified three-choice vehicle navigation. */
+.vehicle-category-section{margin:20px clamp(12px,3vw,38px);padding:clamp(16px,2.5vw,28px);border:1px solid #cfe2f3;border-radius:20px;background:#f5faff}
+.vehicle-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.vehicle-category-card{position:relative;display:flex;flex-direction:column;overflow:hidden;padding:0;border:2px solid #d6e6f5;border-radius:17px;background:#fff;color:#073f91;cursor:pointer;text-align:center;box-shadow:0 5px 16px #123f6910}
+.vehicle-category-card img{width:100%;height:clamp(110px,19vw,210px);object-fit:cover}
+.vehicle-category-card span{padding:13px 8px;font-size:clamp(15px,2vw,20px);font-weight:950}
+.vehicle-category-card b{position:absolute;inset-inline-end:12px;bottom:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#0b5cc1;color:white;font-size:24px;line-height:1}
+.vehicle-category-card.active{border-color:#0b65ca;box-shadow:0 0 0 3px #0b65ca20}
+.vehicle-subtype-panel{margin-top:16px;padding:16px;border:1px solid #cfe2f3;border-radius:16px;background:#fff}
+.vehicle-subtype-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.vehicle-subtype-heading h3{margin:0;color:#073f91}
+.vehicle-subtype-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.vehicle-subtype-card{display:flex;align-items:center;gap:10px;min-height:62px;padding:10px;border:1px solid #d5e5f3;border-radius:12px;background:#f7fbff;color:#174b78;text-align:right;cursor:pointer}
+.vehicle-subtype-card strong{font-size:13px}
+.vehicle-subtype-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:10px;background:#e2f0ff;color:#0b5cc1;font-size:22px}
+@media(max-width:640px){.vehicle-category-grid{gap:7px}.vehicle-category-card img{height:clamp(76px,25vw,115px)}.vehicle-category-card span{padding:10px 4px 16px;font-size:12px}.vehicle-category-card b{width:23px;height:23px;inset-inline-end:6px;bottom:7px;font-size:18px}.vehicle-subtype-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.vehicle-subtype-card{gap:7px;padding:8px}.vehicle-subtype-card strong{font-size:11px}}
+
+/* Keep the mobile welcome map and brand in separate, measurable rows. */
+@media(max-width:900px){.approved-entry-map{position:relative!important;inset:auto!important;align-self:flex-end;flex:0 0 auto;margin:12px 12px 0!important;z-index:3}.approved-entry-brand{position:relative!important;inset:auto!important;align-self:flex-start;flex:0 0 auto;margin-top:12px!important;z-index:2}.approved-entry-vehicles{z-index:1}}
+
+
+/* Mobile welcome hero: use normal document flow so the brand never collides with vehicle photos. */
+@media(max-width:900px){
+ .approved-entry-visual{min-height:0!important;justify-content:flex-start!important;gap:12px}
+ .approved-entry-map{position:relative!important;inset:auto!important;align-self:flex-end;flex:0 0 auto;margin:12px 12px 0!important}
+ .approved-entry-brand{position:relative!important;inset:auto!important;align-self:flex-start;flex:0 0 auto;margin:8px 0 0!important;padding:0 18px!important}
+ .approved-entry-vehicles{position:relative!important;inset:auto!important;display:grid!important;flex:0 0 auto;width:100%;height:auto!important;min-height:190px;margin:8px 0 0!important;padding:0 8px 8px!important}
+ .approved-entry-vehicles img,.approved-entry-vehicles img+img{height:clamp(150px,42vw,230px)!important;max-height:none!important}
+}

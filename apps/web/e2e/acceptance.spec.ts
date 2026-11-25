@@ -30,26 +30,34 @@ test("does not expose publisher-role refresh to signed-out visitors", async ({ p
   await expect(page.getByRole("button", { name: "إعادة التحقق من الصلاحية" })).toHaveCount(0);
 });
 
-test("keeps search controls on the services page and account controls on the publishing page", async ({ page }) => {
+test("preserves route filters, all cargo categories, vehicle groups and private publishing controls", async ({ page }) => {
   await page.goto("/?page=services");
   await expect(page.locator("#search").getByLabel("من مدينة")).toBeVisible();
   await expect(page.locator("#search").getByLabel("إلى مدينة")).toBeVisible();
   await expect(page.locator("#search").getByLabel("نوع المركبة")).toBeVisible();
+  await expect(page.locator(".approved-category-grid a")).toHaveCount(27);
+  await expect(page.locator("#vehicle-categories .vehicle-category-card")).toHaveCount(3);
+  await expect(page.getByText("شحنات أخرى", {exact:true})).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
+  await page.locator("#vehicle-categories").getByRole("button", { name: "الشاحنات الصغيرة" }).click();
+  await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة صغيرة", exact: true }).click();
+  await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة صغيرة");
   await page.goto("/?page=publish#publish-account");
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
   await expect(page.getByLabel("كلمة المرور")).toBeVisible();
 });
 
-test("keeps both approved public pages within a narrow mobile viewport", async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 800 });
-  for (const path of ["/", "/?page=services"]) {
-    await page.goto(path);
-    const dimensions = await page.evaluate(() => ({
-      viewport: document.documentElement.clientWidth,
-      document: document.documentElement.scrollWidth
-    }));
-    expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
+test("keeps both approved public pages responsive without horizontal overflow at common device widths", async ({ page }) => {
+  for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/", "/?page=services"]) {
+      await page.goto(path);
+      const dimensions = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        document: document.documentElement.scrollWidth
+      }));
+      expect(dimensions.document, `horizontal overflow at ${width}px on ${path}`).toBeLessThanOrEqual(dimensions.viewport);
+    }
   }
 });
 

@@ -139,4 +139,17 @@ describe("cargo domain rules", () => {
   it("filters truck categories after trimming search input", () => {
     assert.deepEqual(filterCargos(cargos,"","","  شاحنة كبيرة  ").map(c=>c.id), [1,2]);
   });
+
+  it("filters by exact vehicle type and preserves bus, origin and destination matching", () => {
+    const vehicleCargos: Cargo[] = [
+      {...draft,id:10,truck_type:"شاحنة تبريد",status:"open",created_at:"2026-11-18T10:00:00Z"},
+      {...draft,id:11,truck_type:"حافلة سياحية",origin_city:"الرباط",status:"open",created_at:"2026-11-18T11:00:00Z"},
+      {...draft,id:12,truck_type:"شاحنة كبيرة",destination_city:"أكادير",status:"open",created_at:"2026-11-18T12:00:00Z"}
+    ];
+
+    assert.deepEqual(filterCargos(vehicleCargos,"","","شاحنة تبريد").map(c=>c.id),[10]);
+    assert.deepEqual(filterCargos(vehicleCargos,"","مراكش","حافلة سياحية").map(c=>c.id),[11]);
+    assert.deepEqual(filterCargos(vehicleCargos,"الدار البيضاء","أكادير","شاحنة كبيرة").map(c=>c.id),[12]);
+    assert.deepEqual(filterCargos(vehicleCargos,"طنجة","","").map(c=>c.id),[]);
+  });
 });
