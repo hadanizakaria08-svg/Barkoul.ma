@@ -263,6 +263,17 @@ describe("workspace mutation confirmation survives refresh failures", () => {
 });
 
 
+describe("auth bootstrap ordering", () => {
+  it("does not let a stale getSession result override a newer auth event", () => {
+    const authEffect = app.split("let alive = true;")[1]?.split("refresh();")[0] ?? "";
+    assert.ok(authEffect.includes("let authEventReceived = false;"));
+    assert.ok(authEffect.includes("if (!alive || authEventReceived) return;"));
+    assert.ok(authEffect.includes("if (alive && !authEventReceived)"));
+    assert.ok(authEffect.includes("authEventReceived = true;"));
+  });
+});
+
+
 describe("workspace account isolation", () => {
   it("remounts private workspace state when the authenticated user changes", () => {
     assert.ok(app.includes('<Workspace key={user.id} userId={user.id}'));
