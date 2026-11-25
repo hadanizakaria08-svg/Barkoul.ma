@@ -116,7 +116,6 @@ export default function App() {
   const [authMessage, setAuthMessage] = useState("");
   const [passkeyMessage, setPasskeyMessage] = useState("");
   const [passkeyBusy, setPasskeyBusy] = useState(false);
-  const [redirectAfterPasskey, setRedirectAfterPasskey] = useState(false);
   const [resetMode, setResetMode] = useState(false);
   const [draft, setDraft] = useState<CargoDraft>(initialDraft);
   const [cargoSpace, setCargoSpace] = useState<"نصف الشاحنة"|"شاحنة كاملة"|"حمولة جزئية أخرى">("شاحنة كاملة");
@@ -221,13 +220,6 @@ export default function App() {
     return () => { active = false; };
   }, [db, user?.id]);
 
-  useEffect(() => {
-    if (!redirectAfterPasskey || !user) return;
-    // A verified passkey session should leave the login screen immediately.
-    // Role-specific actions remain protected inside the destination page.
-    setRedirectAfterPasskey(false);
-    window.location.assign("?page=services");
-  }, [redirectAfterPasskey, user?.id]);
 
   async function submitRoleRequest(requestedRole:"driver"|"owner") {
     if (!db || !user || profileRole !== "user") return;
@@ -278,13 +270,25 @@ export default function App() {
     try {
       const { error } = await db.auth.signInWithPasskey();
       if (error) throw error;
-      // Confirm that Supabase persisted a real session before leaving the login page.
+      // Confirm the persisted session, then resolve the account role before routing.
       const { data: sessionData, error: sessionError } = await db.auth.getSession();
       if (sessionError) throw sessionError;
-      if (!sessionData.session?.user) throw new Error("Passkey sign-in returned without an authenticated session.");
-      setUser({ id: sessionData.session.user.id });
-      setPasskeyMessage("تم الدخول بنجاح. جارٍ فتح حسابك…");
-      setRedirectAfterPasskey(true);
+      const authenticatedUser = sessionData.session?.user;
+      if (!authenticatedUser) throw new Error("Passkey sign-in returned without an authenticated session.");
+      setUser({ id: authenticatedUser.id });
+      let role: ProfileRole | null = null;
+      try {
+        role = await getCurrentProfileRole(authenticatedUser.id);
+        setProfileRole(role);
+      } catch {
+        // The services page is safe for authenticated users even if role lookup is temporarily unavailable.
+        setPasskeyMessage("تم التحقق من الدخول. تعذر تحميل صلاحيات الحساب؛ جارٍ فتح الخدمات.");
+      }
+      if (role === "owner") {
+        window.location.assign("?page=publish#publish");
+      } else {
+        window.location.assign("?page=services");
+      }
     } catch (error) {
       setPasskeyMessage(passkeyErrorMessage(error));
     } finally { setPasskeyBusy(false); }
