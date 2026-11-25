@@ -658,3 +658,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .passkey-list .offer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .passkey-list .offer-row .text-button { margin-inline-start: auto; }
 @media (max-width: 560px) { .passkey-list .offer-row { align-items: flex-start; flex-direction: column; } .passkey-list .offer-row .text-button { margin-inline-start: 0; } }
+
+
+/* Dedicated bus category cards; retain the approved blue/white design. */
+.approved-bus-categories{margin-top:28px;padding-top:26px;border-top:1px solid var(--line)}
+.approved-bus-categories .approved-category-grid a{border:1px solid var(--line);background:#fff}
+.approved-bus-categories .approved-category-grid img{object-fit:cover;aspect-ratio:16/10}
+.approved-bus-categories .approved-category-grid strong{display:block;padding:10px 8px;color:var(--navy);text-align:center}
