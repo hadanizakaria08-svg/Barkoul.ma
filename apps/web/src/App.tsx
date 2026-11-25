@@ -47,17 +47,22 @@ const todayLocal = () => {
 };
 
 function passkeyErrorMessage(error: unknown): string {
-  const e = error as { code?: string; message?: string; name?: string };
-  const code = String(e?.code ?? "").toLowerCase();
+  const e = error as { code?: string; error_code?: string; message?: string; name?: string };
+  const code = String(e?.code ?? e?.error_code ?? "").toLowerCase();
   const message = String(e?.message ?? "").toLowerCase();
-  if (code === "passkey_disabled") return "تسجيل الدخول بمفتاح المرور غير مفعّل في إعدادات المشروع.";
-  if (code === "webauthn_credential_exists") return "هذا المفتاح مسجل بالفعل في حسابك.";
-  if (code === "webauthn_credential_not_found") return "لم يتم العثور على مفتاح مرور لهذا الحساب على هذا الجهاز.";
+
+  if (code === "passkey_disabled") return "الدخول بمفتاح المرور غير مفعّل في إعدادات المشروع. استخدم البريد وكلمة المرور حالياً.";
+  if (code === "webauthn_credential_exists") return "مفتاح المرور مسجل بالفعل لهذا الحساب على هذا الجهاز.";
+  if (code === "webauthn_credential_not_found") return "لم يُعثر على مفتاح مرور مسجل لهذا الحساب. ادخل بالبريد وكلمة المرور ثم سجّل مفتاحاً جديداً من هذا الموقع.";
+  if (code === "webauthn_challenge_expired" || code === "webauthn_challenge_not_found") return "انتهت صلاحية طلب التحقق. أعد المحاولة مرة واحدة، أو استخدم البريد وكلمة المرور.";
+  if (code === "webauthn_verification_failed") return "تعذر مطابقة مفتاح المرور مع هذا الموقع. قد يكون المفتاح مسجلاً على نطاق آخر؛ ادخل بكلمة المرور وسجّل مفتاحاً جديداً على عنوان Barkoul.ma الحالي.";
   if (code === "email_not_confirmed") return "أكد بريدك الإلكتروني أولاً قبل استخدام مفتاح المرور.";
-  if (code.includes("cancel") || e?.name === "NotAllowedError" || message.includes("cancel")) return "تم إلغاء عملية التحقق أو انتهت مهلة الاستجابة.";
-  if (message.includes("not supported") || e?.name === "NotSupportedError") return "هذا المتصفح أو الجهاز لا يدعم مفاتيح المرور. جرّب متصفحاً حديثاً على HTTPS.";
-  if (message.includes("secure context") || e?.name === "SecurityError") return "يلزم فتح Barkoul.ma عبر اتصال HTTPS آمن لاستخدام مفتاح المرور.";
-  return "تعذر إتمام التحقق بمفتاح المرور. تأكد من إعداد قفل الشاشة أو البصمة في جهازك ثم حاول مجدداً.";
+  if (code === "user_banned") return "هذا الحساب موقوف حالياً. تواصل مع الإدارة.";
+  if (code.includes("cancel") || code === "error_ceremony_aborted" || message.includes("cancel")) return "أُلغيت عملية التحقق. يمكنك إعادة المحاولة أو الدخول بالبريد وكلمة المرور.";
+  if (e?.name === "NotAllowedError") return "لم يكتمل التحقق: ربما لا يوجد مفتاح مسجل لهذا النطاق، أو أُلغيت العملية/انتهت مهلتها. استخدم البريد وكلمة المرور ثم سجّل مفتاحاً جديداً من عنوان الموقع نفسه.";
+  if (message.includes("not supported") || e?.name === "NotSupportedError") return "هذا المتصفح أو الجهاز لا يدعم مفاتيح المرور. افتح الموقع في Chrome محدّثاً عبر HTTPS.";
+  if (message.includes("secure context") || e?.name === "SecurityError") return "رفض المتصفح نطاق مفتاح المرور. يجب أن يطابق نطاق الاعتماد إعدادات WebAuthn في Supabase وأن يُفتح الموقع عبر HTTPS.";
+  return "تعذر إتمام مفتاح المرور. استخدم البريد وكلمة المرور مؤقتاً. إذا استمر الخطأ، سجّل مفتاحاً جديداً على نطاق Barkoul.ma الحالي بعد ضبط إعدادات WebAuthn.";
 }
 
 function authErrorMessage(error: unknown): string {
