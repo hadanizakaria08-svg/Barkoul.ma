@@ -9,7 +9,7 @@ export function getSupabase(): SupabaseClient | null {
   if (!url || !key) return null;
   if (!client) {
     client = createClient(url, key, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce", experimental: { passkey: true } }
     });
   }
   return client;
