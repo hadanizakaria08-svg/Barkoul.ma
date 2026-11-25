@@ -93,8 +93,8 @@ test("keeps the welcome screen focused on direct sign-in and preserves the map a
   await expect(page.locator(".approved-entry-role-choice")).toHaveCount(0);
   await expect(page.getByRole("link", { name: /غرفة المدير/ })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "تسجيل الدخول" })).toBeVisible();
-  await expect(page.locator(".approved-map-credit a")).toContainText("Vegeta228");
-  await expect(page.locator(".approved-map-credit a")).toContainText("CC BY-SA 4.0");
+  await expect(page.locator(".approved-map-credit")).toContainText("Vegeta228");
+  await expect(page.getByRole("link", { name: "CC BY-SA 4.0" })).toHaveAttribute("href", "https://creativecommons.org/licenses/by-sa/4.0/");
   await expect(page.locator(".approved-map-routes circle")).toHaveCount(11);
   await expect(page.locator(".approved-entry-map .morocco-mark")).toHaveAttribute("loading", "eager");
 });
