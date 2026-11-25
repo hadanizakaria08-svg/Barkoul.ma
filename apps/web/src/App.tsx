@@ -9,7 +9,13 @@ const initialDraft: CargoDraft = {
   weight_text: "", truck_type: "", loading_date: "", offered_price_mad: null, notes: ""
 };
 
-const todayLocal = () => {
+
+const VEHICLE_GROUPS = [
+  { key: "large", title: "الشاحنات الكبيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة كبيرة", "شاحنة متوسطة", "جرار ومقطورة", "شاحنة تبريد", "شاحنة مسطحة", "شاحنة مغطاة", "شاحنة بصندوق مغلق", "شاحنة قلاب", "شاحنة صهريج"] },
+  { key: "small", title: "الشاحنات الصغيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة صغيرة بصندوق مغلق", "شاحنة صغيرة سطحة", "شاحنة صغيرة مغطاة", "شاحنة صغيرة مبردة", "بيك أب", "شاحنة صغيرة قلاب"] },
+  { key: "bus", title: "الحافلات", image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=900&q=85", types: [...BUS_TYPES] }
+] as const;
+\nconst todayLocal = () => {
   const now = new Date();
   return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
 };
@@ -111,7 +117,7 @@ export default function App() {
   const [cargoSpace, setCargoSpace] = useState<"نصف الشاحنة"|"شاحنة كاملة"|"حمولة جزئية أخرى">("شاحنة كاملة");
   const [publishMessage, setPublishMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const [cargoSearch, setCargoSearch] = useState("");
+  const [cargoSearch, setCargoSearch] = useState("");\n  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState<string | null>(null);
   const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
   const publishRoute = new URLSearchParams(window.location.search).get("page") === "publish";
   const servicesRoute = new URLSearchParams(window.location.search).get("page") === "services";
@@ -387,7 +393,7 @@ export default function App() {
                 <fieldset className="cargo-space-field"><legend>كم مساحة تحتاج من الشاحنة؟</legend><div className="cargo-space-options"><label><input type="radio" name="cargo-space" checked={cargoSpace==="نصف الشاحنة"} onChange={()=>setCargoSpace("نصف الشاحنة")}/> نصف الشاحنة</label><label><input type="radio" name="cargo-space" checked={cargoSpace==="شاحنة كاملة"} onChange={()=>setCargoSpace("شاحنة كاملة")}/> شاحنة كاملة</label><label><input type="radio" name="cargo-space" checked={cargoSpace==="حمولة جزئية أخرى"} onChange={()=>setCargoSpace("حمولة جزئية أخرى")}/> حمولة جزئية أخرى</label></div></fieldset>
                 <label>نوع المركبة<select required value={draft.truck_type} onChange={e=>setDraft({...draft,truck_type:e.target.value})}><option value="">اختر النوع</option>{TRUCK_TYPES.map(t=><option key={t}>{t}</option>)}<optgroup label="الحافلات">{BUS_TYPES.map(t=><option key={t}>{t}</option>)}</optgroup></select></label>
                 <label>تاريخ النقل<input type="date" required min={todayLocal()} value={draft.loading_date} onChange={e=>setDraft({...draft,loading_date:e.target.value})}/></label>
-                <label>السعر المقترح (درهم)<input type="number" min="0" step="0.01" value={draft.offered_price_mad ?? ""} onChange={e=>setDraft({...draft,offered_price_mad:e.target.value===""?null:Number(e.target.value)})}/></label>
+                
               </div>
               <label>ملاحظات<textarea maxLength={1000} value={draft.notes ?? ""} onChange={e=>setDraft({...draft,notes:e.target.value || null})}/></label>
               <button className="button button-primary" disabled={busy || profileLoading || !canPublishCargo(profileRole)}>{busy?"جارٍ النشر…":"نشر الشحنة"}</button>
@@ -475,45 +481,10 @@ export default function App() {
     </div>;
   }
 
-  const cargoCategories = [
-    ["الخضر والفواكه","photo-1540420773420-3366772f4999"],["الحبوب والدقيق","photo-1574323347407-f5e1ad6d020b"],["الألبان ومشتقاتها","photo-1563636619-e9143da7973b"],["المواد المجمدة","photo-1518843875459-f738682238a6"],
-    ["الإسمنت","photo-1518709268805-4e9042af9f23"],["الآجر والطوب","photo-1581094794329-c8112a89af12"],["الحديد والمعادن","photo-1504917595217-d4dc5ebe6122"],["الرمل والحصى","photo-1518709268805-4e9042af9f23"],["السيراميك","photo-1600607687939-ce8a6c25118c"],["الخشب","photo-1530124566582-a618bc2615dc"],
-    ["الأثاث","photo-1555041469-a586c61ea9bc"],["الأجهزة المنزلية","photo-1555041469-a586c61ea9bc"],["التجهيز والديكور","photo-1600210492486-724fe5c67fb0"],
-    ["السلع المعلبة","photo-1607082349566-187342175e2f"],["الآلات الصناعية","photo-1581092335878-2d9ff86ca2bf"],["الأقمشة والملابس","photo- textile"],["البلاستيك","photo-1607082349566-187342175e2f"],["الورق والكرتون","photo-1607082349566-187342175e2f"],["الإلكترونيات","photo-1498049794561-7780e7231661"],
-    ["السيارات","photo-1492144534655-ae79c964c9d7"],["معدات الحفر","photo- excavator"],["المعدات الفلاحية","photo- tractor"],["الأنابيب والمعادن","photo-1504917595217-d4dc5ebe6122"],["المولدات","photo-1518709268805-4e9042af9f23"],["الحمولات الضخمة","photo-1601584115197-04ecc0da31d7"],
-    ["بضائع متنوعة","photo-1607082349566-187342175e2f"],["شحنات خاصة","photo-1601584115197-04ecc0da31d7"]
-  ];
-  const categoryImages: Record<string,string> = {    "الخضر والفواكه":"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80",
-    "الحبوب والدقيق":"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=500&q=80",    "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
-    "المواد المجمدة":categoryArtwork("frozen"),
-    "الإسمنت":categoryArtwork("cement"),
-    "الآجر والطوب":categoryArtwork("bricks"),
-    "الحديد والمعادن":"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80",
-    "الرمل والحصى":categoryArtwork("gravel"),
-    "السيراميك":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=500&q=80",
-    "الخشب":"https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=500&q=80",
-    "الأثاث":"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80",
-    "الأجهزة المنزلية":categoryArtwork("appliances"),
-    "التجهيز والديكور":"https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=500&q=80",
-    "السلع المعلبة":categoryArtwork("cans"),
-    "الآلات الصناعية":"https://images.unsplash.com/photo-1581092335878-2d9ff86ca2bf?auto=format&fit=crop&w=500&q=80",
-    "الأقمشة والملابس":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=500&q=80",
-    "البلاستيك":categoryArtwork("plastic"),
-    "الورق والكرتون":categoryArtwork("paper"),
-    "الإلكترونيات":"https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=500&q=80",
-    "السيارات":"https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=500&q=80",
-    "معدات الحفر":categoryArtwork("excavator"),
-    "المعدات الفلاحية":categoryArtwork("tractor"),
-    "الأنابيب والمعادن":categoryArtwork("pipes"),
-    "المولدات":categoryArtwork("generator"),
-    "الحمولات الضخمة":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=500&q=80",
-    "بضائع متنوعة":categoryArtwork("boxes"),
-    "شحنات خاصة":categoryArtwork("special")
-  };
   return <div className="app-shell">
     <header className="topbar home-topbar services-topbar approved-services-topbar">
       <a className="brand home-brand" href="./" aria-label="Barkoul.ma الصفحة الرئيسية"><BrandTruck/><span className="brand-word">Barkoul<span>.ma</span></span></a>
-      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الرئيسية</a><a className="home-nav-link" href="#search">أبحث عن شحنة</a><a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="home-nav-link" href="#categories">خدماتنا</a><a className="home-nav-link" href="#footer">الدعم والمساعدة</a><a className="account-entry" href="#admin">غرفة المدير</a></nav>
+      <nav aria-label="التنقل"><a className="home-nav-link" href="./">الرئيسية</a><a className="home-nav-link" href="#search">أبحث عن شحنة</a><a className="account-entry" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="home-nav-link" href="#categories">أنواع المركبات</a><a className="home-nav-link" href="#footer">الدعم والمساعدة</a><a className="account-entry" href="#admin">غرفة المدير</a></nav>
     </header>
     <main>
       <section className="approved-services-hero">
@@ -539,21 +510,17 @@ export default function App() {
         </div>
       </section>
       <section className="approved-search-panel" id="search"><div className="approved-search-actions"><a className="button button-primary" href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أنشر شحنة</a><a className="button button-light" href="#available-cargos">أبحث عن شحنة</a></div><p className="muted simple-search-hint">اضغط على «أبحث عن شحنة» لرؤية الشحنات، أو اكتب ما تبحث عنه في خانة البحث.</p></section>
-      <section className="approved-categories approved-small-truck-category" aria-label="الشاحنات الصغيرة">
-        <div className="category-heading"><p className="eyebrow">فئة الشاحنات</p><h2>الشاحنات الصغيرة</h2><p>خيار مخصص للشاحنات الصغيرة لنقل البضائع والحمولات الخفيفة داخل المدن وبينها.</p></div>
-        <div className="approved-category-grid"><a href="#available-cargos" onClick={()=>setCargoSearch("شاحنة صغيرة")}><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=700&q=80" alt="شاحنة صغيرة لنقل البضائع" loading="lazy"/><strong>شاحنة صغيرة</strong></a></div>
+      <section className="vehicle-category-section" id="categories" aria-label="فئات المركبات">
+        <div className="category-heading"><p className="eyebrow">اختر نوع المركبة</p><h2>ماذا تبحث عنه؟</h2><p>اختر صورة واحدة لعرض الأنواع المتوفرة.</p></div>
+        <div className="vehicle-category-grid">{VEHICLE_GROUPS.map(group=><button type="button" className={selectedVehicleCategory===group.key?"vehicle-category-card active":"vehicle-category-card"} key={group.key} onClick={()=>setSelectedVehicleCategory(selectedVehicleCategory===group.key?null:group.key)} aria-expanded={selectedVehicleCategory===group.key}><img src={group.image} alt="" loading="lazy"/><span>{group.title}</span><b aria-hidden="true">›</b></button>)}</div>
+        {selectedVehicleCategory && <div className="vehicle-subtype-panel" aria-live="polite"><div className="vehicle-subtype-heading"><h3>{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.title}</h3><button type="button" className="text-button" onClick={()=>setSelectedVehicleCategory(null)}>العودة للفئات</button></div><div className="vehicle-subtype-grid">{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.types.map((type,index)=><button type="button" className="vehicle-subtype-card" key={type} onClick={()=>{setCargoSearch(type);document.getElementById("available-cargos")?.scrollIntoView({behavior:"smooth"});}}><span className="vehicle-subtype-icon" aria-hidden="true">{selectedVehicleCategory==="bus"?"▰":selectedVehicleCategory==="small"?"🚚":"🚛"}</span><strong>{type}</strong></button>)}</div></div>}
       </section>
-      <section className="approved-categories approved-bus-categories" aria-label="الحافلات وخدمات نقل الركاب">
-        <div className="category-heading"><p className="eyebrow">قسم مستقل للحافلات</p><h2>الحافلات والنقل السياحي</h2><p>اختر نوع الحافلة لعرض طلبات النقل المناسبة، بما فيها النقل السياحي وبين المدن والنقل المدرسي ونقل العمال.</p></div>
-        <div className="approved-category-grid">{BUS_TYPES.map((type)=><a key={type} href="#available-cargos" onClick={()=>setCargoSearch(type)}><img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=600&q=80" alt={type} loading="lazy"/><strong>{type}</strong></a>)}</div>
-      </section>
-      <section className="approved-categories" id="categories" aria-label="جميع أنواع الشحنات"><div className="category-heading"><p className="eyebrow">كل أنواع النقل</p><h2>جميع أنواع الشحنات والبضائع</h2><p>اختر السلعة لعرض الشحنات المطابقة، أو استخدم «شحنات أخرى» إذا لم تجد نوع بضاعتك.</p></div><div className="approved-category-grid">{cargoCategories.map(([name])=><a key={name} href="#available-cargos" onClick={()=>setSelectedGoods(name)}><img src={categoryImages[name] || categoryImages["بضائع متنوعة"]} alt={name} loading="lazy"/><strong>{name}</strong></a>)}</div><div className="approved-other-note"><strong>شحنات أخرى</strong><span>لم تجد السلعة؟ يمكنك كتابة اسمها وإضافة صورتها عند نشر الشحنة.</span><a href={user ? "?page=publish#publish" : "?page=publish#publish-account"}>أضف شحنة أخرى</a></div></section>
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
       <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
         {selectedGoods && <p className="selected-category">التصنيف المختار: {selectedGoods} <button className="text-button" onClick={()=>setSelectedGoods("")}>إلغاء التصفية</button></p>}
         <div className="simple-cargo-search"><label htmlFor="cargo-search">ابحث عن شحنة<input id="cargo-search" type="search" value={cargoSearch} onChange={e=>setCargoSearch(e.target.value)} placeholder="مدينة، بضاعة، أو نوع المركبة…"/></label>{cargoSearch&&<button type="button" className="text-button" onClick={()=>setCargoSearch("")}>مسح البحث</button>}</div>
         {loading ? <p className="muted">جاري تحميل الشحنات…</p> : error ? <p className="notice notice-warn">{error}</p> : visible.length === 0 ? <p className="empty">لا توجد شحنات مطابقة حالياً.</p> :
-          <div className="cargo-grid">{visible.map(c=>{const space=c.notes?.split(String.fromCharCode(10)).find(note=>note.startsWith("المساحة المطلوبة:"))?.replace("المساحة المطلوبة:","").trim();const publicNotes=c.notes?.split(String.fromCharCode(10)).filter(note=>!note.startsWith("المساحة المطلوبة:")).join(" ").trim();return <article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><div className="cargo-facts"><span>{c.goods_type}</span>{c.weight_text&&<span>{c.weight_text}</span>}{space&&<span>{space}</span>}</div>{c.offered_price_mad!=null&&<strong className="price">{c.offered_price_mad} درهم</strong>}<details className="cargo-details"><summary>عرض التفاصيل</summary><div><p><b>نوع المركبة:</b> {c.truck_type}</p><p><b>تاريخ النقل:</b> {c.loading_date}</p>{publicNotes&&<p><b>ملاحظات:</b> {publicNotes}</p>}</div></details></article>})}</div>}
+          <div className="cargo-grid">{visible.map(c=>{const space=c.notes?.split(String.fromCharCode(10)).find(note=>note.startsWith("المساحة المطلوبة:"))?.replace("المساحة المطلوبة:","").trim();const publicNotes=c.notes?.split(String.fromCharCode(10)).filter(note=>!note.startsWith("المساحة المطلوبة:")).join(" ").trim();return <article className="cargo-card" key={c.id}><div className="cargo-card-top"><span className="tag">{c.truck_type}</span><span className="muted">{c.loading_date}</span></div><h3>{c.title}</h3><p className="route">{c.origin_city}<span>←</span>{c.destination_city}</p><div className="cargo-facts"><span>{c.goods_type}</span>{c.weight_text&&<span>{c.weight_text}</span>}{space&&<span>{space}</span>}</div><details className="cargo-details"><summary>عرض التفاصيل</summary><div><p><b>نوع المركبة:</b> {c.truck_type}</p><p><b>تاريخ النقل:</b> {c.loading_date}</p>{publicNotes&&<p><b>ملاحظات:</b> {publicNotes}</p>}</div></details></article>})}</div>}
       </section>
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace key={user.id} userId={user.id} role={profileRole} openCargos={cargos}/>}
     </main>
