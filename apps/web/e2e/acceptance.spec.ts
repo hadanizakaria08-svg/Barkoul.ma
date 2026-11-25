@@ -87,3 +87,36 @@ test("blocks direct access to the private admin room for signed-out visitors", a
   await expect(page.getByText("مركز التحكم")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "تسجيل الخروج" })).toHaveCount(0);
 });
+
+test("keeps the welcome screen focused on direct sign-in and preserves the map attribution separately", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".approved-entry-role-choice")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /غرفة المدير/ })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "تسجيل الدخول" })).toBeVisible();
+  await expect(page.locator(".approved-map-credit a")).toContainText("Vegeta228");
+  await expect(page.locator(".approved-map-credit a")).toContainText("CC BY-SA 4.0");
+  await expect(page.locator(".approved-map-routes circle")).toHaveCount(11);
+  await expect(page.locator(".approved-entry-map .morocco-mark")).toHaveAttribute("loading", "eager");
+});
+
+test("vehicle subtype choices always include a visible photo and update the route filter", async ({ page }) => {
+  await page.goto("/?page=services");
+  const groups = page.locator("#vehicle-categories .vehicle-category-card");
+  await expect(groups).toHaveCount(3);
+  for (const groupName of ["الشاحنات الكبيرة", "الشاحنات الصغيرة", "الحافلات"]) {
+    await page.locator("#vehicle-categories").getByRole("button", { name: new RegExp(groupName) }).click();
+    const subtypeCards = page.locator(".vehicle-subtype-card");
+    await expect(subtypeCards.first()).toBeVisible();
+    await expect(subtypeCards.first().locator("img")).toHaveAttribute("src", /^https:\/\//);
+    await subtypeCards.first().click();
+    await expect(page.locator("#search").getByLabel("نوع المركبة")).not.toHaveValue("");
+  }
+});
+
+test("services screen passes automated WCAG 2.2 AA checks", async ({ page }) => {
+  await page.goto("/?page=services");
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
+  expect(results.violations).toEqual([]);
+});
