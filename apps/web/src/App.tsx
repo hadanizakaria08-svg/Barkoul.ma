@@ -473,9 +473,13 @@ export default function App() {
                   <circle cx="65" cy="91" r="3.5"/><circle cx="53" cy="119" r="3.5"/>
                 </g>
               </svg>
-              <span>شبكة نقل تربط مدن المغرب</span>
+              <span>مسارات توضيحية تربط مدن المغرب</span>
             </div>
-            <small className="approved-map-credit"><a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">مصدر الخريطة: Vegeta228 · CC BY-SA 4.0</a></small>
+            <small className="approved-map-credit">
+              مصدر الخريطة: <a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">Vegeta228</a>
+              {" · "}<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
+              {" · "}أضيفت مسارات توضيحية
+            </small>
             <div className="approved-entry-vehicles">
               <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/>
               <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=850&q=90" alt="حافلة نقل ركاب" fetchPriority="high"/>
