@@ -81,7 +81,7 @@ test("connects the welcome, services, search, category and publishing navigation
   await expect(page).toHaveURL(/[?]page=services#available-cargos$/);
   await expect(page.locator("#available-cargos")).toBeVisible();
 
-  await page.locator("#vehicle-categories").getByRole("button", { name: /الشاحنات الكبيرة/ }).click();
+  await page.locator("#vehicle-categories").getByRole("button", { name: /شاحنات كبيرة/ }).click();
   await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة تبريد" }).click();
   await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة تبريد");
 
