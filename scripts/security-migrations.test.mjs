@@ -290,3 +290,31 @@ describe("workspace account isolation", () => {
     assert.ok(workspace.includes("setProfile({full_name:\"\",phone:\"\"})"));
   });
 });
+
+
+const concurrencyHarness = await readFile(
+  new URL("../scripts/postgres-concurrency.test.mjs", import.meta.url),
+  "utf8"
+);
+
+describe("PostgreSQL multi-session concurrency regression coverage", () => {
+  it("uses independent sessions and waits for observable row-lock contention", () => {
+    assert.ok(concurrencyHarness.includes("PGAPPNAME: applicationName"));
+    assert.ok(concurrencyHarness.includes("wait_event_type"));
+    assert.ok(concurrencyHarness.includes('activity.startsWith("Lock|")'));
+  });
+
+  it("covers competing acceptances, both acceptance/cancellation orderings, and duplicate payment", () => {
+    for (const marker of [
+      "testTwoAccepts",
+      "testAcceptWinsCancellation",
+      "testCancelWinsAcceptance",
+      "testDuplicateCommissionPayment",
+      "public.respond_to_negotiation",
+      "public.cancel_open_cargo",
+      "public.admin_record_commission_payment"
+    ]) {
+      assert.ok(concurrencyHarness.includes(marker), "missing concurrency scenario: " + marker);
+    }
+  });
+});

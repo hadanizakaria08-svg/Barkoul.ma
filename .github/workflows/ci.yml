@@ -57,3 +57,10 @@ jobs:
           PGUSER: postgres
           PGDATABASE: barkoul_test
         run: psql -v ON_ERROR_STOP=1 -f scripts/postgres-security-smoke.sql
+      - name: Run multi-session transaction race tests
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGDATABASE: barkoul_test
+        run: npm run test:postgres-concurrency
