@@ -57,26 +57,51 @@ const VEHICLE_GROUPS = [
 
 function vehicleArtwork(type: string): string {
   const bus = type.includes("حافلة");
-  const pickup = type === "بيك أب";
+  const schoolBus = type.includes("مدرسية");
+  const cityBus = type.includes("الحضري");
+  const workerBus = type.includes("العمال");
+  const miniBus = type.includes("ميني باص");
   const tank = type.includes("صهريج");
   const dump = type.includes("قلاب");
   const flat = type.includes("مسطحة") || type.includes("سطحة");
   const reefer = type.includes("تبريد");
   const semi = type.includes("جرار");
-  const small = type.includes("صغيرة") || pickup || type.includes("ميني باص");
+  const pickup = type === "بيك أب";
+  const covered = type.includes("مغطاة");
+  const closedBox = type.includes("صندوق مغلق");
+  const medium = type.includes("متوسطة");
+  const small = type.includes("صغيرة") || pickup || miniBus;
   const body = bus
-    ? '<path d="M38 92Q38 68 62 68H224Q250 68 250 94V178H38Z" fill="#168be2" stroke="#124b80" stroke-width="8"/><path d="M54 83h31v48H54Zm42 0h34v48H96Zm45 0h34v48h-34Zm45 0h42v48h-42Z" fill="#dff3ff" stroke="#124b80" stroke-width="5"/><path d="M42 148h204" stroke="#ffd24a" stroke-width="9"/>'
+    ? miniBus
+      ? '<path d="M62 95Q62 72 84 72H195L232 111V176H62Z" fill="#168be2" stroke="#124b80" stroke-width="8"/><path d="M78 88h35v43H78Zm45 0h37v43h-37Zm48 0h22l28 34h-50Z" fill="#dff3ff" stroke="#124b80" stroke-width="5"/>'
+      : schoolBus
+      ? '<path d="M38 92Q38 68 62 68H224Q250 68 250 94V178H38Z" fill="#f6c844" stroke="#124b80" stroke-width="8"/><path d="M54 83h31v48H54Zm42 0h34v48H96Zm45 0h34v48h-34Zm45 0h42v48h-42Z" fill="#dff3ff" stroke="#124b80" stroke-width="5"/><path d="M42 148h204" stroke="#fff" stroke-width="7"/>'
+      : cityBus
+      ? '<path d="M34 92Q34 68 60 68H230Q254 68 254 94V178H34Z" fill="#168be2" stroke="#124b80" stroke-width="8"/><path d="M50 83h42v48H50Zm51 0h42v48h-42Zm51 0h42v48h-42Zm51 0h43v48h-43Z" fill="#dff3ff" stroke="#124b80" stroke-width="5"/><path d="M34 151h220" stroke="#ffd24a" stroke-width="10"/>'
+      : workerBus
+      ? '<path d="M48 88Q48 68 69 68H215Q238 68 238 91V178H48Z" fill="#e9f4fb" stroke="#124b80" stroke-width="8"/><path d="M64 83h33v47H64Zm43 0h33v47h-33Zm43 0h33v47h-33Zm43 0h30v47h-30Z" fill="#168be2" stroke="#124b80" stroke-width="5"/><path d="M48 149h190" stroke="#ffd24a" stroke-width="8"/>'
+      : '<path d="M38 92Q38 68 62 68H224Q250 68 250 94V178H38Z" fill="#168be2" stroke="#124b80" stroke-width="8"/><path d="M54 83h31v48H54Zm42 0h34v48H96Zm45 0h34v48h-34Zm45 0h42v48h-42Z" fill="#dff3ff" stroke="#124b80" stroke-width="5"/><path d="M42 148h204" stroke="#ffd24a" stroke-width="9"/>'
     : tank
     ? '<path d="M83 91Q83 66 110 66H194Q221 66 221 91V158H83Z" fill="#d9eaf6" stroke="#155b91" stroke-width="8"/><path d="M100 84h104M100 140h104" stroke="#168be2" stroke-width="7"/><path d="M143 65V52h20v13" stroke="#155b91" stroke-width="7"/>'
     : dump
     ? '<path d="M65 91 221 65 232 145 75 171Z" fill="#f5c64a" stroke="#155b91" stroke-width="8" stroke-linejoin="round"/><path d="M76 111 224 87" stroke="#fff1b5" stroke-width="7"/>'
     : flat
-    ? '<path d="M48 139h188v20H48Z" fill="#b7d0e3" stroke="#155b91" stroke-width="7"/><path d="M64 129v-20m150 20v-20" stroke="#155b91" stroke-width="7"/>'
+    ? '<path d="M48 139h188v20H48Z" fill="#b7d0e3" stroke="#155b91" stroke-width="7"/><path d="M64 129v-20m48 20V99m102 30v-20" stroke="#155b91" stroke-width="7"/><rect x="94" y="88" width="82" height="39" rx="5" fill="#d6e9f7" stroke="#168be2" stroke-width="5"/>'
     : reefer
-    ? '<rect x="52" y="73" width="145" height="88" rx="8" fill="#e9f7ff" stroke="#155b91" stroke-width="8"/><path d="M125 91v52m-25-26h50m-42-18 34 36m0-36-34 36" stroke="#168be2" stroke-width="6" stroke-linecap="round"/>'
+    ? '<rect x="52" y="73" width="145" height="88" rx="8" fill="#e9f7ff" stroke="#155b91" stroke-width="8"/><path d="M125 91v52m-25-26h50m-42-18 34 36m0-36-34 36" stroke="#168be2" stroke-width="6" stroke-linecap="round"/><rect x="62" y="83" width="18" height="68" rx="4" fill="#b5dff5"/>'
     : semi
     ? '<path d="M28 104h160v54H28Z" fill="#e9f4fb" stroke="#155b91" stroke-width="8"/><path d="M188 115h39l35 34v9h-74Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>'
-    : '<rect x="48" y="77" width="'+(small?105:164)+'" height="83" rx="7" fill="'+(pickup?"#e9f4fb":"#d9eaf6")+'" stroke="#155b91" stroke-width="8"/><path d="M'+(small?153:212)+' 113h32l28 34v13h-60Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>';
+    : pickup
+    ? '<path d="M48 104h102v56H48Z" fill="#d9eaf6" stroke="#155b91" stroke-width="8"/><path d="M150 118h42l34 34v8h-76Z" fill="#168be2" stroke="#155b91" stroke-width="8"/><path d="M62 112h72v38H62Z" fill="#f8fcff"/>'
+    : covered
+    ? '<path d="M48 116Q48 65 92 65H188Q230 65 230 116V160H48Z" fill="#c8e5f7" stroke="#155b91" stroke-width="8"/><path d="M70 91q14-16 28-16m10 16q14-16 28-16m10 16q14-16 28-16m10 16q14-16 28-16" stroke="#168be2" stroke-width="5" fill="none"/>'
+    : closedBox
+    ? '<rect x="48" y="67" width="145" height="94" rx="5" fill="#e4edf4" stroke="#155b91" stroke-width="8"/><path d="M172 73v82m13-82v82" stroke="#8baac1" stroke-width="5"/><path d="M193 111h34l34 39v11h-68Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>'
+    : medium
+    ? '<rect x="55" y="84" width="122" height="77" rx="6" fill="#c8e5f7" stroke="#155b91" stroke-width="8"/><path d="M177 113h38l29 36v12h-67Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>'
+    : small
+    ? '<rect x="62" y="103" width="88" height="58" rx="6" fill="#d9eaf6" stroke="#155b91" stroke-width="8"/><path d="M150 117h37l31 34v10h-68Z" fill="#168be2" stroke="#155b91" stroke-width="8"/>'
+    : '<rect x="42" y="75" width="158" height="86" rx="6" fill="#d9eaf6" stroke="#155b91" stroke-width="8"/><path d="M200 112h28l31 38v11h-59Z" fill="#168be2" stroke="#155b91" stroke-width="8"/><path d="M55 88h130" stroke="#fff" stroke-width="6"/>';
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 210"><defs><linearGradient id="vbg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3faff"/><stop offset="1" stop-color="#d9edfc"/></linearGradient></defs><rect width="290" height="210" rx="18" fill="url(#vbg)"/><path d="M18 176h254" stroke="#9abbd5" stroke-width="7" stroke-linecap="round"/>'+body+'<path d="M25 163h242" stroke="#155b91" stroke-width="7" stroke-linecap="round"/><circle cx="88" cy="166" r="18" fill="#233d55" stroke="#fff" stroke-width="6"/><circle cx="88" cy="166" r="6" fill="#d8e9f5"/><circle cx="216" cy="166" r="18" fill="#233d55" stroke="#fff" stroke-width="6"/><circle cx="216" cy="166" r="6" fill="#d8e9f5"/></svg>';
   return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
 }
