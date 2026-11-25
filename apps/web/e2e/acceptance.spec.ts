@@ -39,7 +39,7 @@ test("preserves route filters, all cargo categories, vehicle groups and private 
   await expect(page.locator("#vehicle-categories .vehicle-category-card")).toHaveCount(3);
   await expect(page.getByText("شحنات أخرى", {exact:true})).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
-  await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنات", exact: true }).click();
+  await page.locator("#vehicle-categories .vehicle-category-card").nth(1).click();
   await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة صغيرة", exact: true }).click();
   await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة صغيرة");
   await page.goto("/?page=publish#publish-account");
