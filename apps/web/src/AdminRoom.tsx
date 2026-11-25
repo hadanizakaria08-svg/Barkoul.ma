@@ -116,7 +116,7 @@ export default function AdminRoom({
     return <main className="admin-gate" dir="rtl"><section className="admin-gate-card">
       <div className="admin-lock" aria-hidden="true">🔒</div><p className="eyebrow">منطقة محمية</p>
       <h1>غرفة المدير</h1><p>هذه المنطقة خاصة بحسابات الإدارة المصرّح لها فقط. سجّل الدخول أولاً.</p>
-      <div className="admin-gate-actions">{homeLink}<a className="button button-primary" href="./?page=publish#publish-account">تسجيل الدخول</a></div>
+      <div className="admin-gate-actions">{homeLink}<a className="button button-primary" href="./">العودة إلى تسجيل الدخول</a></div>
     </section></main>;
   }
   if (profileLoading) {
