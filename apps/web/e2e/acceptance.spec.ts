@@ -39,20 +39,25 @@ test("preserves route filters, all cargo categories, vehicle groups and private 
   await expect(page.locator("#vehicle-categories .vehicle-category-card")).toHaveCount(3);
   await expect(page.getByText("شحنات أخرى", {exact:true})).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
+  await page.locator("#vehicle-categories").getByRole("button", { name: "الشاحنات الصغيرة" }).click();
+  await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة صغيرة", exact: true }).click();
+  await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة صغيرة");
   await page.goto("/?page=publish#publish-account");
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
   await expect(page.getByLabel("كلمة المرور")).toBeVisible();
 });
 
-test("keeps both approved public pages within a narrow mobile viewport", async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 800 });
-  for (const path of ["/", "/?page=services"]) {
-    await page.goto(path);
-    const dimensions = await page.evaluate(() => ({
-      viewport: document.documentElement.clientWidth,
-      document: document.documentElement.scrollWidth
-    }));
-    expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
+test("keeps both approved public pages responsive without horizontal overflow at common device widths", async ({ page }) => {
+  for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/", "/?page=services"]) {
+      await page.goto(path);
+      const dimensions = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        document: document.documentElement.scrollWidth
+      }));
+      expect(dimensions.document, `horizontal overflow at ${width}px on ${path}`).toBeLessThanOrEqual(dimensions.viewport);
+    }
   }
 });
 
