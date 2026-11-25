@@ -222,12 +222,12 @@ export default function App() {
   }, [db, user?.id]);
 
   useEffect(() => {
-    if (!redirectAfterPasskey || !user || profileLoading || profileError) return;
-    // Route the authenticated account to its actual workspace after its role is loaded.
-    const destination = profileRole === "owner" ? "?page=publish#publish" : "?page=services";
-    window.location.assign(destination);
+    if (!redirectAfterPasskey || !user) return;
+    // A verified passkey session should leave the login screen immediately.
+    // Role-specific actions remain protected inside the destination page.
     setRedirectAfterPasskey(false);
-  }, [redirectAfterPasskey, user?.id, profileLoading, profileError, profileRole]);
+    window.location.assign("?page=services");
+  }, [redirectAfterPasskey, user?.id]);
 
   async function submitRoleRequest(requestedRole:"driver"|"owner") {
     if (!db || !user || profileRole !== "user") return;
@@ -278,7 +278,12 @@ export default function App() {
     try {
       const { error } = await db.auth.signInWithPasskey();
       if (error) throw error;
-      setPasskeyMessage("تم تسجيل الدخول بنجاح باستخدام مفتاح المرور.");
+      // Confirm that Supabase persisted a real session before leaving the login page.
+      const { data: sessionData, error: sessionError } = await db.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!sessionData.session?.user) throw new Error("Passkey sign-in returned without an authenticated session.");
+      setUser({ id: sessionData.session.user.id });
+      setPasskeyMessage("تم الدخول بنجاح. جارٍ فتح حسابك…");
       setRedirectAfterPasskey(true);
     } catch (error) {
       setPasskeyMessage(passkeyErrorMessage(error));
@@ -538,7 +543,7 @@ export default function App() {
       <section className="vehicle-category-section" id="vehicle-categories" aria-label="فئات المركبات">
         <div className="category-heading"><p className="eyebrow">اختر نوع المركبة</p><h2>الشاحنات والحافلات</h2><p>اختر فئة المركبة ثم النوع المطلوب لتصفية الشحنات.</p></div>
         <div className="vehicle-category-grid">{VEHICLE_GROUPS.map(group=><button type="button" className={selectedVehicleCategory===group.key?"vehicle-category-card active":"vehicle-category-card"} key={group.key} onClick={()=>setSelectedVehicleCategory(selectedVehicleCategory===group.key?null:group.key)} aria-expanded={selectedVehicleCategory===group.key}><img src={group.image} alt={group.title} loading="lazy"/><span>{group.title}</span><b aria-hidden="true">›</b></button>)}</div>
-        {selectedVehicleCategory && <div className="vehicle-subtype-panel" aria-live="polite"><div className="vehicle-subtype-heading"><h3>{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.title}</h3><button type="button" className="text-button" onClick={()=>setSelectedVehicleCategory(null)}>العودة للفئات</button></div><div className="vehicle-subtype-grid">{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.types.map(type=><button type="button" className="vehicle-subtype-card" key={type} onClick={()=>{setTruck(type);document.getElementById("search")?.scrollIntoView({behavior:"smooth"});}}><span className="vehicle-subtype-icon" aria-hidden="true">{selectedVehicleCategory==="bus"?"▰":selectedVehicleCategory==="small"?"🚚":"🚛"}</span><strong>{type}</strong></button>)}</div></div>}
+        {selectedVehicleCategory && <div className="vehicle-subtype-panel" aria-live="polite"><div className="vehicle-subtype-heading"><h3>{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.title}</h3><button type="button" className="text-button" onClick={()=>setSelectedVehicleCategory(null)}>العودة للفئات</button></div><div className="vehicle-subtype-grid">{VEHICLE_GROUPS.find(group=>group.key===selectedVehicleCategory)?.types.map(type=>{const photo=type.includes("ميني باص")?"https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=360&q=80":type.includes("حافلة")?"https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=360&q=80":type.includes("صغيرة")||type==="بيك أب"?"https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=360&q=80":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=360&q=80";return <button type="button" className="vehicle-subtype-card" key={type} onClick={()=>{setTruck(type);document.getElementById("search")?.scrollIntoView({behavior:"smooth"});}}><img src={photo} alt="" loading="lazy" style={{width:"100%",height:"76px",objectFit:"cover",borderRadius:"10px"}}/><strong>{type}</strong></button>})}</div></div>}
       </section>
       {!db && <div className="notice notice-warn">الاتصال بقاعدة البيانات غير مضبوط بعد. أضف متغيرات البيئة في إعدادات البناء قبل اختبار الحسابات والشحنات.</div>}
       <section className="section" id="available-cargos"><div className="section-heading"><div><p className="eyebrow">اكتشف الفرص</p><h2>الشحنات المتاحة</h2></div><button className="button button-outline" onClick={refresh} disabled={!db || loading}>تحديث</button></div>
