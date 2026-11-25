@@ -305,7 +305,7 @@ export default function App() {
     }
     const normalizedDraft = normalizeCargoDraft({
       ...draft,
-      notes: [`المساحة المطلوبة: ${cargoSpace}`, draft.notes?.trim()].filter(Boolean).join("\\n")
+      notes: [`المساحة المطلوبة: ${cargoSpace}`, draft.notes?.trim()].filter(Boolean).join("\n")
     });
     const errors = validateCargoDraft(normalizedDraft, todayLocal());
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
