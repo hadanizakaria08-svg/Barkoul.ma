@@ -11,7 +11,7 @@
     "dev": "npm run dev --workspace @barkoul/web",
     "build": "npm run build --workspace @barkoul/web",
     "typecheck": "npm run typecheck --workspace @barkoul/web",
-    "test": "npm run test --workspace @barkoul/domain && node --test scripts/service-worker.test.mjs && node --test scripts/shield-x-lab.test.mjs && node --test scripts/seo.test.mjs",
+    "test": "npm run test --workspace @barkoul/domain && node --test scripts/service-worker.test.mjs && node --test scripts/shield-x-lab.test.mjs && node --test scripts/seo.test.mjs && node --test scripts/build-security.test.mjs",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm test && npm run build",
     "security:runtime-deps": "node scripts/check-runtime-dependency-boundary.mjs",
