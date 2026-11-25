@@ -457,27 +457,11 @@ export default function App() {
         <section className="approved-entry-hero" aria-labelledby="entry-title">
           <div className="approved-entry-visual">
             <div className="approved-entry-map">
-              <MoroccoMark/>
-              <svg className="approved-map-routes" viewBox="0 0 100 180" aria-hidden="true" focusable="false">
-                <g fill="none" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" opacity=".95">
-                  <path d="M61 20 54 37 48 54 43 73 36 92 32 111 27 132 22 153"/>
-                  <path d="M54 37 72 49 43 73 65 91 36 92 53 119 27 132"/>
-                  <path d="M48 54 26 61 43 73 19 88 36 92"/>
-                </g>
-                <g fill="#ffd24a" stroke="#ffffff" strokeWidth="1.8">
-                  <circle cx="61" cy="20" r="3.5"/><circle cx="54" cy="37" r="3.5"/><circle cx="48" cy="54" r="3.5"/>
-                  <circle cx="43" cy="73" r="3.5"/><circle cx="36" cy="92" r="3.5"/><circle cx="32" cy="111" r="3.5"/>
-                  <circle cx="27" cy="132" r="3.5"/><circle cx="22" cy="153" r="3.5"/><circle cx="72" cy="49" r="3.5"/>
-                  <circle cx="65" cy="91" r="3.5"/><circle cx="53" cy="119" r="3.5"/>
-                </g>
-              </svg>
-              <span>مسارات توضيحية تربط مدن المغرب</span>
+              <div className="approved-map-art">
+                <MoroccoMark/>
+              </div>
+              <span>خريطة المغرب كاملة</span>
             </div>
-            <small className="approved-map-credit">
-              مصدر الخريطة: <a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">Vegeta228</a>
-              {" · "}<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
-              {" · "}أضيفت مسارات توضيحية
-            </small>
             <div className="approved-entry-vehicles">
               <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/>
               <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=850&q=90" alt="حافلة نقل ركاب" fetchPriority="high"/>
@@ -512,7 +496,7 @@ export default function App() {
         </section>
         <a className="approved-guest-entry" href="?page=services">تصفح خدمات الموقع كزائر <span>←</span></a>
       </main>
-      <footer className="approved-entry-footer"><span>♧ دعم فني ومساعدة</span><span>✓ أمان وموثوقية</span><span>♧ سهولة في الاستخدام</span><span>▣ نقل سريع ومضمون</span><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong></footer>
+      <footer className="approved-entry-footer"><span>♧ دعم فني ومساعدة</span><span>✓ أمان وموثوقية</span><span>♧ سهولة في الاستخدام</span><span>▣ نقل سريع ومضمون</span><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong><small className="approved-map-attribution">مصدر خريطة المغرب: <a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">Vegeta228</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a></small></footer>
     </div>;
   }
 
