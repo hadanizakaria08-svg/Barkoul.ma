@@ -30,10 +30,12 @@ function BrandTruck() {
 }
 
 function MoroccoMark() {
-  return <svg className="morocco-mark" viewBox="0 0 220 330" role="img" aria-label="خريطة المغرب">
-    <path d="M86 8 128 18 146 49 174 54 165 85 191 104 174 133 184 157 157 180 151 214 124 228 117 265 91 280 75 316 48 302 43 268 24 250 40 221 32 193 51 172 43 143 63 116 58 86 78 62Z" fill="#D62828" stroke="white" strokeWidth="7" strokeLinejoin="round"/>
-    <path d="m100 104 15 35 37-1-30 22 12 36-34-23-31 23 11-37-30-21 38 1Z" fill="none" stroke="#087c42" strokeWidth="9" strokeLinejoin="round"/>
-  </svg>;
+  return <img
+    className="morocco-mark"
+    src="https://commons.wikimedia.org/wiki/Special:FilePath/Morocco%20full%20map.svg"
+    alt="خريطة المغرب كاملة"
+    loading="lazy"
+  />;
 }
 
 function categoryArtwork(kind: "cans" | "plastic" | "paper" | "appliances" | "tractor" | "excavator" | "bricks" | "gravel" | "pipes" | "boxes" | "special" | "generator" | "frozen" | "cement") {
@@ -197,8 +199,7 @@ export default function App() {
   const [selectedGoods, setSelectedGoods] = useState("");
   const visible = useMemo(() => filterCargos(cargos, origin, destination, truck).filter(c => !selectedGoods || matchesGoodsCategory(c.goods_type, selectedGoods)), [cargos, origin, destination, truck, selectedGoods]);
 
-  async function submitAuth(event: FormEvent) {    event.preventDefault(); if (!db) return;
-    setBusy(true); setAuthMessage("");
+  async function submitAuth(event: FormEvent) {    event.preventDefault(); if (!db) return;    setBusy(true); setAuthMessage("");
     try {
       const result = authMode === "login"
         ? await db.auth.signInWithPassword({email:email.trim(),password})
@@ -353,7 +354,7 @@ export default function App() {
         </div>
         <section className="approved-entry-hero" aria-labelledby="entry-title">
           <div className="approved-entry-visual">
-            <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب</span></div>
+            <div className="approved-entry-map"><MoroccoMark/><span>شبكة نقل تربط مدن المغرب<small><a href="https://commons.wikimedia.org/wiki/File:Morocco_full_map.svg" target="_blank" rel="noreferrer">الخريطة: Vegeta228 · CC BY-SA 4.0</a></small></span></div>
             <div className="approved-entry-vehicles">
               <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1100&q=90" alt="شاحنة نقل بضائع" fetchPriority="high"/>
               <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=850&q=90" alt="حافلة نقل ركاب" fetchPriority="high"/>
@@ -397,8 +398,7 @@ export default function App() {
     ["بضائع متنوعة","photo-1607082349566-187342175e2f"],["شحنات خاصة","photo-1601584115197-04ecc0da31d7"]
   ];
   const categoryImages: Record<string,string> = {    "الخضر والفواكه":"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80",
-    "الحبوب والدقيق":"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=500&q=80",
-    "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
+    "الحبوب والدقيق":"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=500&q=80",    "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
     "المواد المجمدة":categoryArtwork("frozen"),
     "الإسمنت":categoryArtwork("cement"),
     "الآجر والطوب":categoryArtwork("bricks"),
