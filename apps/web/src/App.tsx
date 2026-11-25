@@ -285,6 +285,22 @@ export default function App() {
     }
   }
 
+  async function signInWithGitHub() {
+    if (!db) { setAuthMessage("خدمة الحسابات غير متاحة حالياً."); return; }
+    setBusy(true);
+    setAuthMessage("");
+    try {
+      const { error } = await db.auth.signInWithOAuth({
+        provider: "github",
+        options: { redirectTo: new URL("./", window.location.href).toString() }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setAuthMessage(authErrorMessage(error));
+      setBusy(false);
+    }
+  }
+
   async function signInWithPasskey() {
     if (!db) { setPasskeyMessage("خدمة الحسابات غير متاحة حالياً."); return; }
     if (!window.isSecureContext || !("credentials" in navigator) || !("PublicKeyCredential" in window)) {
@@ -401,6 +417,7 @@ export default function App() {
               <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
               {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
               <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
+              {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={busy || !db} onClick={()=>void signInWithGitHub()}>المتابعة باستخدام GitHub</button>}
               {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void signInWithPasskey()}>{passkeyBusy?"جارٍ التحقق…":"الدخول بالبصمة أو مفتاح المرور"}</button>}
               {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
               {!resetMode && authMode==="login" && <button type="button" className="text-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
@@ -489,6 +506,7 @@ export default function App() {
                 <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="البريد الإلكتروني"/></label>
                 {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"} placeholder="كلمة المرور"/></label>}
                 <button className="button button-primary approved-login-submit" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"دخول":"إنشاء حساب"}</button>
+                {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={busy || !db} onClick={()=>void signInWithGitHub()}>المتابعة باستخدام GitHub</button>}
                 {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void signInWithPasskey()}>{passkeyBusy?"جارٍ التحقق…":"الدخول بالبصمة أو مفتاح المرور"}</button>}
                 {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
                 {!resetMode && authMode==="login" && <button type="button" className="approved-reset-button" onClick={()=>{setResetMode(true);setAuthMessage("");}}>نسيت كلمة المرور؟</button>}
