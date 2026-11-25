@@ -120,3 +120,21 @@ test("services screen passes automated WCAG 2.2 AA checks", async ({ page }) => 
     .analyze();
   expect(results.violations).toEqual([]);
 });
+
+test("keeps the route overlay aligned with the full Morocco map on desktop and mobile", async ({ page }) => {
+  for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    const dimensions = await page.evaluate(() => {
+      const map = document.querySelector(".approved-entry-map .morocco-mark")?.getBoundingClientRect();
+      const routes = document.querySelector(".approved-map-routes")?.getBoundingClientRect();
+      return map && routes ? {
+        mapWidth: map.width, mapHeight: map.height,
+        routeWidth: routes.width, routeHeight: routes.height
+      } : null;
+    });
+    expect(dimensions).not.toBeNull();
+    expect(Math.abs(dimensions!.mapWidth - dimensions!.routeWidth)).toBeLessThanOrEqual(1);
+    expect(Math.abs(dimensions!.mapHeight - dimensions!.routeHeight)).toBeLessThanOrEqual(1);
+  }
+});
