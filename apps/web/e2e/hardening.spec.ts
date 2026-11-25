@@ -59,16 +59,13 @@ test("keeps cargo publication fields private until a visitor signs in", async ({
 
 test("accepts Arabic route search and vehicle selection without navigation errors", async ({ page }) => {
   await page.goto("/?page=services");
-  const search = page.locator("#search");
-  const origin = search.getByLabel("من مدينة");
-  const destination = search.getByLabel("إلى مدينة");
-  const vehicle = search.getByLabel("نوع المركبة");
-  await origin.fill("الدار البيضاء");
-  await destination.fill("مراكش");
-  await vehicle.selectOption({ label: "شاحنة تبريد" });
-  await expect(origin).toHaveValue("الدار البيضاء");
-  await expect(destination).toHaveValue("مراكش");
-  await expect(vehicle).toHaveValue("شاحنة تبريد");
+  const search = page.getByLabel("ابحث عن شحنة");
+  await search.fill("الدار البيضاء");
+  await expect(search).toHaveValue("الدار البيضاء");
+  await page.getByRole("button", { name: /الشاحنات الكبيرة/ }).click();
+  await page.getByRole("button", { name: "شاحنة تبريد" }).click();
+  await expect(search).toHaveValue("شاحنة تبريد");
+  await expect(page.locator(".vehicle-subtype-panel")).toContainText("شاحنة تبريد");
   await expect(page.getByRole("heading", { name: "الشحنات المتاحة" })).toBeVisible();
 });
 
@@ -102,8 +99,8 @@ test("meets automated WCAG 2.2 AA checks across both approved public pages", asy
 
 test("keeps all category image cards descriptive and sourced from the approved image host", async ({ page }) => {
   await page.goto("/?page=services");
-  const cards = page.locator(".approved-category-grid a");
-  await expect(cards).toHaveCount(27);
+  const cards = page.locator(".vehicle-category-card");
+  await expect(cards).toHaveCount(3);
   const imageData = await cards.locator("img").evaluateAll(images =>
     images.map(image => ({
       alt: image.getAttribute("alt"),
