@@ -57,7 +57,7 @@ jobs:
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
-              | jq '[.artifacts[] | select(.name == "github-pages")] | length')
+              | jq --arg artifact "github-pages-$GITHUB_RUN_ATTEMPT" '[.artifacts[] | select(.name == $artifact)] | length')
             if [ "$count" -ge 1 ]; then
               echo "Pages artifact is visible (attempt $attempt); waiting for the Pages deployment API to catch up."
               sleep 10
