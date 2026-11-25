@@ -680,3 +680,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .cargo-space-options{display:flex;flex-wrap:wrap;gap:10px 18px}
 .cargo-space-options label{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#f5faff;font-weight:750}
 .cargo-space-options input{accent-color:#0b5cc1;width:18px;height:18px}
+
+
+/* Simple, readable cargo cards for the internal shipment-browsing experience. */
+.cargo-card{display:flex;flex-direction:column;gap:9px;background:#fff;box-shadow:0 5px 18px #0b4b8510}
+.cargo-card h3{margin:3px 0;color:var(--navy)}
+.cargo-facts{display:flex;flex-wrap:wrap;gap:7px}
+.cargo-facts span{padding:6px 9px;border-radius:8px;background:#edf6ff;color:#174b78;font-size:12px;font-weight:800}
+.cargo-details{margin-top:auto;padding-top:9px;border-top:1px solid var(--line)}
+.cargo-details summary{width:max-content;cursor:pointer;color:var(--blue);font-size:13px;font-weight:900}
+.cargo-details>div{padding:8px 2px 0;color:var(--muted);font-size:13px;line-height:1.8}
+.cargo-details p{margin:4px 0}
+@media(max-width:760px){.cargo-grid{grid-template-columns:1fr}.cargo-card{padding:15px}.filters{grid-template-columns:1fr}}
