@@ -15,7 +15,8 @@ const VEHICLE_GROUPS = [
   { key: "small", title: "الشاحنات الصغيرة", image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=900&q=85", types: ["شاحنة صغيرة بصندوق مغلق", "شاحنة صغيرة سطحة", "شاحنة صغيرة مغطاة", "شاحنة صغيرة مبردة", "بيك أب", "شاحنة صغيرة قلاب"] },
   { key: "bus", title: "الحافلات", image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=900&q=85", types: [...BUS_TYPES] }
 ] as const;
-\nconst todayLocal = () => {
+
+const todayLocal = () => {
   const now = new Date();
   return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
 };
