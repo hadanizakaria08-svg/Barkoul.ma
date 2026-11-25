@@ -269,7 +269,7 @@ export default function App() {
         } catch {
           // A confirmed session is sufficient to enter the public services area.
         }
-        window.location.assign(role === "owner" ? "?page=publish#publish" : "?page=services");
+        window.location.assign(role === "admin" ? "./#admin" : role === "owner" ? "?page=publish#publish" : "?page=services");
         return;
       }
       setAuthMessage("تم إنشاء الحساب. تحقق من بريدك الإلكتروني لإكمال التسجيل والدخول.");
@@ -306,7 +306,7 @@ export default function App() {
       }
       // Passkey sign-in always lands on the services hub. Publishing remains
       // available there through the existing role-aware publish entry point.
-      window.location.assign("?page=services");
+      window.location.assign(role === "admin" ? "./#admin" : role === "owner" ? "?page=publish#publish" : "?page=services");
     } catch (error) {
       setPasskeyMessage(passkeyErrorMessage(error));
     } finally { setPasskeyBusy(false); }
@@ -369,7 +369,7 @@ export default function App() {
       profileLoading={profileLoading}
       profileError={profileError}
       onRefreshRole={() => void refreshProfileRole()}
-      onSignOut={() => { void db?.auth.signOut(); }}
+      onSignOut={async () => { const { error } = db ? await db.auth.signOut() : { error: null }; if (error) { setAuthMessage("تعذر تسجيل الخروج. تحقق من الاتصال ثم حاول مجدداً."); return; } window.location.assign("./"); }}
     />;
   }
 
