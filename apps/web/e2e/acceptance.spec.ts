@@ -39,7 +39,7 @@ test("preserves route filters, all cargo categories, vehicle groups and private 
   await expect(page.locator("#vehicle-categories .vehicle-category-card")).toHaveCount(3);
   await expect(page.getByText("شحنات أخرى", {exact:true})).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
-  await page.locator("#vehicle-categories").getByRole("button", { name: "الشاحنات الصغيرة" }).click();
+  await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنات" }).click();
   await page.locator("#vehicle-categories").getByRole("button", { name: "شاحنة صغيرة", exact: true }).click();
   await expect(page.locator("#search").getByLabel("نوع المركبة")).toHaveValue("شاحنة صغيرة");
   await page.goto("/?page=publish#publish-account");
@@ -105,7 +105,7 @@ test("vehicle subtype choices always include a visible photo and update the rout
   await page.goto("/?page=services");
   const groups = page.locator("#vehicle-categories .vehicle-category-card");
   await expect(groups).toHaveCount(3);
-  for (const groupName of ["الشاحنات الكبيرة", "الشاحنات الصغيرة", "الحافلات"]) {
+  for (const groupName of ["شاحنات كبيرة", "شاحنات", "الحافلات"]) {
     await page.locator("#vehicle-categories").getByRole("button", { name: new RegExp(groupName) }).click();
     const subtypeCards = page.locator(".vehicle-subtype-card");
     await expect(subtypeCards.first()).toBeVisible();
