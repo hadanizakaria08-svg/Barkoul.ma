@@ -30,12 +30,14 @@ test("does not expose publisher-role refresh to signed-out visitors", async ({ p
   await expect(page.getByRole("button", { name: "إعادة التحقق من الصلاحية" })).toHaveCount(0);
 });
 
-test("keeps search controls on the services page and account controls on the publishing page", async ({ page }) => {
+test("preserves route filters, all cargo categories, vehicle groups and private publishing controls", async ({ page }) => {
   await page.goto("/?page=services");
-  await expect(page.getByLabel("ابحث عن شحنة")).toBeVisible();
-  await expect(page.locator(".vehicle-category-card")).toHaveCount(3);
-  await expect(page.locator("#search").getByLabel("من مدينة")).toHaveCount(0);
-  await expect(page.locator("#search").getByLabel("إلى مدينة")).toHaveCount(0);
+  await expect(page.locator("#search").getByLabel("من مدينة")).toBeVisible();
+  await expect(page.locator("#search").getByLabel("إلى مدينة")).toBeVisible();
+  await expect(page.locator("#search").getByLabel("نوع المركبة")).toBeVisible();
+  await expect(page.locator(".approved-category-grid a")).toHaveCount(27);
+  await expect(page.locator("#vehicle-categories .vehicle-category-card")).toHaveCount(3);
+  await expect(page.getByText("شحنات أخرى", {exact:true})).toBeVisible();
   await expect(page.getByLabel("البريد الإلكتروني")).toHaveCount(0);
   await page.goto("/?page=publish#publish-account");
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
