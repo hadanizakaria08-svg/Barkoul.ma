@@ -197,8 +197,7 @@ export default function App() {
   const [selectedGoods, setSelectedGoods] = useState("");
   const visible = useMemo(() => filterCargos(cargos, origin, destination, truck).filter(c => !selectedGoods || matchesGoodsCategory(c.goods_type, selectedGoods)), [cargos, origin, destination, truck, selectedGoods]);
 
-  async function submitAuth(event: FormEvent) {
-    event.preventDefault(); if (!db) return;
+  async function submitAuth(event: FormEvent) {    event.preventDefault(); if (!db) return;
     setBusy(true); setAuthMessage("");
     try {
       const result = authMode === "login"
@@ -397,8 +396,7 @@ export default function App() {
     ["السيارات","photo-1492144534655-ae79c964c9d7"],["معدات الحفر","photo- excavator"],["المعدات الفلاحية","photo- tractor"],["الأنابيب والمعادن","photo-1504917595217-d4dc5ebe6122"],["المولدات","photo-1518709268805-4e9042af9f23"],["الحمولات الضخمة","photo-1601584115197-04ecc0da31d7"],
     ["بضائع متنوعة","photo-1607082349566-187342175e2f"],["شحنات خاصة","photo-1601584115197-04ecc0da31d7"]
   ];
-  const categoryImages: Record<string,string> = {
-    "الخضر والفواكه":"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80",
+  const categoryImages: Record<string,string> = {    "الخضر والفواكه":"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=500&q=80",
     "الحبوب والدقيق":"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=500&q=80",
     "الألبان ومشتقاتها":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=500&q=80",
     "المواد المجمدة":categoryArtwork("frozen"),
@@ -465,7 +463,7 @@ export default function App() {
       </section>
       {user && (profileRole === "owner" || profileRole === "driver") && <Workspace key={user.id} userId={user.id} role={profileRole} openCargos={cargos}/>}
     </main>
-    <footer className="reference-footer" id="footer"><div className="social-links" aria-label="روابط التواصل"><a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://youtube.com/" aria-label="يوتيوب">▶</a><a href="https://linkedin.com/" aria-label="لينكدإن">in</a><a href="https://x.com/" aria-label="X">𝕏</a></div><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong><p className="footer-contact"><span>فريق Barkoul.ma</span> · <a href="mailto:contact.barkoul@gmail.com">contact.barkoul@gmail.com</a></p></footer>
+    <footer className="reference-footer" id="footer"><div className="social-links" aria-label="روابط التواصل"><a href="https://wa.me/" aria-label="واتساب">◉</a><a href="https://facebook.com/" aria-label="فيسبوك">f</a><a href="https://youtube.com/" aria-label="يوتيوب">▶</a><a href="https://linkedin.com/" aria-label="لينكدإن">in</a><a href="https://x.com/" aria-label="X">𝕏</a></div><strong>Barkoul.ma — نقل آمن، تجارتك في أمان</strong><p className="footer-contact"><span>فريق Barkoul.ma</span> · <span>سيتم إضافة بريد التواصل الرسمي بعد إنشائه</span></p></footer>
   </div>;
 
 }
