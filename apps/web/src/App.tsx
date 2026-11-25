@@ -14,6 +14,19 @@ const todayLocal = () => {
   return [now.getFullYear(), String(now.getMonth()+1).padStart(2,"0"), String(now.getDate()).padStart(2,"0")].join("-");
 };
 
+function authErrorMessage(error: unknown): string {
+  const authError = error as { code?: string; message?: string; status?: number };
+  const code = String(authError?.code ?? "").toLowerCase();
+  const message = String(authError?.message ?? "").toLowerCase();
+  if (code === "invalid_credentials" || code === "invalid_login_credentials") return "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+  if (code === "email_not_confirmed") return "يجب تأكيد البريد الإلكتروني قبل تسجيل الدخول. تحقق من صندوق الوارد والرسائل غير المرغوب فيها.";
+  if (code === "user_already_exists" || code === "email_exists") return "هذا البريد مسجل بالفعل. اختر تسجيل الدخول بدلاً من إنشاء حساب جديد.";
+  if (code === "weak_password" || message.includes("password should be")) return "كلمة المرور لا تستوفي شروط الأمان. استخدم كلمة مرور أقوى.";
+  if (code === "over_email_send_rate_limit" || code === "too_many_requests" || authError?.status === 429) return "تم تجاوز عدد المحاولات المسموح مؤقتاً. انتظر قليلاً ثم حاول مجدداً.";
+  if (message.includes("failed to fetch") || message.includes("network") || message.includes("timeout")) return "تعذر الاتصال بخدمة الحسابات. تحقق من الإنترنت وحاول مجدداً.";
+  return "تعذر إتمام العملية. راجع البريد وكلمة المرور وحالة الاتصال، ثم حاول مجدداً.";
+}
+
 function BrandTruck() {
   return <svg className="brand-truck" viewBox="0 0 180 108" role="img" aria-label="شاحنة Barkoul.ma" focusable="false">
     <path d="M10 22h91a8 8 0 0 1 8 8v49H10a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8Z" fill="#168be2" stroke="currentColor" strokeWidth="5" strokeLinejoin="round"/>
@@ -209,7 +222,7 @@ export default function App() {
       setAuthMessage(authMode === "signup" && !result.data.session
         ? "تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك."
         : "تمت العملية بنجاح.");
-    } catch { setAuthMessage("تعذر إتمام العملية. تحقق من البيانات والاتصال ثم حاول مجدداً."); }
+    } catch (error) { setAuthMessage(authErrorMessage(error)); }
     finally { setBusy(false); }
   }
 
@@ -220,7 +233,7 @@ export default function App() {
       const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + window.location.pathname });
       if (error) throw error;
       setAuthMessage("إذا كان البريد مسجلاً، فستصلك رسالة لإعادة تعيين كلمة المرور.");
-    } catch { setAuthMessage("تعذر إرسال رسالة الاستعادة حالياً. حاول مجدداً لاحقاً."); }
+    } catch (error) { setAuthMessage(authErrorMessage(error)); }
     finally { setBusy(false); }
   }
 
