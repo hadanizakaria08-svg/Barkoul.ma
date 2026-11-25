@@ -11,7 +11,7 @@
     "dev": "npm run dev --workspace @barkoul/web",
     "build": "npm run build --workspace @barkoul/web",
     "typecheck": "npm run typecheck --workspace @barkoul/web",
-    "test": "npm run test --workspace @barkoul/domain && node --test scripts/service-worker.test.mjs && node --test scripts/shield-x-lab.test.mjs && node --test scripts/seo.test.mjs && node --test scripts/build-security.test.mjs",
+    "test": "npm run test --workspace @barkoul/domain && node --test scripts/service-worker.test.mjs && node --test scripts/shield-x-lab.test.mjs && node --test scripts/seo.test.mjs && node --test scripts/build-security.test.mjs && node --test shield-x/inspection-engine.test.mjs",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm test && npm run build",
     "security:runtime-deps": "node scripts/check-runtime-dependency-boundary.mjs",
@@ -21,9 +21,7 @@
     "security:source": "node scripts/check-source-security.mjs",
     "check:legacy-html": "node scripts/check-legacy-html.mjs"
   },
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=20" },
   "devDependencies": {
     "@capacitor/cli": "^7.6.10",
     "@capacitor/android": "^7.6.10",
@@ -31,7 +29,5 @@
     "@playwright/test": "^1.56.1",
     "esbuild": "^0.25.12"
   },
-  "dependencies": {
-    "@capacitor/core": "^7.6.10"
-  }
+  "dependencies": { "@capacitor/core": "^7.6.10" }
 }
