@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { canPublishCargo, filterCargos, normalizeCargoDraft, TRUCK_TYPES, validateCargoDraft, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
 import { getCurrentProfileRole, getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
 import AdminRoom from "./AdminRoom";
@@ -17,6 +17,7 @@ const todayLocal = () => {
 export default function App() {
   const db = getSupabase();
   const [cargos, setCargos] = useState<Cargo[]>([]);
+  const cargoRefreshVersion = useRef(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [user, setUser] = useState<{id:string; email?:string} | null>(null);
@@ -46,10 +47,20 @@ export default function App() {
   }, []);
 
   async function refresh() {
+    const requestVersion = ++cargoRefreshVersion.current;
     setLoading(true); setError("");
-    try { setCargos(await listOpenCargos()); }
-    catch { setError("تعذر تحميل الشحنات حالياً. تحقق من الاتصال ثم حاول مجدداً."); }
-    finally { setLoading(false); }
+    try {
+      const nextCargos = await listOpenCargos();
+      if (requestVersion !== cargoRefreshVersion.current) return;
+      setCargos(nextCargos);
+    } catch {
+      if (requestVersion === cargoRefreshVersion.current) {
+        setError("تعذر تحميل الشحنات حالياً. تحقق من الاتصال ثم حاول مجدداً.");
+      }
+    } finally {
+      // An older request must not clear the loading state of a newer refresh.
+      if (requestVersion === cargoRefreshVersion.current) setLoading(false);
+    }
   }
 
   async function refreshProfileRole() {
