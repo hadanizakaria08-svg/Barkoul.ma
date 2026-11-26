@@ -8,6 +8,7 @@ const migration = await readFile(
 );
 const workspace = await readFile(new URL("../apps/web/src/Workspace.tsx", import.meta.url), "utf8");
 const app = await readFile(new URL("../apps/web/src/App.tsx", import.meta.url), "utf8");
+const dataLayer = await readFile(new URL("../packages/data/src/index.ts", import.meta.url), "utf8");
 const rpcValidationMigration = await readFile(
   new URL("../supabase/migrations/20261120149500_validate_rpc_arguments.sql", import.meta.url),
   "utf8"
@@ -264,6 +265,19 @@ describe("workspace mutation confirmation survives refresh failures", () => {
 
 
 const cargoRefresh = app.split("async function refresh() {")[1]?.split("async function refreshProfileRole()")[0] ?? "";
+
+describe("cargo publication session binding", () => {
+  it("rechecks the authenticated identity after profile authorization and before inserting", () => {
+    const publishBody = dataLayer.split("export async function publishCargo")[1]?.split("\\n}")[0] ?? "";
+    const profileRead = publishBody.indexOf('db.from("profiles")');
+    const identityRecheck = publishBody.indexOf("db.auth.getUser()", profileRead);
+    const cargoInsert = publishBody.indexOf('db.from("cargos").insert');
+    assert.ok(profileRead >= 0);
+    assert.ok(identityRecheck > profileRead);
+    assert.ok(cargoInsert > identityRecheck);
+    assert.ok(publishBody.includes("verifiedAuthData.user.id !== data.user.id"));
+  });
+});
 
 describe("public cargo refresh ordering", () => {
   it("allows only the newest overlapping refresh to update cargo, error, and loading state", () => {
