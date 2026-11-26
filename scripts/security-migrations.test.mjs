@@ -275,7 +275,45 @@ describe("cargo publication session binding", () => {
     assert.ok(profileRead >= 0);
     assert.ok(identityRecheck > profileRead);
     assert.ok(cargoInsert > identityRecheck);
-    assert.ok(publishBody.includes("verifiedAuthData.user.id !== data.user.id"));
+    assert.ok(publishBody.includes("expectedUserId: string"));
+    assert.ok(publishBody.includes("data.user.id !== expectedUserId"));
+    assert.ok(publishBody.includes("verifiedAuthData.user.id !== expectedUserId"));
+    assert.ok(app.includes("publishCargo(normalizedDraft,user.id)"));
+  });
+});
+
+
+describe("role and profile operations stay bound to the active account", () => {
+  it("invalidates stale profile refreshes when the authenticated identity changes", () => {
+    const refreshRole = app.split("async function refreshProfileRole()")[1]?.split("useEffect(() => {")[0] ?? "";
+    const authCallback = app.split("db.auth.onAuthStateChange")[1]?.split("refresh();")[0] ?? "";
+    assert.ok(app.includes("const currentUserId = useRef<string | null>(null)"));
+    assert.ok(refreshRole.includes("const requestVersion = ++profileRefreshVersion.current"));
+    assert.ok(refreshRole.includes("currentUserId.current !== expectedUserId"));
+    assert.ok(authCallback.includes("currentUserId.current = nextUserId"));
+    assert.ok(authCallback.includes("profileRefreshVersion.current += 1"));
+  });
+
+  it("checks the same authenticated user before and after creating a role request", () => {
+    const requestBody = app.split("async function submitRoleRequest")[1]?.split("const visible =")[0] ?? "";
+    const firstIdentityCheck = requestBody.indexOf("db.auth.getUser()");
+    const insert = requestBody.indexOf('db.from("profile_role_requests").insert');
+    const secondIdentityCheck = requestBody.lastIndexOf("db.auth.getUser()");
+    assert.ok(firstIdentityCheck >= 0);
+    assert.ok(insert > firstIdentityCheck);
+    assert.ok(secondIdentityCheck > insert);
+    assert.ok(requestBody.includes("authData.user.id !== expectedUserId"));
+    assert.ok(requestBody.includes("verifiedAuthData.user.id !== expectedUserId"));
+    assert.ok(requestBody.includes("currentUserId.current === expectedUserId"));
+  });
+
+  it("clears role-request state on account changes and ignores stale reads", () => {
+    const requestEffect = app.split("const requestVersion = ++roleRequestVersion.current")[1]?.split("async function submitRoleRequest")[0] ?? "";
+    const authCallback = app.split("db.auth.onAuthStateChange")[1]?.split("refresh();")[0] ?? "";
+    assert.ok(authCallback.includes("roleRequestVersion.current += 1"));
+    assert.ok(authCallback.includes("setRoleRequest(null)"));
+    assert.ok(requestEffect.includes("requestVersion === roleRequestVersion.current"));
+    assert.ok(requestEffect.includes("currentUserId.current === requestUserId"));
   });
 });
 

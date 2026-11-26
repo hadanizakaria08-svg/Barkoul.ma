@@ -39,6 +39,9 @@ export default function App() {
   const [destination, setDestination] = useState("");
   const [truck, setTruck] = useState("");
   const [adminRoute, setAdminRoute] = useState(() => window.location.hash === "#admin");
+  const currentUserId = useRef<string | null>(null);
+  const profileRefreshVersion = useRef(0);
+  const roleRequestVersion = useRef(0);
 
   useEffect(() => {
     const syncRoute = () => setAdminRoute(window.location.hash === "#admin");
@@ -64,16 +67,24 @@ export default function App() {
   }
 
   async function refreshProfileRole() {
-    if (!db || !user) return;
+    const expectedUserId = user?.id;
+    if (!db || !expectedUserId || currentUserId.current !== expectedUserId) return;
+    const requestVersion = ++profileRefreshVersion.current;
     setProfileLoading(true);
     setProfileError("");
     try {
-      setProfileRole(await getCurrentProfileRole(user.id));
+      const role = await getCurrentProfileRole(expectedUserId);
+      if (requestVersion !== profileRefreshVersion.current || currentUserId.current !== expectedUserId) return;
+      setProfileRole(role);
     } catch {
-      setProfileRole(null);
-      setProfileError("تعذر التحقق من صلاحيات الحساب. حدّث الصفحة وحاول مجدداً.");
+      if (requestVersion === profileRefreshVersion.current && currentUserId.current === expectedUserId) {
+        setProfileRole(null);
+        setProfileError("تعذر التحقق من صلاحيات الحساب. حدّث الصفحة وحاول مجدداً.");
+      }
     } finally {
-      setProfileLoading(false);
+      if (requestVersion === profileRefreshVersion.current && currentUserId.current === expectedUserId) {
+        setProfileLoading(false);
+      }
     }
   }
 
@@ -89,16 +100,31 @@ export default function App() {
         setAuthMessage("تعذر التحقق من جلسة الدخول. حاول تحديث الصفحة.");
         return;
       }
+      currentUserId.current = data.session?.user?.id ?? null;
+      profileRefreshVersion.current += 1;
+      roleRequestVersion.current += 1;
+      setRoleRequest(null);
+      setRoleRequestMessage("");
+      setBusy(false);
       setUser(data.session?.user ? {id:data.session.user.id,email:data.session.user.email} : null);
     }).catch(() => {
       if (alive && !authEventReceived) setAuthMessage("تعذر الاتصال بخدمة تسجيل الدخول. تحقق من الاتصال ثم أعد المحاولة.");
     });
     const {data:{subscription}} = db.auth.onAuthStateChange((_event, session) => {
       authEventReceived = true;
-      // Clear any previous account's role before rendering the next auth state.
-      setProfileRole(null);
-      setProfileError("");
-      setProfileLoading(Boolean(session?.user));
+      const nextUserId = session?.user?.id ?? null;
+      const identityChanged = currentUserId.current !== nextUserId;
+      currentUserId.current = nextUserId;
+      if (identityChanged) {
+        profileRefreshVersion.current += 1;
+        roleRequestVersion.current += 1;
+        setRoleRequest(null);
+        setRoleRequestMessage("");
+        setBusy(false);
+        setProfileRole(null);
+        setProfileError("");
+        setProfileLoading(Boolean(session?.user));
+      }
       setUser(session?.user ? {id:session.user.id,email:session.user.email} : null);
     });
     refresh();
@@ -107,60 +133,125 @@ export default function App() {
 
   useEffect(() => {
     let active = true;
+    const requestVersion = ++profileRefreshVersion.current;
     if (!db || !user) {
       setProfileRole(null);
       setProfileLoading(false);
       setProfileError("");
-      return () => { active = false; };
+      return () => {
+        active = false;
+        if (profileRefreshVersion.current === requestVersion) profileRefreshVersion.current += 1;
+      };
+    }
+    if (currentUserId.current !== user.id) {
+      return () => {
+        active = false;
+        if (profileRefreshVersion.current === requestVersion) profileRefreshVersion.current += 1;
+      };
     }
 
     setProfileLoading(true);
     setProfileError("");
     getCurrentProfileRole(user.id)
-      .then((role) => { if (active) setProfileRole(role); })
+      .then((role) => {
+        if (active && requestVersion === profileRefreshVersion.current && currentUserId.current === user.id) {
+          setProfileRole(role);
+        }
+      })
       .catch(() => {
-        if (active) {
+        if (active && requestVersion === profileRefreshVersion.current && currentUserId.current === user.id) {
           setProfileRole(null);
           setProfileError("تعذر التحقق من صلاحيات الحساب. حدّث الصفحة وحاول مجدداً.");
         }
       })
-      .finally(() => { if (active) setProfileLoading(false); });
+      .finally(() => {
+        if (active && requestVersion === profileRefreshVersion.current && currentUserId.current === user.id) {
+          setProfileLoading(false);
+        }
+      });
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+      if (profileRefreshVersion.current === requestVersion) profileRefreshVersion.current += 1;
+    };
   }, [db, user?.id]);
 
   useEffect(() => {
     let active = true;
-    if (!db || !user) { setRoleRequest(null); return () => { active = false; }; }
+    const requestVersion = ++roleRequestVersion.current;
+    if (!db || !user || currentUserId.current !== user.id) {
+      setRoleRequest(null);
+      return () => {
+        active = false;
+        if (roleRequestVersion.current === requestVersion) roleRequestVersion.current += 1;
+      };
+    }
+    const requestUserId = user.id;
+    setRoleRequest(null);
     db.from("profile_role_requests")
       .select("id,requested_role,status")
-      .eq("user_id", user.id)
+      .eq("user_id", requestUserId)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
       .then(
-        ({ data }) => { if (active) setRoleRequest(data as typeof roleRequest); },
-        () => { if (active) setRoleRequest(null); }
+        ({ data }) => {
+          if (active && requestVersion === roleRequestVersion.current && currentUserId.current === requestUserId) {
+            setRoleRequest(data as typeof roleRequest);
+          }
+        },
+        () => {
+          if (active && requestVersion === roleRequestVersion.current && currentUserId.current === requestUserId) {
+            setRoleRequest(null);
+          }
+        }
       );
-    return () => { active = false; };
+    return () => {
+      active = false;
+      if (roleRequestVersion.current === requestVersion) roleRequestVersion.current += 1;
+    };
   }, [db, user?.id]);
 
   async function submitRoleRequest(requestedRole:"driver"|"owner") {
-    if (!db || !user || profileRole !== "user") return;
+    const expectedUserId = user?.id;
+    if (!db || !expectedUserId || currentUserId.current !== expectedUserId || profileRole !== "user") return;
+    const requestVersion = ++roleRequestVersion.current;
     setBusy(true); setRoleRequestMessage("");
     try {
+      const { data: authData, error: authError } = await db.auth.getUser();
+      if (authError) throw authError;
+      if (!authData.user || authData.user.id !== expectedUserId) {
+        throw new Error("The authenticated session changed before role request submission.");
+      }
+
       const { error } = await db.from("profile_role_requests").insert({
-        user_id:user.id, requested_role:requestedRole, status:"pending"
+        user_id:expectedUserId, requested_role:requestedRole, status:"pending"
       });
       if (error) throw error;
-      const { data } = await db.from("profile_role_requests")
-        .select("id,requested_role,status").eq("user_id",user.id)
+
+      const { data, error: readError } = await db.from("profile_role_requests")
+        .select("id,requested_role,status").eq("user_id",expectedUserId)
         .order("created_at",{ascending:false}).limit(1).maybeSingle();
+      if (readError) throw readError;
+
+      const { data: verifiedAuthData, error: verificationError } = await db.auth.getUser();
+      if (verificationError) throw verificationError;
+      if (!verifiedAuthData.user || verifiedAuthData.user.id !== expectedUserId) {
+        throw new Error("The authenticated session changed after role request submission.");
+      }
+      if (requestVersion !== roleRequestVersion.current || currentUserId.current !== expectedUserId) return;
+
       setRoleRequest(data as typeof roleRequest);
       setRoleRequestMessage("تم إرسال طلبك إلى الإدارة للمراجعة.");
     } catch {
-      setRoleRequestMessage("يوجد طلب قيد المراجعة أو تعذر إرسال الطلب. حدّث الصفحة للتحقق من حالته.");
-    } finally { setBusy(false); }
+      if (requestVersion === roleRequestVersion.current && currentUserId.current === expectedUserId) {
+        setRoleRequestMessage("يوجد طلب قيد المراجعة أو تعذر إرسال الطلب. حدّث الصفحة للتحقق من حالته.");
+      }
+    } finally {
+      if (requestVersion === roleRequestVersion.current && currentUserId.current === expectedUserId) {
+        setBusy(false);
+      }
+    }
   }
 
   const visible = useMemo(() => filterCargos(cargos, origin, destination, truck), [cargos, origin, destination, truck]);
@@ -204,7 +295,7 @@ export default function App() {
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
     setBusy(true);
     try {
-      await publishCargo(normalizedDraft);
+      await publishCargo(normalizedDraft,user.id);
       setDraft(initialDraft); setPublishMessage("تم إرسال الشحنة. سنحدّث القائمة.");
       await refresh();
     } catch { setPublishMessage("تعذر نشر الشحنة حالياً. تحقق من الاتصال والصلاحيات ثم حاول مجدداً."); }

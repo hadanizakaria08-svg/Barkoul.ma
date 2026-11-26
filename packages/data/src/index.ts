@@ -59,7 +59,7 @@ export async function getCurrentProfileRole(expectedUserId?: string): Promise<Pr
     : null;
 }
 
-export async function publishCargo(draft: CargoDraft): Promise<void> {
+export async function publishCargo(draft: CargoDraft, expectedUserId: string): Promise<void> {
   const db = getSupabase();
   if (!db) throw new Error("لم يتم إعداد اتصال قاعدة البيانات بعد.");
 
@@ -67,6 +67,9 @@ export async function publishCargo(draft: CargoDraft): Promise<void> {
   const { data, error: authError } = await db.auth.getUser();
   if (authError || !data.user) {
     throw new Error("يجب تسجيل الدخول قبل نشر الشحنة.");
+  }
+  if (!expectedUserId || data.user.id !== expectedUserId) {
+    throw new Error("The authenticated session does not match the user who started cargo publication.");
   }
 
   const { data: profile, error: profileError } = await db.from("profiles")
@@ -82,7 +85,9 @@ export async function publishCargo(draft: CargoDraft): Promise<void> {
   // This fails closed if the user signed out or switched accounts mid-request.
   const { data: verifiedAuthData, error: verificationError } = await db.auth.getUser();
   if (verificationError) throw verificationError;
-  if (!verifiedAuthData.user || verifiedAuthData.user.id !== data.user.id) {
+  if (!verifiedAuthData.user ||
+      verifiedAuthData.user.id !== data.user.id ||
+      verifiedAuthData.user.id !== expectedUserId) {
     throw new Error("The authenticated session changed before cargo publication.");
   }
 
