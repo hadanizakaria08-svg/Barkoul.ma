@@ -78,6 +78,14 @@ export async function publishCargo(draft: CargoDraft): Promise<void> {
     throw new Error("حسابك مسجل، لكن دورك الحالي لا يسمح بنشر الشحنات. يلزم تفعيل دور صاحب البضاعة من الإدارة.");
   }
 
+  // Re-verify identity after the profile read and immediately before writing.
+  // This fails closed if the user signed out or switched accounts mid-request.
+  const { data: verifiedAuthData, error: verificationError } = await db.auth.getUser();
+  if (verificationError) throw verificationError;
+  if (!verifiedAuthData.user || verifiedAuthData.user.id !== data.user.id) {
+    throw new Error("The authenticated session changed before cargo publication.");
+  }
+
   const { error } = await db.from("cargos").insert(
     buildCargoInsertPayload(draft, data.user.id)
   );
