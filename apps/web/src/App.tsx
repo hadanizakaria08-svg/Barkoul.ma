@@ -3,6 +3,7 @@ import { canPublishCargo, filterCargos, matchesGoodsCategory, normalizeCargoDraf
 import { getCurrentProfileRole, getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
 import AdminRoom from "./AdminRoom";
 import Workspace from "./Workspace";
+import { isPasswordBreached, meetsBarkoulPasswordPolicy } from "./security/pwned-password";
 
 const initialDraft: CargoDraft = {
   title: "", origin_city: "", destination_city: "", goods_type: "",
@@ -347,6 +348,23 @@ export default function App() {
     setBusy(true);
     setAuthMessage("");
     try {
+      if (authMode === "signup") {
+        if (!meetsBarkoulPasswordPolicy(password)) {
+          setAuthMessage("كلمة المرور يجب أن تكون 12 حرفاً على الأقل وتحتوي على حرف صغير وكبير ورقم ورمز.");
+          return;
+        }
+        let breached = false;
+        try {
+          breached = await isPasswordBreached(password);
+        } catch {
+          setAuthMessage("تعذر التحقق من كلمة المرور حالياً. تحقق من اتصال الإنترنت وحاول مجدداً؛ لم نرسل كلمة المرور إلى الخدمة.");
+          return;
+        }
+        if (breached) {
+          setAuthMessage("هذه كلمة المرور ظهرت في تسريبات معروفة. اختر كلمة مرور مختلفة تماماً.");
+          return;
+        }
+      }
       const result = authMode === "login"
         ? await db.auth.signInWithPassword({ email: email.trim(), password })
         : await db.auth.signUp({ email: email.trim(), password, options: { data: { full_name: fullName.trim() } } });
@@ -487,7 +505,7 @@ export default function App() {
             <form className="form-card" onSubmit={resetMode ? (e)=>{e.preventDefault();void sendPasswordReset();} : submitAuth}>
               {!resetMode && authMode === "signup" && <label>الاسم الكامل<input required maxLength={100} value={fullName} onChange={e=>setFullName(e.target.value)} autoComplete="name"/></label>}
               <label>البريد الإلكتروني<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label>
-              {!resetMode && <label>كلمة المرور<input type="password" minLength={6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
+              {!resetMode && <label>كلمة المرور<input type="password" minLength={authMode === "signup" ? 12 : 6} required value={password} onChange={e=>setPassword(e.target.value)} autoComplete={authMode==="login"?"current-password":"new-password"}/></label>}
               <button className="button button-primary" disabled={busy || !db}>{busy?"جارٍ التنفيذ…":resetMode?"إرسال رابط الاستعادة":authMode==="login"?"تسجيل الدخول":"إنشاء حساب"}</button>
               {!resetMode && authMode === "login" && <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void signInWithPasskey()}>{passkeyBusy?"جارٍ التحقق…":"الدخول بالبصمة أو مفتاح المرور"}</button>}
               {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
