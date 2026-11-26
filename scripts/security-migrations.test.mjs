@@ -263,6 +263,18 @@ describe("workspace mutation confirmation survives refresh failures", () => {
 });
 
 
+const cargoRefresh = app.split("async function refresh() {")[1]?.split("async function refreshProfileRole()")[0] ?? "";
+
+describe("public cargo refresh ordering", () => {
+  it("allows only the newest overlapping refresh to update cargo, error, and loading state", () => {
+    assert.ok(app.includes("const cargoRefreshVersion = useRef(0)"));
+    assert.ok(cargoRefresh.includes("const requestVersion = ++cargoRefreshVersion.current"));
+    assert.ok(cargoRefresh.includes("if (requestVersion !== cargoRefreshVersion.current) return;"));
+    assert.ok(cargoRefresh.includes("if (requestVersion === cargoRefreshVersion.current) {"));
+    assert.ok(cargoRefresh.includes("if (requestVersion === cargoRefreshVersion.current) setLoading(false);"));
+  });
+});
+
 describe("auth bootstrap ordering", () => {
   it("does not let a stale getSession result override a newer auth event", () => {
     const authEffect = app.split("let alive = true;")[1]?.split("refresh();")[0] ?? "";
