@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { canPublishCargo, filterCargos, matchesGoodsCategory, normalizeCargoDraft, TRUCK_TYPES, BUS_TYPES, validateCargoDraft, type Cargo, type CargoDraft, type ProfileRole } from "@barkoul/domain";
 import { getCurrentProfileRole, getSupabase, listOpenCargos, publishCargo } from "@barkoul/data";
 import AdminRoom from "./AdminRoom";
@@ -374,7 +374,7 @@ export default function App() {
     }
   }
 
-  async function refreshPasskeyStatus() {
+  const refreshPasskeyStatus = useCallback(async () => {
     if (!db || !user) { setPasskeyStatus("none"); return; }
     setPasskeyStatus("checking");
     try {
@@ -384,12 +384,12 @@ export default function App() {
     } catch {
       setPasskeyStatus("error");
     }
-  }
+  }, [db, user?.id]);
 
   useEffect(() => {
     if (!user) { setPasskeyStatus("checking"); return; }
     void refreshPasskeyStatus();
-  }, [db, user?.id]);
+  }, [user?.id, refreshPasskeyStatus]);
 
   async function signInWithPasskey() {
     if (!db) { setPasskeyMessage("خدمة الحسابات غير متاحة حالياً."); return; }
