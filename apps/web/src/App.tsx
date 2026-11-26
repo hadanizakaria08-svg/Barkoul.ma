@@ -211,6 +211,7 @@ export default function App() {
   const [authMessage, setAuthMessage] = useState("");
   const [passkeyMessage, setPasskeyMessage] = useState("");
   const [passkeyBusy, setPasskeyBusy] = useState(false);
+  const [passkeyStatus, setPasskeyStatus] = useState<"checking" | "registered" | "none" | "error">("checking");
   const [resetMode, setResetMode] = useState(false);
   const [draft, setDraft] = useState<CargoDraft>(initialDraft);
   const [cargoSpace, setCargoSpace] = useState<"نصف الشاحنة"|"شاحنة كاملة"|"حمولة جزئية أخرى">("شاحنة كاملة");
@@ -373,6 +374,23 @@ export default function App() {
     }
   }
 
+  async function refreshPasskeyStatus() {
+    if (!db || !user) { setPasskeyStatus("none"); return; }
+    setPasskeyStatus("checking");
+    try {
+      const { data, error } = await db.auth.passkey.list();
+      if (error) throw error;
+      setPasskeyStatus(Array.isArray(data) && data.length > 0 ? "registered" : "none");
+    } catch {
+      setPasskeyStatus("error");
+    }
+  }
+
+  useEffect(() => {
+    if (!user) { setPasskeyStatus("checking"); return; }
+    void refreshPasskeyStatus();
+  }, [db, user?.id]);
+
   async function signInWithPasskey() {
     if (!db) { setPasskeyMessage("خدمة الحسابات غير متاحة حالياً."); return; }
     if (!window.isSecureContext || !("credentials" in navigator) || !("PublicKeyCredential" in window)) {
@@ -407,6 +425,7 @@ export default function App() {
 
   async function registerPasskey() {
     if (!db || !user) { setPasskeyMessage("سجّل الدخول أولاً قبل إضافة مفتاح المرور."); return; }
+    if (passkeyStatus === "registered") { setPasskeyMessage("مفتاح المرور مسجّل بالفعل لهذا الحساب. يمكنك استخدام زر الدخول بالبصمة."); return; }
     if (!window.isSecureContext || !("credentials" in navigator) || !("PublicKeyCredential" in window)) {
       setPasskeyMessage("هذا المتصفح لا يدعم مفاتيح المرور هنا. افتح الموقع عبر HTTPS في متصفح حديث.");
       return;
@@ -415,6 +434,7 @@ export default function App() {
     try {
       const { data, error } = await db.auth.registerPasskey();
       if (error) throw error;
+      setPasskeyStatus("registered");
       setPasskeyMessage(data?.id ? "تم تسجيل مفتاح المرور على هذا الجهاز بنجاح." : "اكتملت عملية تسجيل مفتاح المرور.");
     } catch (error) {
       setPasskeyMessage(passkeyErrorMessage(error));
@@ -567,7 +587,10 @@ export default function App() {
           <section className="approved-login-card" id="entry-account" aria-labelledby="entry-account-title">
             {user ? <div className="entry-signed-in">
               <p className="eyebrow">مرحباً بعودتك</p><h2 id="entry-account-title">أنت مسجل الدخول بالفعل</h2>
-              <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void registerPasskey()}>{passkeyBusy?"جارٍ التسجيل…":"تفعيل الدخول بالبصمة على هذا الجهاز"}</button>
+              {passkeyStatus === "checking" && <p className="form-message" role="status">جارٍ التحقق من مفاتيح المرور المسجّلة…</p>}
+              {passkeyStatus === "registered" && <p className="form-message" role="status">مفتاح المرور مسجّل بالفعل لهذا الحساب. يمكنك استخدامه من زر «الدخول بالبصمة أو مفتاح المرور» عند الحاجة.</p>}
+              {passkeyStatus === "none" && <button type="button" className="button button-outline" disabled={passkeyBusy || !db} onClick={()=>void registerPasskey()}>{passkeyBusy?"جارٍ التسجيل…":"تفعيل الدخول بالبصمة على هذا الجهاز"}</button>}
+              {passkeyStatus === "error" && <div><p className="form-message" role="status">تعذر التحقق من المفاتيح المسجّلة. لم نحذف أو نغيّر أي مفتاح.</p><button type="button" className="button button-outline" onClick={()=>void refreshPasskeyStatus()}>إعادة التحقق</button></div>}
               {passkeyMessage && <p className="form-message" role="status">{passkeyMessage}</p>}
               <a className="button button-primary" href="?page=services">الدخول إلى الموقع</a>
             </div> : <>
