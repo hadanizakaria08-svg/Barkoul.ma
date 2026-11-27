@@ -382,3 +382,27 @@ describe("PostgreSQL multi-session concurrency regression coverage", () => {
     }
   });
 });
+
+
+describe("shared busy-operation lifecycle", () => {
+  it("does not let the initial session lookup clear a later user action", () => {
+    const bootstrap = app.split("db.auth.getSession()")[1]?.split("const {data:{subscription}}")[0] ?? "";
+    assert.equal(bootstrap.includes("setBusy(false)"), false);
+  });
+
+  it("allows only the current operation to release shared busy state", () => {
+    assert.ok(app.includes("const busyOperationVersion = useRef(0)"));
+    assert.ok(app.includes('const busyOperationKind = useRef<"auth" | "reset" | "role" | "cargo" | null>(null)'));
+    assert.ok(app.includes("function beginBusyOperation(kind:"));
+    assert.ok(app.includes("if (version !== busyOperationVersion.current) return;"));
+    assert.equal((app.match(/beginBusyOperation\("(?:auth|reset|role|cargo)"\)/g) ?? []).length, 4);
+    assert.equal((app.match(/finishBusyOperation\(busyVersion\)/g) ?? []).length, 4);
+  });
+
+  it("invalidates role and cargo busy state on an authenticated identity change", () => {
+    const authCallback = app.split("db.auth.onAuthStateChange")[1]?.split("refresh();")[0] ?? "";
+    assert.ok(authCallback.includes('busyOperationKind.current === "role" || busyOperationKind.current === "cargo"'));
+    assert.ok(authCallback.includes("busyOperationVersion.current += 1"));
+    assert.ok(authCallback.includes("busyOperationKind.current = null"));
+  });
+});
