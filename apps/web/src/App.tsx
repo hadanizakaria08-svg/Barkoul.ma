@@ -42,6 +42,21 @@ export default function App() {
   const currentUserId = useRef<string | null>(null);
   const profileRefreshVersion = useRef(0);
   const roleRequestVersion = useRef(0);
+  const busyOperationVersion = useRef(0);
+  const busyOperationKind = useRef<"auth" | "reset" | "role" | "cargo" | null>(null);
+
+  function beginBusyOperation(kind: "auth" | "reset" | "role" | "cargo") {
+    const version = ++busyOperationVersion.current;
+    busyOperationKind.current = kind;
+    setBusy(true);
+    return version;
+  }
+
+  function finishBusyOperation(version: number) {
+    if (version !== busyOperationVersion.current) return;
+    busyOperationKind.current = null;
+    setBusy(false);
+  }
 
   useEffect(() => {
     const syncRoute = () => setAdminRoute(window.location.hash === "#admin");
@@ -105,7 +120,6 @@ export default function App() {
       roleRequestVersion.current += 1;
       setRoleRequest(null);
       setRoleRequestMessage("");
-      setBusy(false);
       setUser(data.session?.user ? {id:data.session.user.id,email:data.session.user.email} : null);
     }).catch(() => {
       if (alive && !authEventReceived) setAuthMessage("تعذر الاتصال بخدمة تسجيل الدخول. تحقق من الاتصال ثم أعد المحاولة.");
@@ -120,7 +134,11 @@ export default function App() {
         roleRequestVersion.current += 1;
         setRoleRequest(null);
         setRoleRequestMessage("");
-        setBusy(false);
+        if (busyOperationKind.current === "role" || busyOperationKind.current === "cargo") {
+          busyOperationVersion.current += 1;
+          busyOperationKind.current = null;
+          setBusy(false);
+        }
         setProfileRole(null);
         setProfileError("");
         setProfileLoading(Boolean(session?.user));
@@ -216,7 +234,8 @@ export default function App() {
     const expectedUserId = user?.id;
     if (!db || !expectedUserId || currentUserId.current !== expectedUserId || profileRole !== "user") return;
     const requestVersion = ++roleRequestVersion.current;
-    setBusy(true); setRoleRequestMessage("");
+    const busyVersion = beginBusyOperation("role");
+    setRoleRequestMessage("");
     try {
       const { data: authData, error: authError } = await db.auth.getUser();
       if (authError) throw authError;
@@ -248,9 +267,7 @@ export default function App() {
         setRoleRequestMessage("يوجد طلب قيد المراجعة أو تعذر إرسال الطلب. حدّث الصفحة للتحقق من حالته.");
       }
     } finally {
-      if (requestVersion === roleRequestVersion.current && currentUserId.current === expectedUserId) {
-        setBusy(false);
-      }
+      finishBusyOperation(busyVersion);
     }
   }
 
@@ -258,7 +275,8 @@ export default function App() {
 
   async function submitAuth(event: FormEvent) {
     event.preventDefault(); if (!db) return;
-    setBusy(true); setAuthMessage("");
+    const busyVersion = beginBusyOperation("auth");
+    setAuthMessage("");
     try {
       const result = authMode === "login"
         ? await db.auth.signInWithPassword({email:email.trim(),password})
@@ -269,18 +287,19 @@ export default function App() {
         ? "تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك."
         : "تمت العملية بنجاح.");
     } catch { setAuthMessage("تعذر إتمام العملية. تحقق من البيانات والاتصال ثم حاول مجدداً."); }
-    finally { setBusy(false); }
+    finally { finishBusyOperation(busyVersion); }
   }
 
   async function sendPasswordReset() {
     if (!db || !email.trim()) { setAuthMessage("أدخل بريدك الإلكتروني أولاً."); return; }
-    setBusy(true); setAuthMessage("");
+    const busyVersion = beginBusyOperation("reset");
+    setAuthMessage("");
     try {
       const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + window.location.pathname });
       if (error) throw error;
       setAuthMessage("إذا كان البريد مسجلاً، فستصلك رسالة لإعادة تعيين كلمة المرور.");
     } catch { setAuthMessage("تعذر إرسال رسالة الاستعادة حالياً. حاول مجدداً لاحقاً."); }
-    finally { setBusy(false); }
+    finally { finishBusyOperation(busyVersion); }
   }
 
   async function submitCargo(event: FormEvent) {
@@ -293,13 +312,13 @@ export default function App() {
     const normalizedDraft = normalizeCargoDraft(draft);
     const errors = validateCargoDraft(normalizedDraft, todayLocal());
     if (errors.length) { setPublishMessage(errors.join(" ")); return; }
-    setBusy(true);
+    const busyVersion = beginBusyOperation("cargo");
     try {
       await publishCargo(normalizedDraft,user.id);
       setDraft(initialDraft); setPublishMessage("تم إرسال الشحنة. سنحدّث القائمة.");
       await refresh();
     } catch { setPublishMessage("تعذر نشر الشحنة حالياً. تحقق من الاتصال والصلاحيات ثم حاول مجدداً."); }
-    finally { setBusy(false); }
+    finally { finishBusyOperation(busyVersion); }
   }
 
   if (adminRoute) {
