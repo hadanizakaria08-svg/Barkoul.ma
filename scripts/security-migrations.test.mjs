@@ -203,7 +203,7 @@ describe("administrator document review access", () => {
   });
 
   it("creates short-lived document links only when an administrator requests one", () => {
-    assert.ok(adminRoom.includes('createSignedUrl(path,300)'));
+    assert.ok(adminRoom.includes('createSignedUrl(path, 300)'));
     assert.ok(adminRoom.includes('createDocumentLink(d.id,d.storage_path)'));
     assert.equal(adminRoom.includes('Promise.all((docsRes.data??[]).map(async(d:any)=>{'), false);
     assert.ok(adminRoom.includes('referrerPolicy="no-referrer"'));
@@ -230,7 +230,7 @@ describe("administrator session and signed document link lifecycle", () => {
     assert.ok(adminRoom.includes("setAudit([])"));
     assert.ok(adminRoom.includes("setAdminCargos([])"));
     assert.ok(adminRoom.includes("setCharges([])"));
-    assert.ok(adminRoom.includes("sessionVersion !== adminSessionVersion.current"));
+    assert.ok(adminRoom.includes("isCurrentAdminSession(sessionVersion, expectedAdminUserId)"));
   });
 });
 
