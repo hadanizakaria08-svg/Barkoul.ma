@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ProfileRole } from "@barkoul/domain";
 import { getSupabase } from "@barkoul/data";
 import { isAdminSessionCurrent } from "./admin-session";
@@ -47,9 +47,11 @@ export default function AdminRoom({
   const documentLinkTimers = useRef<Record<number, number>>({});
   const adminSessionVersion = useRef(0);
   const activeAdminUserId = useRef<string | null>(null);
-  // Update synchronously during render so a previous session is invalidated
-  // before effects or stale promises get another chance to write into state.
-  activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;
+  // Update after commit but before paint; stale promises cannot write into a
+  // different administrator's state, and abandoned renders cannot mutate refs.
+  useLayoutEffect(() => {
+    activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;
+  }, [user?.id, profileRole]);
   const isCurrentAdminSession = useCallback(
     (sessionVersion: number, expectedAdminUserId: string) =>
       isAdminSessionCurrent(
