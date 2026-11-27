@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ProfileRole } from "@barkoul/domain";
 import { getSupabase } from "@barkoul/data";
+import { isAdminSessionCurrent } from "./admin-session";
 
 interface AdminRoomProps {
   user: { id: string; email?: string } | null;
@@ -45,6 +46,20 @@ export default function AdminRoom({
   const [adminDataError,setAdminDataError]=useState("");
   const documentLinkTimers = useRef<Record<number, number>>({});
   const adminSessionVersion = useRef(0);
+  const activeAdminUserId = useRef<string | null>(null);
+  // Update synchronously during render so a previous session is invalidated
+  // before effects or stale promises get another chance to write into state.
+  activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;
+  const isCurrentAdminSession = useCallback(
+    (sessionVersion: number, expectedAdminUserId: string) =>
+      isAdminSessionCurrent(
+        sessionVersion,
+        adminSessionVersion.current,
+        expectedAdminUserId,
+        activeAdminUserId.current
+      ),
+    []
+  );
   const homeLink = <a className="button button-light" href="#">العودة إلى المنصة</a>;
   const clearDocumentLinkTimers = useCallback(() => {
     for (const timer of Object.values(documentLinkTimers.current)) window.clearTimeout(timer);
@@ -53,7 +68,8 @@ export default function AdminRoom({
 
   const loadRequests = useCallback(async () => {
     const db = getSupabase();
-    if (!db) return;
+    const expectedAdminUserId = activeAdminUserId.current;
+    if (!db || !expectedAdminUserId) return;
     const sessionVersion = adminSessionVersion.current;
     setLoadingRequests(true); setRequestError("");
     try {
@@ -61,86 +77,145 @@ export default function AdminRoom({
         .select("id,user_id,requested_role,status,created_at")
         .eq("status", "pending").order("created_at", { ascending: true });
       if (error) throw error;
-      if (sessionVersion === adminSessionVersion.current) setRequests((data ?? []) as RoleRequest[]);
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
+        setRequests((data ?? []) as RoleRequest[]);
+      }
     } catch {
-      if (sessionVersion === adminSessionVersion.current) {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
         setRequestError("تعذر تحميل الطلبات. تحقق من الاتصال وصلاحيات قاعدة البيانات.");
       }
     } finally {
-      if (sessionVersion === adminSessionVersion.current) setLoadingRequests(false);
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) setLoadingRequests(false);
     }
-  }, []);
+  }, [isCurrentAdminSession]);
 
   const loadAdminData = useCallback(async () => {
-    const db=getSupabase(); if(!db||profileRole!=="admin")return;
+    const db = getSupabase();
+    const expectedAdminUserId = activeAdminUserId.current;
+    if (!db || !expectedAdminUserId) return;
     const sessionVersion = adminSessionVersion.current;
     setAdminDataError("");
     try {
-      const [docsRes,auditRes,cargoRes,chargesRes]=await Promise.all([
-        db.from("driver_documents").select("id,driver_id,document_type,storage_path,review_status,uploaded_at").order("uploaded_at",{ascending:false}).limit(100),
-        db.from("admin_audit_log").select("id,admin_id,action,target_table,target_id,created_at").order("created_at",{ascending:false}).limit(50),
-        db.from("cargos").select("id,title,origin_city,destination_city,status,created_at").order("created_at",{ascending:false}).limit(100),
-        db.from("commission_charges").select("id,trip_id,payer_id,payer_role,amount_mad,status,payment_method,payment_reference,created_at").order("created_at",{ascending:false}).limit(100)
+      const [docsRes, auditRes, cargoRes, chargesRes] = await Promise.all([
+        db.from("driver_documents").select("id,driver_id,document_type,storage_path,review_status,uploaded_at").order("uploaded_at", { ascending: false }).limit(100),
+        db.from("admin_audit_log").select("id,admin_id,action,target_table,target_id,created_at").order("created_at", { ascending: false }).limit(50),
+        db.from("cargos").select("id,title,origin_city,destination_city,status,created_at").order("created_at", { ascending: false }).limit(100),
+        db.from("commission_charges").select("id,trip_id,payer_id,payer_role,amount_mad,status,payment_method,payment_reference,created_at").order("created_at", { ascending: false }).limit(100)
       ]);
-      if(docsRes.error||auditRes.error||cargoRes.error||chargesRes.error)throw new Error("Admin data read failed");
-      if (sessionVersion !== adminSessionVersion.current) return;
+      if (docsRes.error || auditRes.error || cargoRes.error || chargesRes.error) {
+        throw new Error("Admin data read failed");
+      }
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
       clearDocumentLinkTimers();
-      setDocuments((docsRes.data??[]) as DriverDocument[]);
+      setDocuments((docsRes.data ?? []) as DriverDocument[]);
       setDocumentLinks({});
       setDocumentLinkErrors({});
-      setAudit((auditRes.data??[]) as AuditEntry[]);setAdminCargos((cargoRes.data??[]) as AdminCargo[]);setCharges((chargesRes.data??[]) as CommissionCharge[]);
+      setAudit((auditRes.data ?? []) as AuditEntry[]);
+      setAdminCargos((cargoRes.data ?? []) as AdminCargo[]);
+      setCharges((chargesRes.data ?? []) as CommissionCharge[]);
     } catch {
-      if (sessionVersion === adminSessionVersion.current) setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
+        setAdminDataError("تعذر تحميل بيانات الإدارة. تحقق من سياسات القراءة والاتصال.");
+      }
     }
-  },[profileRole, clearDocumentLinkTimers]);
+  }, [clearDocumentLinkTimers, isCurrentAdminSession]);
 
-  async function createDocumentLink(id:number,path:string){
-    const db=getSupabase();if(!db||profileRole!=="admin"||!user)return;
+  async function createDocumentLink(id: number, path: string) {
+    const db = getSupabase();
+    const expectedAdminUserId = activeAdminUserId.current;
+    if (!db || !expectedAdminUserId) return;
     const sessionVersion = adminSessionVersion.current;
     setOpeningDocumentId(id);
-    setDocumentLinkErrors(old=>({...old,[id]:""}));
-    try{
-      const {data,error}=await db.storage.from("driver-documents").createSignedUrl(path,300);
-      if(error||!data?.signedUrl)throw new Error("Signed URL unavailable");
-      if (sessionVersion !== adminSessionVersion.current) return;
+    setDocumentLinkErrors(old => ({ ...old, [id]: "" }));
+    try {
+      const { data, error } = await db.storage.from("driver-documents").createSignedUrl(path, 300);
+      if (error || !data?.signedUrl) throw new Error("Signed URL unavailable");
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
       const previousTimer = documentLinkTimers.current[id];
       if (previousTimer !== undefined) window.clearTimeout(previousTimer);
-      setDocumentLinks(old=>({...old,[id]:data.signedUrl}));
+      setDocumentLinks(old => ({ ...old, [id]: data.signedUrl }));
       documentLinkTimers.current[id] = window.setTimeout(() => {
+        if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
         delete documentLinkTimers.current[id];
-        setDocumentLinks(old=>{
+        setDocumentLinks(old => {
           if (old[id] !== data.signedUrl) return old;
-          const next={...old};delete next[id];return next;
+          const next = { ...old };
+          delete next[id];
+          return next;
         });
-        if (sessionVersion === adminSessionVersion.current) {
-          setDocumentLinkErrors(old=>({...old,[id]:"انتهت صلاحية الرابط المؤقت. أنشئ رابطاً جديداً."}));
-        }
+        setDocumentLinkErrors(old => ({ ...old, [id]: "انتهت صلاحية الرابط المؤقت. أنشئ رابطاً جديداً." }));
       }, SIGNED_DOCUMENT_URL_CLEAR_MS);
-    }catch{
-      if (sessionVersion === adminSessionVersion.current) {
-        setDocumentLinks(old=>{const next={...old};delete next[id];return next;});
-        setDocumentLinkErrors(old=>({...old,[id]:"تعذر إنشاء رابط مؤقت. تحقق من صلاحية الوثيقة ثم أعد المحاولة."}));
+    } catch {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
+        setDocumentLinks(old => { const next = { ...old }; delete next[id]; return next; });
+        setDocumentLinkErrors(old => ({ ...old, [id]: "تعذر إنشاء رابط مؤقت. تحقق من صلاحية الوثيقة ثم أعد المحاولة." }));
       }
-    }finally{
-      if (sessionVersion === adminSessionVersion.current) setOpeningDocumentId(null);
+    } finally {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) setOpeningDocumentId(null);
     }
   }
 
-  async function recordCommission(id:number,method:"cash"|"electronic"){
-    const db=getSupabase();if(!db||profileRole!=="admin")return;
-    if(method==="electronic"&&!paymentReference.trim()){setActionMessage("أدخل مرجع العملية الإلكترونية بعد التحقق منها.");return;}
-    setBusyId(id);setActionMessage("");
-    try{const {error}=await db.rpc("admin_record_commission_payment",{p_charge_id:id,p_method:method,p_reference:method==="electronic"?paymentReference.trim():null});
-      if(error)throw error;setPaymentReference("");setActionMessage("تم تسجيل التحصيل بعد التحقق.");await loadAdminData();
-    }catch{setActionMessage("تعذر تسجيل التحصيل. تحقق من حالة العمولة والمرجع.");}finally{setBusyId(null);}
+  async function recordCommission(id: number, method: "cash" | "electronic") {
+    const db = getSupabase();
+    const expectedAdminUserId = activeAdminUserId.current;
+    if (!db || !expectedAdminUserId) return;
+    const sessionVersion = adminSessionVersion.current;
+    if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
+    if (method === "electronic" && !paymentReference.trim()) {
+      setActionMessage("أدخل مرجع العملية الإلكترونية بعد التحقق منها.");
+      return;
+    }
+    setBusyId(id);
+    setActionMessage("");
+    try {
+      const { data: authData, error: authError } = await db.auth.getUser();
+      if (authError || authData.user?.id !== expectedAdminUserId) throw new Error("Admin session changed");
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
+      const { error } = await db.rpc("admin_record_commission_payment", {
+        p_charge_id: id,
+        p_method: method,
+        p_reference: method === "electronic" ? paymentReference.trim() : null
+      });
+      if (error) throw error;
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
+      setPaymentReference("");
+      setActionMessage("تم تسجيل التحصيل بعد التحقق.");
+      await loadAdminData();
+    } catch {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
+        setActionMessage("تعذر تسجيل التحصيل. تحقق من حالة العمولة والمرجع.");
+      }
+    } finally {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) setBusyId(null);
+    }
   }
 
-  async function reviewDocument(id:number,status:"verified"|"rejected"){
-    const db=getSupabase();if(!db||profileRole!=="admin")return;
-    setBusyId(id);setActionMessage("");
-    try{const {error}=await db.rpc("admin_review_driver_document",{p_document_id:id,p_status:status});
-      if(error)throw error;setActionMessage(status==="verified"?"تم اعتماد الوثيقة.":"تم رفض الوثيقة.");await loadAdminData();
-    }catch{setActionMessage("تعذر تحديث حالة الوثيقة.");}finally{setBusyId(null);}
+  async function reviewDocument(id: number, status: "verified" | "rejected") {
+    const db = getSupabase();
+    const expectedAdminUserId = activeAdminUserId.current;
+    if (!db || !expectedAdminUserId) return;
+    const sessionVersion = adminSessionVersion.current;
+    setBusyId(id);
+    setActionMessage("");
+    try {
+      const { data: authData, error: authError } = await db.auth.getUser();
+      if (authError || authData.user?.id !== expectedAdminUserId) throw new Error("Admin session changed");
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
+      const { error } = await db.rpc("admin_review_driver_document", {
+        p_document_id: id,
+        p_status: status
+      });
+      if (error) throw error;
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
+      setActionMessage(status === "verified" ? "تم اعتماد الوثيقة." : "تم رفض الوثيقة.");
+      await loadAdminData();
+    } catch {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
+        setActionMessage("تعذر تحديث حالة الوثيقة.");
+      }
+    } finally {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) setBusyId(null);
+    }
   }
 
   useEffect(() => {
@@ -150,6 +225,8 @@ export default function AdminRoom({
     setDocumentLinks({});
     setDocumentLinkErrors({});
     setOpeningDocumentId(null);
+    setBusyId(null);
+    setLoadingRequests(false);
     setRequests([]);
     setDocuments([]);
     setAudit([]);
@@ -175,19 +252,31 @@ export default function AdminRoom({
 
   async function reviewRequest(id: number, approve: boolean) {
     const db = getSupabase();
-    if (!db || profileRole !== "admin") return;
-    setBusyId(id); setActionMessage("");
+    const expectedAdminUserId = activeAdminUserId.current;
+    if (!db || !expectedAdminUserId) return;
+    const sessionVersion = adminSessionVersion.current;
+    setBusyId(id);
+    setActionMessage("");
     try {
+      const { data: authData, error: authError } = await db.auth.getUser();
+      if (authError || authData.user?.id !== expectedAdminUserId) throw new Error("Admin session changed");
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
       const { error } = await db.rpc("admin_review_role_request", {
-        p_request_id: id, p_approve: approve
+        p_request_id: id,
+        p_approve: approve
       });
       if (error) throw error;
+      if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;
       setActionMessage(approve ? "تم اعتماد الطلب وتفعيل الدور." : "تم رفض الطلب.");
       await loadRequests();
       await loadAdminData();
     } catch {
-      setActionMessage("تعذر تنفيذ القرار. ربما تمت مراجعة الطلب مسبقاً؛ حدّث القائمة.");
-    } finally { setBusyId(null); }
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) {
+        setActionMessage("تعذر تنفيذ القرار. ربما تمت مراجعة الطلب مسبقاً؛ حدّث القائمة.");
+      }
+    } finally {
+      if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) setBusyId(null);
+    }
   }
 
   if (!user) {
