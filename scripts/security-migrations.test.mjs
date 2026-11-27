@@ -406,3 +406,40 @@ describe("shared busy-operation lifecycle", () => {
     assert.ok(authCallback.includes("busyOperationKind.current = null"));
   });
 });
+
+
+describe("administrator actions are bound to the active admin session", () => {
+  it("invalidates the prior admin identity synchronously during render", () => {
+    assert.ok(adminRoom.includes('const activeAdminUserId = useRef<string | null>(null)'));
+    assert.ok(adminRoom.includes('activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;'));
+    assert.ok(adminRoom.includes("isAdminSessionCurrent("));
+  });
+
+  it("checks the server-authenticated administrator before each administrative RPC", () => {
+    const actions = [
+      ["async function recordCommission", 'db.rpc("admin_record_commission_payment"'],
+      ["async function reviewDocument", 'db.rpc("admin_review_driver_document"'],
+      ["async function reviewRequest", 'db.rpc("admin_review_role_request"']
+    ];
+    for (const [start, rpc] of actions) {
+      const body = adminRoom.split(start)[1]?.split("\n  }")[0] ?? "";
+      const identityCheck = body.indexOf("db.auth.getUser()");
+      const rpcCall = body.indexOf(rpc);
+      assert.ok(identityCheck >= 0, start + " must verify the authenticated user");
+      assert.ok(rpcCall > identityCheck, start + " must verify identity before its RPC");
+      assert.ok(body.includes("if (!isCurrentAdminSession(sessionVersion, expectedAdminUserId)) return;"));
+      assert.ok(body.includes("if (isCurrentAdminSession(sessionVersion, expectedAdminUserId)) setBusyId(null);"));
+    }
+  });
+
+  it("guards admin reads and signed document links against stale sessions", () => {
+    for (const marker of [
+      "const loadRequests = useCallback",
+      "const loadAdminData = useCallback",
+      "async function createDocumentLink"
+    ]) {
+      const body = adminRoom.split(marker)[1]?.split("\n  }")[0] ?? "";
+      assert.ok(body.includes("isCurrentAdminSession("), marker + " must use the session guard");
+    }
+  });
+});
