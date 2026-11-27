@@ -411,6 +411,7 @@ describe("shared busy-operation lifecycle", () => {
 describe("administrator actions are bound to the active admin session", () => {
   it("invalidates the prior admin identity synchronously during render", () => {
     assert.ok(adminRoom.includes('const activeAdminUserId = useRef<string | null>(null)'));
+    assert.ok(adminRoom.includes("useLayoutEffect(() => {"));
     assert.ok(adminRoom.includes('activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;'));
     assert.ok(adminRoom.includes("isAdminSessionCurrent("));
   });
