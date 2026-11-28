@@ -47,11 +47,6 @@ export default function AdminRoom({
   const documentLinkTimers = useRef<Record<number, number>>({});
   const adminSessionVersion = useRef(0);
   const activeAdminUserId = useRef<string | null>(null);
-  // Update after commit but before paint; stale promises cannot write into a
-  // different administrator's state, and abandoned renders cannot mutate refs.
-  useLayoutEffect(() => {
-    activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;
-  }, [user?.id, profileRole]);
   const isCurrentAdminSession = useCallback(
     (sessionVersion: number, expectedAdminUserId: string) =>
       isAdminSessionCurrent(
@@ -220,7 +215,10 @@ export default function AdminRoom({
     }
   }
 
-  useEffect(() => {
+  // Invalidate the previous administrator and clear private UI state in the
+  // layout phase, before a newly committed account can paint the prior data.
+  useLayoutEffect(() => {
+    activeAdminUserId.current = user && profileRole === "admin" ? user.id : null;
     adminSessionVersion.current += 1;
     const sessionVersion = adminSessionVersion.current;
     clearDocumentLinkTimers();
@@ -239,18 +237,22 @@ export default function AdminRoom({
     setAdminDataError("");
     setActionMessage("");
 
+    return () => {
+      if (adminSessionVersion.current === sessionVersion) adminSessionVersion.current += 1;
+      clearDocumentLinkTimers();
+    };
+  }, [user?.id, profileRole, clearDocumentLinkTimers]);
+
+  // Network reads stay in a passive effect; the layout phase above only
+  // invalidates old work and removes data belonging to the previous session.
+  useEffect(() => {
     if (user && profileRole === "admin") {
       void loadRequests();
       void loadAdminData();
     } else {
       setLoadingRequests(false);
     }
-
-    return () => {
-      if (adminSessionVersion.current === sessionVersion) adminSessionVersion.current += 1;
-      clearDocumentLinkTimers();
-    };
-  }, [user?.id, profileRole, loadRequests, loadAdminData, clearDocumentLinkTimers]);
+  }, [user?.id, profileRole, loadRequests, loadAdminData]);
 
   async function reviewRequest(id: number, approve: boolean) {
     const db = getSupabase();
