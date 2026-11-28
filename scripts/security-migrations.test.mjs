@@ -416,6 +416,19 @@ describe("administrator actions are bound to the active admin session", () => {
     assert.ok(adminRoom.includes("isAdminSessionCurrent("));
   });
 
+  it("clears private administrator data before a changed account can paint", () => {
+    const layoutReset = adminRoom.split("useLayoutEffect(() => {")[1]?.split("}, [user?.id, profileRole, clearDocumentLinkTimers]);")[0] ?? "";
+    for (const reset of [
+      "setRequests([])", "setDocuments([])", "setAudit([])", "setAdminCargos([])",
+      "setCharges([])", "setDocumentLinks({})", "setDocumentLinkErrors({})",
+      "setPaymentReference(\"\")", "setActionMessage(\"\")"
+    ]) assert.ok(layoutReset.includes(reset), reset + " must run before paint");
+    assert.equal(layoutReset.includes("loadAdminData()"), false);
+    const passiveLoad = adminRoom.split("useEffect(() => {")[1]?.split("}, [user?.id, profileRole, loadRequests, loadAdminData]);")[0] ?? "";
+    assert.ok(passiveLoad.includes("loadRequests()"));
+    assert.ok(passiveLoad.includes("loadAdminData()"));
+  });
+
   it("checks the server-authenticated administrator before each administrative RPC", () => {
     const actions = [
       ["async function recordCommission", 'db.rpc("admin_record_commission_payment"'],
